@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 // Reusable components
-import StatCard from "@/components/composite/Statcard";
+import StatCard from "@/components/composite/StatCard";
 import { Badge } from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import PageHeader from "@/components/layout/PageHeader";
