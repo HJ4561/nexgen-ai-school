@@ -17,7 +17,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://school-backend-new-rho.vercel.app', // ✅ Updated to your backend
+        target: 'https://school-backend-new-rho.vercel.app',
         changeOrigin: true,
         secure: false,
       }
@@ -27,12 +27,28 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'redux-vendor': ['@reduxjs/toolkit', 'react-redux'],
-          'ui-vendor': ['lucide-react', 'framer-motion'],
-          'chart-vendor': ['recharts'],
-          'api-vendor': ['axios'],
+        // ✅ Fix: Use a function for manualChunks
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            // Split vendor chunks
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@reduxjs') || id.includes('react-redux')) {
+              return 'redux-vendor';
+            }
+            if (id.includes('lucide-react') || id.includes('framer-motion')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('recharts')) {
+              return 'chart-vendor';
+            }
+            if (id.includes('axios')) {
+              return 'api-vendor';
+            }
+            // Default vendor chunk
+            return 'vendor';
+          }
         },
       },
     },
