@@ -22,14 +22,8 @@
 }
 
 @keyframes enter {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ─── Fade In ──────────────────────────────────────────────────────────── */
@@ -40,14 +34,8 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Grow Bar ─────────────────────────────────────────────────────────── */
@@ -59,63 +47,37 @@
 }
 
 @keyframes growBar {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
 }
 
 /* ─── Blob Animations ──────────────────────────────────────────────────── */
 @keyframes blob {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -30px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
 }
 
-.animate-blob {
-  animation: blob 8s ease-in-out infinite;
-}
-
-.animate-blob-slow {
-  animation: blob 12s ease-in-out infinite;
-}
+.animate-blob { animation: blob 8s ease-in-out infinite; }
+.animate-blob-slow { animation: blob 12s ease-in-out infinite; }
 
 /* ─── Pulse Soft ───────────────────────────────────────────────────────── */
 @keyframes pulse-soft {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
-.animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
-}
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
 
 /* ─── Chevron Nudge ───────────────────────────────────────────────────── */
-.chevron-nudge {
-  transition: transform 0.2s ease;
-}
-
-.group:hover .chevron-nudge {
-  transform: translateX(3px);
-}
+.chevron-nudge { transition: transform 0.2s ease; }
+.group:hover .chevron-nudge { transform: translateX(3px); }
 
 /* ─── Background Patterns ─────────────────────────────────────────────── */
 .bg-grid-dark {
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -125,15 +87,8 @@
 }
 
 /* ─── Shadows ──────────────────────────────────────────────────────────── */
-.shadow-soft {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-}
-
-/* ─── Button Styles ───────────────────────────────────────────────────── */
-.rounded-button {
-  border-radius: 8px;
-  padding: 8px 20px;
-}
+.shadow-soft { box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+.rounded-button { border-radius: 8px; padding: 8px 20px; }
 
 /* ─── Nav Link Hover ──────────────────────────────────────────────────── */
 .nav-link {
@@ -156,6 +111,4 @@
   border-radius: 2px;
 }
 
-.nav-link:hover::after {
-  transform: scaleX(1);
-}
+.nav-link:hover::after { transform: scaleX(1); }
