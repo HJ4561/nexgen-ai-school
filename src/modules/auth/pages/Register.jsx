@@ -266,12 +266,12 @@ function Register() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-text-primary">Create account</h2>
-        <p className="mt-1 text-sm text-text-secondary">
-          Select your role, fill in your details, and wait for admin approval.
-        </p>
-      </div>
+<div className="text-center">
+  <h2 className="text-2xl font-bold text-text-primary">Create account</h2>
+  <p className="mt-1 text-sm text-text-secondary">
+    Select your role, fill in your details, and wait for admin approval.
+  </p>
+</div>
 
       {/* Role selector cards */}
       <div className="grid grid-cols-3 gap-3">
