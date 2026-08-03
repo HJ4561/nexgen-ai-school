@@ -1,7 +1,9 @@
 ﻿// src/services/api.js
+// src/services/api.js
 import axios from "axios";
 
-const API_BASE_URL = "https://school-backend-new-rho.vercel.app/api";
+// Use environment variable with fallback
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://school-backend-new-rho.vercel.app/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,11 +13,27 @@ const api = axios.create({
   timeout: 30000,
 });
 
+
+// Helper to get auth data
+const getAuthData = () => {
+  try {
+    const data = localStorage.getItem("auth_data");
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+};
+
+// Helper to get token
+const getToken = () => {
+  const authData = getAuthData();
+  return authData.access || localStorage.getItem("access_token");
+};
+
 // Request interceptor - Add token to every request
 api.interceptors.request.use(
   (config) => {
-    const authData = JSON.parse(localStorage.getItem("auth_data") || "{}");
-    const token = authData.access || localStorage.getItem("access_token");
+    const token = getToken();
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -31,7 +49,7 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - Handle 401 by redirecting to login
+// Response interceptor - Handle 401 by refreshing token
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -44,7 +62,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        const authData = JSON.parse(localStorage.getItem("auth_data") || "{}");
+        const authData = getAuthData();
         const refreshToken = authData.refresh;
         
         if (refreshToken) {
@@ -65,9 +83,16 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error("❌ Token refresh failed:", refreshError);
+        // Clear auth data and redirect to login
         localStorage.removeItem("auth_data");
+        localStorage.removeItem("access_token");
         localStorage.removeItem("user_role");
-        window.location.href = "/login";
+        localStorage.removeItem("user");
+        
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes("/login")) {
+          window.location.href = "/login";
+        }
       }
     }
     
