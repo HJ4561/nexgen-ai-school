@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!--
+============================================
+INDEX.HTML
+============================================
+
+Purpose: Entry point for the NexGen School Frontend application
+Used by: Vite build tool
+
+Features:
+- UTF-8 character encoding
+- Mobile-responsive viewport
+- Material Symbols font integration
+- React root element
+- Vite module script entry point
+
+Dependencies:
+- Material Symbols font (Google Fonts)
+- Vite build tool
+============================================
+-->
+
+<html lang="en">
+  <head>
+    <!-- ==========================================
+         META TAGS
+         ========================================== -->
+    
+    <!-- Character encoding for proper text rendering -->
+    <meta charset="UTF-8" />
+    
+    <!-- Favicon for browser tabs and bookmarks -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!--
+    Viewport settings for responsive design
+    - width=device-width: Match the device's screen width
+    - initial-scale=1.0: Start at 100% zoom level
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!--
+    Page title displayed in browser tabs
+    TODO: Update to the actual application name
+    -->
+    <title>frontend</title>
+    
+    <!--
+    ==========================================
+    FONTS
+    ==========================================
+    
+    Material Symbols font for icons
+    - wght: 100-700 (font weight)
+    - FILL: 0-1 (filled vs outlined)
+    - display=swap: Fallback to system fonts while loading
+    -->
+    <link 
+      rel="stylesheet" 
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" 
+    />
+  </head>
+  
+  <body>
+    <!--
+    ==========================================
+    REACT ROOT ELEMENT
+    ==========================================
+    
+    This div serves as the mounting point for the React application.
+    The ReactDOM.createRoot() method in main.jsx will render
+    the entire application inside this element.
+    -->
+    <div id="root"></div>
+    
+    <!--
+    ==========================================
+    APPLICATION ENTRY POINT
+    ==========================================
+    
+    Vite module script loading the main application entry point.
+    The 'type="module"' attribute enables ES module support.
+    
+    @see src/app/main.jsx - Application bootstrap
+    -->
+    <script type="module" src="/src/app/main.jsx"></script>
+  </body>
+</html>

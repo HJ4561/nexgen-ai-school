@@ -1,0 +1,927 @@
+// src/modules/admin/pages/Timetable/index.jsx
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import {
+  Search, Plus, Edit, Trash2, Calendar, Clock, BookOpen, User, X,
+  Filter, Download, Printer, RefreshCw, ChevronLeft, ChevronRight,
+  CheckCircle, AlertCircle, Users, Building2, Save, Eye,
+  Loader2, ChevronDown
+} from "lucide-react";
+import PageHeader from "@/components/layout/PageHeader";
+import { Badge } from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { FadeIn } from "@/components/admin/animations";
+import Pagination from "@/components/admin/Pagination";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
+import api from "@/services/api";
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const TIME_SLOTS = [
+  "08:00", "08:45", "09:30", "10:15", "11:00", "11:45", "12:30", "13:15", "14:00", "14:45"
+];
+
+const TIMETABLE_API = "/academics/timetable/";
+const CLASSES_API = "/academics/classes/";
+const SUBJECTS_API = "/academics/subjects/";
+const TEACHERS_API = "/users/teachers/";
+
+const Timetable = () => {
+  // ─── State ──────────────────────────────────────────────────────────────
+  const [timetable, setTimetable] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errored, setErrored] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  
+  // Filter states
+  const [filterClass, setFilterClass] = useState("all");
+  const [filterDay, setFilterDay] = useState("all");
+  const [filterTeacher, setFilterTeacher] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Modal states
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [deletingEntry, setDeletingEntry] = useState(null);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  
+  // Form data
+  const [formData, setFormData] = useState({
+    class_obj: "",
+    section: "",
+    subject: "",
+    teacher: "",
+    room: "",
+    day: "monday",
+    start_time: "08:00",
+    end_time: "08:45",
+  });
+  
+  // Options for dropdowns
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [rooms, setRooms] = useState([]);
+
+  const showToast = useCallback((message, type = "info") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  }, []);
+
+  // ─── Fetch Data ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    setLoading(true);
+    setErrored(false);
+    setErrorMessage("");
+    
+    try {
+      const [timetableRes, classesRes, subjectsRes, teachersRes, roomsRes] = await Promise.all([
+        api.get(TIMETABLE_API),
+        api.get(CLASSES_API),
+        api.get(SUBJECTS_API),
+        api.get(TEACHERS_API),
+        api.get("/academics/rooms/").catch(() => ({ data: [] }))
+      ]);
+
+      setTimetable(timetableRes.data?.results || timetableRes.data || []);
+      setClasses(classesRes.data?.results || classesRes.data || []);
+      setSubjects(subjectsRes.data?.results || subjectsRes.data || []);
+      setTeachers(teachersRes.data?.results || teachersRes.data || []);
+      setRooms(roomsRes.data?.results || roomsRes.data || []);
+      
+    } catch (error) {
+      console.error("Failed to fetch timetable data:", error);
+      setErrored(true);
+      setErrorMessage(error.response?.data?.detail || "Failed to load timetable");
+      showToast("Failed to load timetable", "error");
+      setTimetable([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Helper Functions ────────────────────────────────────────────────────
+  const getClassName = (item) => {
+    if (!item) return "—";
+    if (item.class_name) return item.class_name;
+    if (item.class_obj && typeof item.class_obj === 'object' && item.class_obj.name) {
+      return item.class_obj.name;
+    }
+    if (item.class_obj && typeof item.class_obj === 'number') {
+      const cls = classes.find(c => c.id === item.class_obj);
+      return cls?.name || "—";
+    }
+    return item.class_obj || "—";
+  };
+
+  const getSubjectName = (item) => {
+    if (!item) return "—";
+    if (item.subject_name) return item.subject_name;
+    if (item.subject && typeof item.subject === 'object' && item.subject.name) {
+      return item.subject.name;
+    }
+    if (item.subject && typeof item.subject === 'number') {
+      const subj = subjects.find(s => s.id === item.subject);
+      return subj?.name || "—";
+    }
+    return item.subject || "—";
+  };
+
+  const getTeacherName = (item) => {
+    if (!item) return "—";
+    if (item.teacher_name) return item.teacher_name;
+    if (item.teacher && typeof item.teacher === 'object' && item.teacher.name) {
+      return item.teacher.name;
+    }
+    if (item.teacher && typeof item.teacher === 'number') {
+      const teacher = teachers.find(t => t.id === item.teacher);
+      return teacher?.name || teacher?.user?.name || "—";
+    }
+    return item.teacher || "—";
+  };
+
+  const getRoomName = (item) => {
+    if (!item) return "—";
+    if (item.room_name) return item.room_name;
+    if (item.room && typeof item.room === 'object' && item.room.name) {
+      return item.room.name;
+    }
+    if (item.room && typeof item.room === 'number') {
+      const room = rooms.find(r => r.id === item.room);
+      return room?.name || "—";
+    }
+    return item.room || "—";
+  };
+
+  const getSectionName = (item) => {
+    if (!item) return "—";
+    if (item.section_name) return item.section_name;
+    if (item.section && typeof item.section === 'object' && item.section.name) {
+      return item.section.name;
+    }
+    return item.section || "—";
+  };
+
+  const getDayLabel = (day) => {
+    const dayMap = {
+      mon: "Monday", monday: "Monday",
+      tue: "Tuesday", tuesday: "Tuesday",
+      wed: "Wednesday", wednesday: "Wednesday",
+      thu: "Thursday", thursday: "Thursday",
+      fri: "Friday", friday: "Friday",
+      sat: "Saturday", saturday: "Saturday",
+      sun: "Sunday", sunday: "Sunday"
+    };
+    return dayMap[day?.toLowerCase()] || day || "—";
+  };
+
+  const getTypeBadge = (type) => {
+    switch(type) {
+      case 'theory': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'lab': return 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'sports': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'break': return 'bg-amber-50 text-amber-700 border-amber-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+
+  // ─── CRUD Operations ────────────────────────────────────────────────────
+  const openAdd = () => {
+    setEditingEntry(null);
+    setFormData({
+      class_obj: "",
+      section: "",
+      subject: "",
+      teacher: "",
+      room: "",
+      day: "monday",
+      start_time: "08:00",
+      end_time: "08:45",
+    });
+    setModalOpen(true);
+  };
+
+  const openEdit = (entry) => {
+    setEditingEntry(entry);
+    setFormData({
+      class_obj: entry.class_obj || "",
+      section: entry.section || "",
+      subject: entry.subject || "",
+      teacher: entry.teacher || "",
+      room: entry.room || "",
+      day: entry.day || "monday",
+      start_time: entry.start_time || "08:00",
+      end_time: entry.end_time || "08:45",
+    });
+    setModalOpen(true);
+  };
+
+  const openDetail = (entry) => {
+    setSelectedEntry(entry);
+    setDetailModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingEntry(null);
+  };
+
+  const closeDetailModal = () => {
+    setDetailModalOpen(false);
+    setSelectedEntry(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        class_obj: Number(formData.class_obj),
+        section: formData.section ? Number(formData.section) : null,
+        subject: Number(formData.subject),
+        teacher: formData.teacher ? Number(formData.teacher) : null,
+        room: formData.room ? Number(formData.room) : null,
+        day: formData.day,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+      };
+
+      if (editingEntry) {
+        const response = await api.patch(`${TIMETABLE_API}${editingEntry.id}/`, payload);
+        setTimetable(timetable.map(t => t.id === editingEntry.id ? { ...t, ...response.data } : t));
+        showToast("Timetable entry updated successfully", "success");
+      } else {
+        const response = await api.post(TIMETABLE_API, payload);
+        setTimetable([response.data, ...timetable]);
+        showToast("Timetable entry created successfully", "success");
+      }
+      setModalOpen(false);
+      setEditingEntry(null);
+    } catch (error) {
+      console.error("Failed to save timetable entry:", error);
+      showToast(error.response?.data?.detail || "Failed to save timetable entry", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setSaving(true);
+    try {
+      await api.delete(`${TIMETABLE_API}${deletingEntry.id}/`);
+      setTimetable(timetable.filter(t => t.id !== deletingEntry.id));
+      showToast("Timetable entry deleted successfully", "success");
+      setDeletingEntry(null);
+    } catch (error) {
+      console.error("Failed to delete timetable entry:", error);
+      showToast("Failed to delete timetable entry", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ─── Filter Logic ──────────────────────────────────────────────────────
+  const filteredData = useMemo(() => {
+    let filtered = timetable;
+
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(entry =>
+        getClassName(entry).toLowerCase().includes(search) ||
+        getSubjectName(entry).toLowerCase().includes(search) ||
+        getTeacherName(entry).toLowerCase().includes(search) ||
+        getRoomName(entry).toLowerCase().includes(search)
+      );
+    }
+
+    if (filterClass !== "all") {
+      filtered = filtered.filter(entry => {
+        const className = getClassName(entry);
+        const cls = classes.find(c => c.id === parseInt(filterClass));
+        return cls && className === cls.name;
+      });
+    }
+
+    if (filterDay !== "all") {
+      filtered = filtered.filter(entry => getDayLabel(entry.day) === filterDay);
+    }
+
+    if (filterTeacher !== "all") {
+      filtered = filtered.filter(entry => {
+        const teacherName = getTeacherName(entry);
+        const teacher = teachers.find(t => t.id === parseInt(filterTeacher));
+        return teacher && teacherName === (teacher.name || teacher.user?.name);
+      });
+    }
+
+    return filtered;
+  }, [timetable, searchTerm, filterClass, filterDay, filterTeacher, classes, teachers]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const pageItems = filteredData.slice(startIndex, startIndex + pageSize);
+  const hasActiveFilters = filterClass !== "all" || filterDay !== "all" || filterTeacher !== "all" || searchTerm;
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilterClass("all");
+    setFilterDay("all");
+    setFilterTeacher("all");
+  };
+
+  // ─── Stats ──────────────────────────────────────────────────────────────
+  const stats = useMemo(() => {
+    const total = timetable.length;
+    const uniqueClasses = new Set(timetable.map(t => getClassName(t))).size;
+    const uniqueSubjects = new Set(timetable.map(t => getSubjectName(t))).size;
+    const uniqueTeachers = new Set(timetable.map(t => getTeacherName(t))).size;
+    return { total, uniqueClasses, uniqueSubjects, uniqueTeachers };
+  }, [timetable]);
+
+  // ─── Loading State ────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-100 border-t-blue-600"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-blue-50 animate-pulse"></div>
+          </div>
+        </div>
+        <p className="mt-6 text-sm text-gray-500 font-medium">Loading timetable...</p>
+      </div>
+    );
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────
+  return (
+    <FadeIn>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Timetable</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Manage class schedules and timetables
+              {timetable.length > 0 && <span className="ml-2 text-blue-600 font-medium">· {timetable.length} entries</span>}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="border-gray-200" onClick={fetchAllData} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20" onClick={openAdd}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Entry
+            </Button>
+          </div>
+        </div>
+
+        {errored && (
+          <div className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">Error loading timetable</p>
+              <p className="text-amber-600">{errorMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-4 border-l-4 border-l-blue-500">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Entries</p>
+            <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
+            <p className="text-xs text-gray-400 mt-1">All schedule entries</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-emerald-500">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Classes</p>
+            <p className="text-2xl font-bold text-emerald-600">{stats.uniqueClasses}</p>
+            <p className="text-xs text-gray-400 mt-1">Unique classes</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-purple-500">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects</p>
+            <p className="text-2xl font-bold text-purple-600">{stats.uniqueSubjects}</p>
+            <p className="text-xs text-gray-400 mt-1">Unique subjects</p>
+          </Card>
+          <Card className="p-4 border-l-4 border-l-amber-500">
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Teachers</p>
+            <p className="text-2xl font-bold text-amber-600">{stats.uniqueTeachers}</p>
+            <p className="text-xs text-gray-400 mt-1">Unique teachers</p>
+          </Card>
+        </div>
+
+        {/* Main Card */}
+        <Card className="p-0 overflow-hidden shadow-sm border border-gray-100">
+          {/* Filters */}
+          <div className="p-4 sm:p-6 border-b border-gray-100 bg-gray-50/60">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by class, subject, teacher, or room..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <select
+                  value={filterClass}
+                  onChange={(e) => {
+                    setFilterClass(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                >
+                  <option value="all">All Classes</option>
+                  {classes.map(cls => (
+                    <option key={cls.id} value={cls.id}>{cls.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterDay}
+                  onChange={(e) => {
+                    setFilterDay(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                >
+                  <option value="all">All Days</option>
+                  {DAYS.map(day => (
+                    <option key={day} value={day}>{day}</option>
+                  ))}
+                </select>
+                <select
+                  value={filterTeacher}
+                  onChange={(e) => {
+                    setFilterTeacher(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                >
+                  <option value="all">All Teachers</option>
+                  {teachers.map(teacher => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.name || teacher.user?.name || `Teacher ${teacher.id}`}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  variant="outline"
+                  className="border-gray-200 px-4"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filters
+                  <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showFilters ? "rotate-180" : ""}`} />
+                </Button>
+                {hasActiveFilters && (
+                  <Button variant="outline" className="border-gray-200 px-3 text-gray-500" onClick={clearFilters}>
+                    <X className="w-3.5 h-3.5 mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {showFilters && (
+              <div className="flex flex-wrap items-end gap-4 mt-4 pt-4 border-t border-gray-200/50">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+                  <input
+                    type="date"
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+                  <input
+                    type="date"
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+                <Button variant="outline" className="border-gray-200 text-sm" onClick={clearFilters}>
+                  Reset Dates
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            {pageItems.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Calendar className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 font-medium">
+                    {hasActiveFilters ? "No timetable entries match your filters" : "No timetable entries found"}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {hasActiveFilters ? "Try adjusting your search or filters" : "Add a timetable entry to get started"}
+                  </p>
+                  {!hasActiveFilters && (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 mt-2" onClick={openAdd}>
+                      <Plus className="w-4 h-4 mr-2" /> Add Entry
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Class</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Day</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Time</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Subject</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Teacher</th>
+                    <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Room</th>
+                    <th className="text-right px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {pageItems.map((entry) => {
+                    const className = getClassName(entry);
+                    const subjectName = getSubjectName(entry);
+                    const teacherName = getTeacherName(entry);
+                    const roomName = getRoomName(entry);
+                    const dayLabel = getDayLabel(entry.day);
+                    const sectionName = getSectionName(entry);
+
+                    return (
+                      <tr
+                        key={entry.id}
+                        className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
+                        onClick={() => openDetail(entry)}
+                      >
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                              {className.charAt(0).toUpperCase() || "C"}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-800">{className}</p>
+                              {sectionName && <p className="text-xs text-gray-500">Section {sectionName}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2.5 py-1">
+                            {dayLabel}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-gray-400" />
+                            <span className="text-sm text-gray-600">{entry.start_time} - {entry.end_time}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-xs px-2.5 py-1">
+                            {subjectName}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-gray-400" />
+                            <span className="text-sm text-gray-600">{teacherName}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-gray-400" />
+                            <span className="text-sm text-gray-600">{roomName}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => openDetail(entry)}
+                              className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                              title="View details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => openEdit(entry)}
+                              className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                              title="Edit entry"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingEntry(entry)}
+                              className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                              title="Delete entry"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {timetable.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              startIndex={startIndex}
+              itemsShown={pageItems.length}
+              totalItems={filteredData.length}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </Card>
+      </div>
+
+      {/* Add/Edit Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
+              <h3 className="font-semibold text-gray-800 text-lg">
+                {editingEntry ? "Edit Timetable Entry" : "Add New Timetable Entry"}
+              </h3>
+              <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Class <span className="text-red-500">*</span></label>
+                <select
+                  value={formData.class_obj}
+                  onChange={(e) => setFormData({ ...formData, class_obj: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  required
+                >
+                  <option value="">Select a class...</option>
+                  {classes.map((cls) => (
+                    <option key={cls.id} value={cls.id}>{cls.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Section</label>
+                <select
+                  value={formData.section}
+                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                >
+                  <option value="">No Section</option>
+                  {/* Sections would be loaded based on selected class */}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Subject <span className="text-red-500">*</span></label>
+                <select
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  required
+                >
+                  <option value="">Select a subject...</option>
+                  {subjects.map((subj) => (
+                    <option key={subj.id} value={subj.id}>{subj.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Teacher</label>
+                <select
+                  value={formData.teacher}
+                  onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                >
+                  <option value="">Select a teacher...</option>
+                  {teachers.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.name || teacher.user?.name || `Teacher ${teacher.id}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Room</label>
+                <select
+                  value={formData.room}
+                  onChange={(e) => setFormData({ ...formData, room: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                >
+                  <option value="">Select a room...</option>
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id}>{room.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Day <span className="text-red-500">*</span></label>
+                <select
+                  value={formData.day}
+                  onChange={(e) => setFormData({ ...formData, day: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  required
+                >
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                  <option value="saturday">Saturday</option>
+                  <option value="sunday">Sunday</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Start Time <span className="text-red-500">*</span></label>
+                  <input
+                    type="time"
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">End Time <span className="text-red-500">*</span></label>
+                  <input
+                    type="time"
+                    value={formData.end_time}
+                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <Button type="button" variant="outline" className="border-gray-200" onClick={closeModal} disabled={saving}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {editingEntry ? "Update Entry" : "Create Entry"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {deletingEntry && (
+        <ConfirmDialog
+          open={true}
+          title="Delete this timetable entry?"
+          message={`This removes the ${getSubjectName(deletingEntry)} class for ${getClassName(deletingEntry)} on ${getDayLabel(deletingEntry.day)}.`}
+          confirmLabel="Delete Entry"
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingEntry(null)}
+          loading={saving}
+        />
+      )}
+
+      {/* Detail Modal */}
+      {detailModalOpen && selectedEntry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeDetailModal} />
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative px-6 py-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-2xl">
+              <button
+                onClick={closeDetailModal}
+                className="absolute top-4 right-4 p-1.5 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                  {getClassName(selectedEntry).charAt(0).toUpperCase() || "C"}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">{getClassName(selectedEntry)}</h3>
+                  <p className="text-sm text-white/80">{getDayLabel(selectedEntry.day)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <BookOpen className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Subject</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{getSubjectName(selectedEntry)}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <User className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Teacher</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{getTeacherName(selectedEntry) || "Not assigned"}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Time</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{selectedEntry.start_time} - {selectedEntry.end_time}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Building2 className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Room</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{getRoomName(selectedEntry) || "—"}</p>
+                </div>
+              </div>
+
+              {selectedEntry.section && (
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Users className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Section</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">{getSectionName(selectedEntry)}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-2 bg-gray-50/50 rounded-b-2xl">
+              <Button
+                variant="outline"
+                className="border-gray-200"
+                onClick={() => {
+                  closeDetailModal();
+                  openEdit(selectedEntry);
+                }}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={closeDetailModal}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 ${toast.type === "success" ? "bg-emerald-600" : "bg-red-600"} text-white text-sm px-5 py-3 rounded-xl shadow-xl animate-in slide-in-from-bottom-4 duration-300 flex items-center gap-2`}>
+          {toast.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          {toast.message}
+        </div>
+      )}
+    </FadeIn>
+  );
+};
+
+export default Timetable;

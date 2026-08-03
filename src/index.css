@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+
+@theme {
+  /* =========================
+     Brand Colors
+  ========================= */
+
+  --color-brand-primary: #2563eb;
+  --color-brand-secondary: #0d9488;
+  --color-brand-accent: #f59e0b;
+
+  /* =========================
+     Admin
+  ========================= */
+
+  --color-admin-primary: #1d4ed8;
+  --color-admin-hover: #1e40af;
+  --color-admin-light: #eff6ff;
+  --color-admin-border: #dbeafe;
+  --color-admin-text: #1e3a8a;
+
+  /* =========================
+     Teacher
+  ========================= */
+
+  --color-teacher-primary: #059669;
+  --color-teacher-hover: #047857;
+  --color-teacher-light: #ecfdf5;
+  --color-teacher-border: #d1fae5;
+  --color-teacher-text: #065f46;
+
+  /* =========================
+     Student
+  ========================= */
+
+  --color-student-primary: #d97706;
+  --color-student-hover: #b45309;
+  --color-student-light: #fffbeb;
+  --color-student-border: #fef3c7;
+  --color-student-text: #92400e;
+
+  /* =========================
+     Parent
+  ========================= */
+
+  --color-parent-primary: #7c3aed;
+  --color-parent-hover: #6d28d9;
+  --color-parent-light: #f5f3ff;
+  --color-parent-border: #ede9fe;
+  --color-parent-text: #5b21b6;
+
+  /* =========================
+     Status Colors
+  ========================= */
+
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #15803d;
+
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #b45309;
+
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #b91c1c;
+
+  /* =========================
+     Surface
+  ========================= */
+
+  --color-surface: #ffffff;
+  --color-surface-dim: #f8f9fa;
+  --color-surface-muted: #f1f3f5;
+
+  /* =========================
+     Text
+  ========================= */
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  /* =========================
+     Typography
+  ========================= */
+
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 32px;
+
+  /* =========================
+     Radius
+  ========================= */
+
+  --radius-button: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-input: 0.375rem;
+  --radius-modal: 1rem;
+
+  /* =========================
+     Shadows
+  ========================= */
+
+  --shadow-soft: 0 2px 15px -3px rgb(0 0 0 / 0.07),
+                 0 4px 6px -2px rgb(0 0 0 / 0.05);
+
+  --shadow-dropdown: 0 4px 12px rgb(15 23 42 / 0.12);
+
+  /* =========================
+     Component Sizes
+  ========================= */
+
+  --spacing-icon-sm: 1rem;
+  --spacing-icon-md: 1.5rem;
+  --spacing-icon-lg: 2rem;
+
+  --spacing-input-sm: 2rem;
+  --spacing-input-md: 2.5rem;
+  --spacing-input-lg: 3rem;
+
+  --spacing-btn-sm: 2rem;
+  --spacing-btn-md: 2.5rem;
+  --spacing-btn-lg: 3rem;
+}
+
+/* Floating Animation for Icons */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse Animation for Status Indicators */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}

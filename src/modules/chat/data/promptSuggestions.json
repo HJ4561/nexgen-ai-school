@@ -1,0 +1,36 @@
+{
+  "Admin": {
+    "general":[
+       "How much revenue was collected this month?",
+       "Who is below 75% attendance this month?",
+      "Which students haven't submitted their assignments?",
+      "Generate a merit certificate for Wanda Walter.",
+      "How many students are on 50% scholarship?",
+      "Generate a Facebook post for the Science Fair."
+    ] 
+  },
+  "Teacher": {
+    "general": [
+      "Mark attendance for my class today.",
+      "Post a new assignment for 10-A.",
+      "Show me students who scored below 40% in the last exam.",
+      "What is the average grade for my class?"
+    ]
+  },
+  "Student": {
+    "general": [
+      "Show me my report card.",
+      "What assignments are due this week?",
+      "What is my current attendance percentage?",
+      "When is the next school event?"
+    ]
+  },
+  "Parent": {
+    "general": [
+      "Check my child's attendance for this month.",
+      "Show me my child's fee history.",
+      "What grades did my child get in the last exam?",
+      "Are there any pending assignments for my child?"
+    ]
+  }
+}
