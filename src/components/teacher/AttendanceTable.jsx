@@ -32,7 +32,7 @@ import { CalendarDays, ClipboardList } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import Table from "@/components/ui/Table";
-import StatusBadge from "@/components/composite/Statusbadge";
+import StatusBadge from "@/components/composite/StatusBadge";
 
 /**
  * ============================================
