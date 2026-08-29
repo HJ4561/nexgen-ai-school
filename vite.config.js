@@ -20,18 +20,16 @@ export default defineConfig({
         target: 'https://school-backend-new-rho.vercel.app',
         changeOrigin: true,
         secure: false,
-        // Add the tenant header to all proxied requests
         headers: {
           'X-Tenant-Slug': 'default-school',
         },
-        // Rewrite the URL to remove '/api' if your backend doesn't expect it
-        // rewrite: (path) => path.replace(/^\/api/, ''),
       }
     }
   },
   build: {
-    minify: 'esbuild',
+    minify: 'esbuild', // ✅ Use esbuild (no terser needed)
     chunkSizeWarningLimit: 1000,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -59,14 +57,6 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    sourcemap: false,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-    },
   },
   optimizeDeps: {
     include: [
@@ -83,6 +73,6 @@ export default defineConfig({
     ],
   },
   define: {
-    'process.env.VITE_API_URL': JSON.stringify('/api'), // <-- CHANGE THIS to use the proxy
+    'process.env.VITE_API_URL': JSON.stringify('/api'),
   },
 })
