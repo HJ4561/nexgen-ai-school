@@ -1,4 +1,4 @@
-﻿// src/components/ui/Input.jsx
+// src/components/ui/Input.jsx
 import React from "react";
 
 export const Input = ({
@@ -17,14 +17,14 @@ export const Input = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block md:hidden text-sm md:text-base md:text-base font-medium text-gray-700 mb-1 px-4 sm:px-6 lg:px-8">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-red-500 ml-1 px-4 sm:px-6 lg:px-8">*</span>}
         </label>
       )}
-      <div className="relative">
+      <div className="relative px-4 sm:px-6 lg:px-8">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 px-4 sm:px-6 lg:px-8">
             {leftIcon}
           </div>
         )}
@@ -45,7 +45,7 @@ export const Input = ({
           {...props}
         />
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 px-4 sm:px-6 lg:px-8">
             {rightIcon}
           </div>
         )}

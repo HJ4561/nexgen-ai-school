@@ -218,7 +218,7 @@ const AssignmentsTab = ({
     const Icon = config.icon;
     
     return (
-      <Badge className={`${config.color} border text-[10px] font-medium flex items-center gap-1.5`}>
+      <Badge className={`${config.color} border text-[10px] font-medium flex flex-col md:flex-row items-center gap-1.5`}>
         <Icon size={12} />
         {config.label}
       </Badge>
@@ -250,23 +250,22 @@ const AssignmentsTab = ({
   };
 
   return (
-    <Card tone={role} className="p-0 overflow-hidden">
+    <Card tone={role} className="p-0 overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8">
       {/* ─── Header with Filters ─── */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+      <div className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border-b border-gray-200 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row-col md:flex-row gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 items-start md:items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Title */}
-          <h3 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-            <FileText size={20} className="text-[var(--color-admin-primary)]" />
+          <h3 className="text-lg md:text-xl md:text-2xl font-semibold text-text-primary flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <FileText size={20} className="text-[var(--color-admin-primary)] px-4 sm:px-6 lg:px-8" />
             Assignments
-            <Badge className="bg-gray-100 text-gray-600 text-xs ml-2">
+            <Badge className="bg-gray-100 text-gray-600 text-xs ml-2 px-4 sm:px-6 lg:px-8">
               {filteredAssignments.length}
             </Badge>
           </h3>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Button
-              variant="outline"
+          <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 w-full md:w-auto px-4 sm:px-6 lg:px-8">
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="outline"
               tone={role}
               size="sm"
               leftIcon={<Download size={14} />}
@@ -278,20 +277,20 @@ const AssignmentsTab = ({
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-4">
+        <div className="flex flex-col md:flex-row-col sm:flex-row gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 mt-4 px-4 sm:px-6 lg:px-8">
           {/* Search Input */}
-          <div className="flex-1">
-            <div className="relative">
+          <div className="flex-1 px-4 sm:px-6 lg:px-8">
+            <div className="relative px-4 sm:px-6 lg:px-8">
               <Search 
                 size={15} 
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" 
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" 
               />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by title, student, or teacher..."
-                className="w-full pl-9 pr-4 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none"
+                className="w-full pl-9 pr-4 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm md:text-base md:text-base focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none px-4 sm:px-6 lg:px-8"
               />
             </div>
           </div>
@@ -303,7 +302,7 @@ const AssignmentsTab = ({
             options={subjectOptions}
             tone={role}
             size="sm"
-            className="min-w-[150px]"
+            className="min-w-[150px] px-4 sm:px-6 lg:px-8"
           />
 
           {/* Status Filter */}
@@ -313,121 +312,119 @@ const AssignmentsTab = ({
             options={statusOptions}
             tone={role}
             size="sm"
-            className="min-w-[150px]"
+            className="min-w-[150px] px-4 sm:px-6 lg:px-8"
           />
         </div>
       </div>
 
       {/* ─── Assignments Table ─── */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-[var(--color-surface-dim)]">
+      <div className="overflow-x-auto px-4 sm:px-6 lg:px-8">
+        <div class="overflow-x-auto -mx-4 sm:mx-6 lg:mx-8 sm:mx-6 lg:mx-8 sm:mx-0"><div class="inline-block md:hidden min-w-full align-middle"><table className="w-full px-4 sm:px-6 lg:px-8">
+          <thead className="bg-[var(--color-surface-dim)] px-4 sm:px-6 lg:px-8">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Assignment
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Subject
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Class
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Student
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Due Date
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Status
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Grade
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 px-4 sm:px-6 lg:px-8">
             {filteredAssignments.length === 0 ? (
               // ─── Empty State ───
               <tr>
-                <td colSpan="8" className="px-4 py-8 text-center text-[var(--color-text-muted)]">
-                  <FileText size={32} className="mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No assignments found</p>
-                  <p className="text-xs mt-1">Try adjusting your filters</p>
+                <td colSpan="8" className="px-4 py-8 text-center text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
+                  <FileText size={32} className="mx-auto mb-2 opacity-30 px-4 sm:px-6 lg:px-8" />
+                  <p className="text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8">No assignments found</p>
+                  <p className="text-xs mt-1 px-4 sm:px-6 lg:px-8">Try adjusting your filters</p>
                 </td>
               </tr>
             ) : (
               // ─── Assignment Rows ───
               filteredAssignments.map((assignment) => (
-                <tr key={assignment.id} className="hover:bg-[var(--color-surface-dim)] transition-colors">
+                <tr key={assignment.id} className="hover:bg-[var(--color-surface-dim)] transition-colors px-4 sm:px-6 lg:px-8">
                   {/* Assignment Title */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <FileText size={14} className="text-[var(--color-text-muted)]" />
-                      <span className="text-sm font-medium text-[var(--color-text-primary)]">
+                  <td className="px-4 py-3 px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                      <FileText size={14} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+                      <span className="text-sm md:text-base md:text-base font-medium text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                         {assignment.title}
                       </span>
                     </div>
                   </td>
 
                   {/* Subject */}
-                  <td className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">
+                  <td className="px-4 py-3 text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
                     {assignment.subject}
                   </td>
 
                   {/* Class */}
-                  <td className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">
+                  <td className="px-4 py-3 text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
                     {assignment.class_name || assignment.class || '—'}
                   </td>
 
                   {/* Student */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[var(--color-student-light)] flex items-center justify-center text-[var(--color-student-primary)] text-[10px] font-bold">
+                  <td className="px-4 py-3 px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                      <div className="w-6 h-6 rounded-full bg-[var(--color-student-light)] flex flex-col md:flex-row items-center justify-center text-[var(--color-student-primary)] text-[10px] font-bold px-4 sm:px-6 lg:px-8">
                         {getInitials(assignment.student_name || assignment.student)}
                       </div>
-                      <span className="text-sm text-[var(--color-text-secondary)]">
+                      <span className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
                         {assignment.student_name || assignment.student}
                       </span>
                     </div>
                   </td>
 
                   {/* Due Date */}
-                  <td className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">
+                  <td className="px-4 py-3 text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
                     {formatDate(assignment.due_date)}
                   </td>
 
                   {/* Status */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 px-4 sm:px-6 lg:px-8">
                     {renderStatusBadge(assignment.status)}
                   </td>
 
                   {/* Grade */}
-                  <td className="px-4 py-3 text-sm font-medium">
+                  <td className="px-4 py-3 text-sm md:text-base md:text-base font-medium px-4 sm:px-6 lg:px-8">
                     {renderGrade(assignment.grade)}
                   </td>
 
                   {/* Actions */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => onViewAssignment?.(assignment.id)}
-                        className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)] transition-colors"
+                  <td className="px-4 py-3 px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                      <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => onViewAssignment?.(assignment.id)}
+                        className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)] transition-colors px-4 sm:px-6 lg:px-8"
                         title="View Details"
                       >
                         <FileText size={14} />
-                      </button>
+                      </Button>
                       {role !== 'student' && (
-                        <button
-                          onClick={() => onGradeAssignment?.(assignment.id)}
-                          className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-green-600 hover:bg-green-50 transition-colors"
+                        <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => onGradeAssignment?.(assignment.id)}
+                          className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-green-600 hover:bg-green-50 transition-colors px-4 sm:px-6 lg:px-8"
                           title="Grade Assignment"
                         >
                           <CheckCircle size={14} />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -435,16 +432,16 @@ const AssignmentsTab = ({
               ))
             )}
           </tbody>
-        </table>
+        </table></div></div>
       </div>
 
       {/* ─── Footer with Summary ─── */}
-      <div className="px-4 py-3 border-t border-gray-200 bg-[var(--color-surface-dim)]">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--color-text-muted)]">
+      <div className="px-4 py-3 border-t border-gray-200 bg-[var(--color-surface-dim)] px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row-wrap items-center justify-between gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
           <span>
             Showing {filteredAssignments.length} of {assignments.length} assignments
           </span>
-          <div className="flex gap-4">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
             <span>
               Submitted: {assignments.filter(a => a.status === 'submitted').length}
             </span>

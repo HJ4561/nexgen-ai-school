@@ -1,49 +1,27 @@
-/**
- * ============================================
- * BEHAVIOR HEADER COMPONENT
- * ============================================
- * 
- * Purpose: Page header for Behavior Logs section
- * Features:
- * - Title and subtitle display
- * - Breadcrumb navigation
- * - Reuses PageHeader component
- * - Parent role context
- * 
- * Dependencies:
- * - @/components/layout/PageHeader for header structure
- * 
- * Usage:
- * <BehaviorHeader />
- * ============================================
- */
+// src/components/parent/behavior/BehaviorHeader.jsx
+import React from 'react';
+import { Shield, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
-import PageHeader from "@/components/layout/PageHeader";
-
-/**
- * ============================================
- * BEHAVIOR HEADER COMPONENT
- * ============================================
- * 
- * Renders the page header for behavior logs
- * 
- * @returns {JSX.Element} Behavior header UI
- * 
- * @example
- * // In parent dashboard
- * <BehaviorHeader />
- * ============================================
- */
 const BehaviorHeader = () => {
   return (
-    <PageHeader
-      title="Behavior Logs"
-      subtitle="Monitor your child's behavior records, teacher observations, and disciplinary actions."
-      breadcrumbs={[
-        "Parent",
-        "Behavior Logs",
-      ]}
-    />
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Behavior Logs</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Track your child's behavior and conduct records
+        </p>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 rounded-full border border-green-200">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-xs font-medium text-green-700">Active</span>
+        </div>
+        <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+          <Clock className="w-4 h-4 inline mr-1" />
+          Filter
+        </button>
+      </div>
+    </div>
   );
 };
 

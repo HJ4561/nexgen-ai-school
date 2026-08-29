@@ -101,7 +101,7 @@ export function ResponsiveTable({
    */
   if (!data || data.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-[var(--color-text-muted)]">
+      <div className="py-10 text-center text-sm md:text-base md:text-base text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
         {emptyMessage}
       </div>
     );
@@ -116,7 +116,7 @@ export function ResponsiveTable({
    * - title: Primary column (acts as card title)
    * - badge: Secondary column (acts as card badge)
    * - detail: Regular detail fields (shown in card body)
-   * - hidden: Hidden on mobile
+   * - hidden: hidden md:block md:hidden on mobile
    */
   const titleCol = columns.find((c) => c.mobile?.role === 'title');
   const badgeCol = columns.find((c) => c.mobile?.role === 'badge');
@@ -206,20 +206,20 @@ export function ResponsiveTable({
   return (
     <>
       {/* ─── Desktop Table ────────────────────────────────────────────── */}
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden md:block md:hidden lg:block md:hidden overflow-x-auto px-4 sm:px-6 lg:px-8">
         <motion.table
-          className="w-full border-collapse"
+          className="w-full border-collapse px-4 sm:px-6 lg:px-8"
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.1 }}
           variants={animateRows ? tableVariants : undefined}
         >
           <thead>
-            <tr className="border-b border-gray-100 bg-[var(--color-surface-dim)]">
+            <tr className="border-b border-gray-100 bg-[var(--color-surface-dim)] px-4 sm:px-6 lg:px-8">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] whitespace-nowrap"
+                  className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)] whitespace-nowrap px-4 sm:px-6 lg:px-8"
                 >
                   {col.label}
                 </th>
@@ -256,8 +256,7 @@ export function ResponsiveTable({
                       <td
                         key={col.key}
                         className={`
-                          px-4 py-3.5 align-middle text-sm
-                          ${col.highlight ? 'font-semibold text-[var(--accent)]' : 'text-[var(--color-text-secondary)]'}
+                          px-4 py-3.5 align-middle text-sm md:text-base md:text-base ${col.highlight ? 'font-semibold text-[var(--accent)]' : 'text-[var(--color-text-secondary)]'}
                           ${isFirst && !col.highlight ? 'font-medium text-[var(--color-text-primary)]' : ''}
                           ${isFirst ? 'rounded-l-lg' : ''}
                           ${isLast ? 'rounded-r-lg' : ''}
@@ -275,7 +274,7 @@ export function ResponsiveTable({
       </div>
 
       {/* ─── Mobile Card Grid ──────────────────────────────────────────── */}
-      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+      <div className="lg:hidden md:block md:hidden grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 p-3 px-4 sm:px-6 lg:px-8">
         {data.map((row, index) => {
           const accent = getAccentVar(index);
           
@@ -287,7 +286,7 @@ export function ResponsiveTable({
               }}
               onClick={onRowClick ? () => onRowClick(row) : undefined}
               className={`
-                rounded-lg border border-gray-100 bg-white p-4 transition-all duration-200
+                rounded-lg border border-gray-100 bg-white p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 transition-all duration-200
                 ${onRowClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''}
                 border-t-4 border-t-[var(--accent)]
               `}
@@ -297,12 +296,12 @@ export function ResponsiveTable({
               transition={{ duration: 0.35, delay: index * 0.05 }}
             >
               {/* ─── Title and Badge ─── */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                <div className="min-w-0 flex-1 px-4 sm:px-6 lg:px-8">
                   {titleCol?.render ? titleCol.render(row) : null}
                 </div>
                 {badgeCol && (
-                  <div className="shrink-0">
+                  <div className="shrink-0 px-4 sm:px-6 lg:px-8">
                     {badgeCol.render ? badgeCol.render(row) : null}
                   </div>
                 )}
@@ -310,16 +309,16 @@ export function ResponsiveTable({
 
               {/* ─── Detail Fields ─── */}
               {detailCols.length > 0 && (
-                <div className="mt-3 space-y-1.5">
+                <div className="mt-3 space-y-1.5 px-4 sm:px-6 lg:px-8">
                   {detailCols.map((col) => (
                     <div
                       key={col.key}
-                      className="flex items-center justify-between gap-3 text-sm"
+                      className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8"
                     >
-                      <span className="text-[var(--color-text-muted)]">
+                      <span className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                         {col.mobile?.label || col.label}
                       </span>
-                      <span className="font-medium text-[var(--color-text-primary)] text-right">
+                      <span className="font-medium text-[var(--color-text-primary)] text-right px-4 sm:px-6 lg:px-8">
                         {col.render ? col.render(row) : row[col.key]}
                       </span>
                     </div>
@@ -329,7 +328,7 @@ export function ResponsiveTable({
 
               {/* ─── Mobile Actions ─── */}
               {mobileActions && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-100 px-4 sm:px-6 lg:px-8">
                   {mobileActions(row)}
                 </div>
               )}

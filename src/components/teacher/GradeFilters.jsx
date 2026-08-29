@@ -58,8 +58,8 @@ export default function GradeFilters({
   setFilterExamDate,
 }) {
   return (
-    <div className="lg:col-span-3 bg-white rounded-xl p-5 shadow-soft border border-gray-100">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="lg:col-span-3 bg-white rounded-xl p-5 shadow-soft border border-gray-100 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 sm:grid-cols-3 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         {/* Subject/Class Filter */}
         <Select
           label="Subject / Class"
@@ -82,22 +82,21 @@ export default function GradeFilters({
         
         {/* Exam Date Filter */}
         <div>
-          <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+          <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
             Exam Date
           </label>
           <input
             type="date"
             value={filterExamDate}
             onChange={(e) => setFilterExamDate(e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none text-sm"
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8"
           />
           {filterExamDate && (
-            <button
-              onClick={() => setFilterExamDate('')}
-              className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-danger)] mt-1 transition-colors"
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => setFilterExamDate('')}
+              className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-danger)] mt-1 transition-colors px-4 sm:px-6 lg:px-8"
             >
               Clear date
-            </button>
+            </Button>
           )}
         </div>
       </div>

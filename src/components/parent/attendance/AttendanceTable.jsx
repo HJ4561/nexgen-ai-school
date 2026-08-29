@@ -1,84 +1,23 @@
-/**
- * ============================================
- * ATTENDANCE TABLE COMPONENT
- * ============================================
- * 
- * Purpose: Displays attendance records in table format for parent view
- * Features:
- * - Date, Day, and Status columns
- * - Status badges with color coding (Present, Absent, Leave)
- * - Summary statistic chips
- * - Responsive design (table on desktop, card list on mobile)
- * - Empty state with icon
- * - Scrollable container with max height
- * - Parent role theming
- * 
- * Dependencies:
- * - lucide-react for icons (CalendarDays, ClipboardList)
- * - @/components/ui/Card for container
- * - @/components/ui/Table for desktop view
- * - @/components/composite/StatusBadge for status display
- * - react-redux for state management
- * 
- * Usage:
- * <AttendanceTable />
- * ============================================
- */
-
+// src/components/parent/attendance/AttendanceTable.jsx
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-
 import { CalendarDays, ClipboardList } from "lucide-react";
 
 import Card from '@/components/ui/Card';
 import Table from '@/components/ui/Table';
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
-/**
- * ============================================
- * ATTENDANCE TABLE COMPONENT
- * ============================================
- * 
- * Renders attendance records in responsive table format
- * 
- * @returns {JSX.Element} Attendance table UI
- * 
- * @example
- * // In parent dashboard
- * <AttendanceTable />
- * ============================================
- */
 const AttendanceTable = () => {
-  // ─── Redux State ──────────────────────────────────────────────────────
   const {
     attendance = [],
     parentLinks = [],
     selectedChild,
   } = useSelector((state) => state.parent);
 
-  /**
-   * ============================================
-   * SELECTED CHILD
-   * ============================================
-   * 
-   * Finds the current child data from parentLinks
-   * based on the selectedChild ID
-   */
   const currentChild = parentLinks.find(
     (child) => child.student === selectedChild
   );
 
-  /**
-   * ============================================
-   * FILTER ATTENDANCE
-   * ============================================
-   * 
-   * Filters attendance records for the selected child
-   * Adds formatted fields:
-   * - day: Full weekday name (e.g., "Monday")
-   * - formattedDate: Formatted date (e.g., "15 Jan 2024")
-   * Sorts by date (newest first)
-   */
   const rows = useMemo(() => {
     if (!currentChild) return [];
 
@@ -86,7 +25,6 @@ const AttendanceTable = () => {
       .filter((item) => item.student_name === currentChild.student_name)
       .map((item) => {
         const parsedDate = new Date(item.date);
-
         return {
           ...item,
           day: parsedDate.toLocaleDateString("en-US", {
@@ -102,36 +40,16 @@ const AttendanceTable = () => {
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [attendance, currentChild]);
 
-  /**
-   * ============================================
-   * SUMMARY STATS
-   * ============================================
-   * 
-   * Counts attendance records by status
-   * Returns counts for Present, Absent, and Leave
-   */
   const stats = useMemo(() => {
     const counts = { Present: 0, Absent: 0, Leave: 0 };
-
     rows.forEach((row) => {
       if (counts[row.status] !== undefined) {
         counts[row.status] += 1;
       }
     });
-
     return counts;
   }, [rows]);
 
-  /**
-   * ============================================
-   * TABLE COLUMNS
-   * ============================================
-   * 
-   * Defines the columns for the desktop table view
-   * - Date: Formatted date with bold styling
-   * - Day: Full weekday name
-   * - Status: Status badge with color coding
-   */
   const columns = [
     {
       key: "date",
@@ -158,19 +76,16 @@ const AttendanceTable = () => {
 
   return (
     <Card className="h-[600px]">
-      {/* ─── Header ────────────────────────────────────────────── */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-text-primary">
             Attendance Records
           </h2>
-
           <p className="text-sm text-text-secondary">
             Daily attendance for the selected child.
           </p>
         </div>
 
-        {/* ─── Summary Stat Chips ──────────────────────────────── */}
         {rows.length > 0 && (
           <div className="flex items-center gap-2">
             <StatChip
@@ -192,7 +107,6 @@ const AttendanceTable = () => {
         )}
       </div>
 
-      {/* ─── Empty State ────────────────────────────────────────── */}
       {rows.length === 0 && (
         <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-parent-border py-12 text-center">
           <ClipboardList size={28} className="text-text-secondary/50" />
@@ -205,7 +119,6 @@ const AttendanceTable = () => {
         </div>
       )}
 
-      {/* ─── Desktop / Tablet Table (md and up) ───────────────── */}
       {rows.length > 0 && (
         <div className="hidden md:block max-h-[420px] overflow-y-auto rounded-lg [scrollbar-width:thin]">
           <Table
@@ -216,7 +129,6 @@ const AttendanceTable = () => {
         </div>
       )}
 
-      {/* ─── Mobile Card List (below md) ──────────────────────── */}
       {rows.length > 0 && (
         <div className="md:hidden max-h-[420px] overflow-y-auto flex flex-col gap-2.5 pr-1 [scrollbar-width:thin]">
           {rows.map((row, index) => (
@@ -225,12 +137,9 @@ const AttendanceTable = () => {
               className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
             >
               <div className="flex items-center gap-3">
-                {/* Calendar icon */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-parent-light/40 text-parent-primary">
                   <CalendarDays size={18} />
                 </div>
-
-                {/* Date and day */}
                 <div className="leading-tight">
                   <p className="text-sm font-semibold text-text-primary">
                     {row.formattedDate}
@@ -238,8 +147,6 @@ const AttendanceTable = () => {
                   <p className="text-xs text-text-secondary">{row.day}</p>
                 </div>
               </div>
-
-              {/* Status badge */}
               <StatusBadge status={row.status} />
             </div>
           ))}
@@ -249,19 +156,6 @@ const AttendanceTable = () => {
   );
 };
 
-/**
- * ============================================
- * STAT CHIP SUB-COMPONENT
- * ============================================
- * 
- * Displays a statistic chip with label and value
- * 
- * @param {Object} props - Component props
- * @param {string} props.label - Statistic label
- * @param {number} props.value - Statistic value
- * @param {string} props.className - Additional CSS classes
- * @returns {JSX.Element} Stat chip UI
- */
 function StatChip({ label, value, className }) {
   return (
     <div

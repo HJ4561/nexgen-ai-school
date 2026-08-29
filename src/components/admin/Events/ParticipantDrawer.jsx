@@ -79,9 +79,12 @@ export default function ParticipantDrawer({
       title={`Participants — ${event.event_name}`}
       width="max-w-[350px]"
       footer={
-        <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
+        <button
+          className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+          onClick={onClose}
+        >
           Close
-        </Button>
+        </button>
       }
     >
       <div className="space-y-4">
@@ -111,8 +114,8 @@ export default function ParticipantDrawer({
                 <div>
                   {/* Student Name */}
                   <p className="text-sm font-medium text-[var(--color-text-primary)]">
-  {p.student_name || p.student?.name || p.student || "Unknown Student"}
-</p>
+                    {p.student_name || p.student?.name || p.student || "Unknown Student"}
+                  </p>
                   {/* Role Badge */}
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${roleColors[p.role] || roleColors.Participant}`}>
                     {p.role}
@@ -138,21 +141,3 @@ export default function ParticipantDrawer({
     </Drawer>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

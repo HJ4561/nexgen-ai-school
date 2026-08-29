@@ -106,11 +106,11 @@ export default function ComplaintFilters({
   ];
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-wrap gap-4 items-center">
+    <div className="bg-white rounded-xl p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col md:flex-row-wrap gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 items-center px-4 sm:px-6 lg:px-8">
       {/* ─── Filter Label ─── */}
-      <div className="flex items-center gap-2">
-        <Filter size={16} className="text-[var(--color-text-muted)]" />
-        <span className="text-xs font-medium text-[var(--color-text-muted)]">
+      <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+        <Filter size={16} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+        <span className="text-xs font-medium text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
           Filters:
         </span>
       </div>
@@ -122,7 +122,7 @@ export default function ComplaintFilters({
         options={statusOptions}
         tone="admin"
         size="sm"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
 
       {/* ─── Type Filter Dropdown ─── */}
@@ -132,18 +132,17 @@ export default function ComplaintFilters({
         options={typeOptions}
         tone="admin"
         size="sm"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
 
       {/* ─── Export Button ─── */}
-      <div className="ml-auto flex items-center gap-2">
-        <button
-          onClick={onExport}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-[var(--color-text-secondary)] border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+      <div className="ml-auto flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+        <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={onExport}
+          className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-3 py-1.5 text-sm md:text-base md:text-base text-[var(--color-text-secondary)] border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors px-4 sm:px-6 lg:px-8"
         >
           <Download size={16} />
           Export
-        </button>
+        </Button>
       </div>
     </div>
   );

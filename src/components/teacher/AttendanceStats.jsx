@@ -170,21 +170,21 @@ const AttendanceStats = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 lg:grid-cols-4 px-4 sm:px-6 lg:px-8">
       {/* ─── Render each stat card ─── */}
       {cards.map((card) => {
         const Icon = card.icon;
 
         return (
           <Card key={card.title} hover={false}>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8">
               {/* Stat label and value */}
               <div>
-                <p className="text-sm text-text-secondary">
+                <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
                   {card.title}
                 </p>
 
-                <h2 className="mt-2 text-3xl font-bold">
+                <h2 className="mt-2 text-3xl font-bold px-4 sm:px-6 lg:px-8">
                   {card.value}
                 </h2>
               </div>

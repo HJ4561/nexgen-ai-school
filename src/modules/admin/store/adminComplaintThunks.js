@@ -1,7 +1,9 @@
+// src/modules/admin/store/adminComplaintThunks.js
+
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
-// Fetch complaints
+// ─── Fetch complaints ──────────────────────────────────────────────────
 export const fetchComplaints = createAsyncThunk(
     'adminComplaint/fetchComplaints',
     async (params, { rejectWithValue }) => {
@@ -14,7 +16,7 @@ export const fetchComplaints = createAsyncThunk(
     }
 );
 
-// Fetch complaint detail
+// ─── Fetch complaint detail ──────────────────────────────────────────
 export const fetchComplaintDetail = createAsyncThunk(
     'adminComplaint/fetchComplaintDetail',
     async (id, { rejectWithValue }) => {
@@ -27,12 +29,17 @@ export const fetchComplaintDetail = createAsyncThunk(
     }
 );
 
-// Update complaint status
+// ─── Update complaint status ──────────────────────────────────────────
 export const updateComplaintStatus = createAsyncThunk(
     'adminComplaint/updateComplaintStatus',
-    async ({ id, status, resolution }, { rejectWithValue }) => {
+    async ({ id, status, resolution, admin_remarks }, { rejectWithValue }) => {
         try {
-            const response = await api.put(`/admin/complaints/${id}`, { status, resolution });
+            const response = await api.patch(`/admin/complaints/${id}`, { 
+                status, 
+                resolution,
+                admin_remarks,
+                resolution_notes: resolution || admin_remarks,
+            });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -40,7 +47,46 @@ export const updateComplaintStatus = createAsyncThunk(
     }
 );
 
-// Fetch behavior logs
+// ─── Update complaint (alias for updateComplaintStatus) ──────────────
+export const updateComplaint = createAsyncThunk(
+    'adminComplaint/updateComplaint',
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`/admin/complaints/${id}`, data);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// ─── Create complaint ──────────────────────────────────────────────────
+export const createComplaint = createAsyncThunk(
+    'adminComplaint/createComplaint',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/admin/complaints', data);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// ─── Delete complaint ──────────────────────────────────────────────────
+export const deleteComplaint = createAsyncThunk(
+    'adminComplaint/deleteComplaint',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await api.delete(`/admin/complaints/${id}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// ─── Fetch behavior logs ──────────────────────────────────────────────
 export const fetchBehaviorLogs = createAsyncThunk(
     'adminComplaint/fetchBehaviorLogs',
     async (params, { rejectWithValue }) => {
@@ -53,7 +99,7 @@ export const fetchBehaviorLogs = createAsyncThunk(
     }
 );
 
-// Fetch behavior log detail
+// ─── Fetch behavior log detail ────────────────────────────────────────
 export const fetchBehaviorLogDetail = createAsyncThunk(
     'adminComplaint/fetchBehaviorLogDetail',
     async (id, { rejectWithValue }) => {
@@ -65,3 +111,14 @@ export const fetchBehaviorLogDetail = createAsyncThunk(
         }
     }
 );
+
+export default {
+    fetchComplaints,
+    fetchComplaintDetail,
+    updateComplaintStatus,
+    updateComplaint,
+    createComplaint,
+    deleteComplaint,
+    fetchBehaviorLogs,
+    fetchBehaviorLogDetail,
+};

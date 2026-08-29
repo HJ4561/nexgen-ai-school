@@ -134,21 +134,6 @@ const ComplaintTable = ({
 
   /**
    * ============================================
-   * EMPTY STATE HANDLING
-   * ============================================
-   * 
-   * Displays a fallback UI when no complaints are available
-   */
-  if (!data || data.length === 0) {
-    return (
-      <div className="p-8 text-center text-gray-500">
-        No complaints found
-      </div>
-    );
-  }
-
-  /**
-   * ============================================
    * TABLE COLUMNS CONFIGURATION
    * ============================================
    * 
@@ -264,15 +249,35 @@ const ComplaintTable = ({
     }
   ];
 
+  /**
+   * ============================================
+   * EMPTY STATE HANDLING
+   * ============================================
+   * 
+   * Displays a fallback UI when no complaints are available
+   */
+  if (!data || data.length === 0) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        No complaints found
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* ─── Table ─── */}
-      <Table
-        data={data}
-        columns={columns}
-        keyExtractor={(row) => row.id || Math.random()}
-        emptyMessage="No complaints found"
-      />
+      <div className="overflow-x-auto">
+        <div className="inline-block min-w-full align-middle">
+          <Table
+            data={data}
+            columns={columns}
+            keyExtractor={(row) => row.id || Math.random()}
+            emptyMessage="No complaints found"
+            animateRows={animateRows}
+          />
+        </div>
+      </div>
 
       {/* ─── Pagination ─── */}
       {totalPages > 1 && (
@@ -281,6 +286,8 @@ const ComplaintTable = ({
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
           />
         </div>
       )}

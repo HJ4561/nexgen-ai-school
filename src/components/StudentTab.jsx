@@ -168,15 +168,15 @@ function StudentTab({ onRowClick }) {
       key: "full_name",
       label: "Name & Details",
       render: (row) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[var(--color-student-light)] text-[var(--color-student-primary)] flex items-center justify-center text-sm font-bold shrink-0">
+        <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <div className="w-10 h-10 rounded-full bg-[var(--color-student-light)] text-[var(--color-student-primary)] flex flex-col md:flex-row items-center justify-center text-sm md:text-base md:text-base font-bold shrink-0 px-4 sm:px-6 lg:px-8">
             {getInitials(row.full_name)}
           </div>
           <div>
-            <p className="text-sm font-medium text-[var(--color-text-primary)]">
+            <p className="text-sm md:text-base md:text-base font-medium text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
               {row.full_name}
             </p>
-            <p className="text-xs text-[var(--color-text-muted)]">
+            <p className="text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
               {row.roll_number || "No Roll No"}
             </p>
           </div>
@@ -189,8 +189,8 @@ function StudentTab({ onRowClick }) {
       label: "Contact",
       render: (row) => (
         <div>
-          <p className="text-sm text-[var(--color-text-secondary)] hidden lg:block">{row.email}</p>
-          <p className="text-xs text-[var(--color-text-muted)]">{row.guardian_phone || "—"}</p>
+          <p className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] hidden md:block md:hidden lg:block md:hidden px-4 sm:px-6 lg:px-8">{row.email}</p>
+          <p className="text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">{row.guardian_phone || "—"}</p>
         </div>
       ),
       mobile: { role: "detail", label: "Contact" },
@@ -200,7 +200,7 @@ function StudentTab({ onRowClick }) {
       label: "Class",
       render: (row) => {
         const classLabel = classOptions.find(c => c.value === row.class_section)?.label || row.class_section;
-        return <span className="text-sm text-[var(--color-text-primary)]">{classLabel}</span>;
+        return <span className="text-sm md:text-base md:text-base text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">{classLabel}</span>;
       },
       mobile: { role: "detail", label: "Class" },
     },
@@ -208,7 +208,7 @@ function StudentTab({ onRowClick }) {
       key: "guardian_name",
       label: "Guardian",
       render: (row) => (
-        <span className="text-sm text-[var(--color-text-secondary)]">
+        <span className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
           {row.guardian_name || "—"}
         </span>
       ),
@@ -225,7 +225,7 @@ function StudentTab({ onRowClick }) {
             ? "text-[var(--color-warning)]"
             : "text-[var(--color-text-muted)]";
         return (
-          <span className={`text-sm font-semibold ${color}`}>
+          <span className={`text-sm md:text-base md:text-base font-semibold ${color}`}>
             {row.scholarship_percentage}%
           </span>
         );
@@ -236,9 +236,8 @@ function StudentTab({ onRowClick }) {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex justify-start gap-0">
-          <Button
-            variant="ghost"
+        <div className="flex flex-col md:flex-row justify-start gap-0 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="ghost"
             tone="admin"
             size="sm"
             onClick={(e) => {
@@ -248,8 +247,7 @@ function StudentTab({ onRowClick }) {
             leftIcon={<Edit size={16} />}
             title="Edit Profile"
           />
-          <Button
-            variant="danger"
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="danger"
             tone="admin"
             size="sm"
             onClick={(e) => {
@@ -267,15 +265,15 @@ function StudentTab({ onRowClick }) {
 
   // ─── Loading & Error ─────────────────────────────────────────────────────
   if (loading) return <LoadingSpinner size="lg" />;
-  if (error) return <div className="text-center text-red-500 py-8">Error: {error}</div>;
+  if (error) return <div className="text-center text-red-500 py-8 px-4 sm:px-6 lg:px-8">Error: {error}</div>;
 
   return (
     <>
       {/* ─── Filters ──────────────────────────────────────────────────────── */}
-      <section className="bg-white rounded-xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-wrap gap-4 items-center">
-        <div className="flex items-center gap-2">
-          <Filter size={16} className="text-[var(--color-text-muted)]" />
-          <span className="text-xs font-medium text-[var(--color-text-muted)]">Filters:</span>
+      <section className="bg-white rounded-xl p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col md:flex-row-wrap gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 items-center px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <Filter size={16} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+          <span className="text-xs font-medium text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">Filters:</span>
         </div>
 
         <Select
@@ -302,13 +300,13 @@ function StudentTab({ onRowClick }) {
           placeholder="All Scholarships"
         />
 
-        <div className="ml-auto text-xs text-[var(--color-text-muted)]">
+        <div className="ml-auto text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
           Showing {paginatedData.length} of {totalItems} students
         </div>
       </section>
 
       {/* ─── Table ────────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8">
         <ResponsiveTable
           columns={columns}
           data={paginatedData}
@@ -316,9 +314,8 @@ function StudentTab({ onRowClick }) {
           keyField="id"
           emptyMessage="No students found matching your criteria."
           mobileActions={(row) => (
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Button
-                variant="primary"
+            <div className="flex flex-col md:flex-row items-center justify-end gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 pt-2 px-4 sm:px-6 lg:px-8">
+              <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary"
                 tone="admin"
                 size="sm"
                 onClick={(e) => {
@@ -327,8 +324,7 @@ function StudentTab({ onRowClick }) {
                 }}
                 leftIcon={<Edit size={14} />}
               />
-              <Button
-                variant="danger"
+              <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="danger"
                 tone="admin"
                 size="sm"
                 onClick={(e) => {

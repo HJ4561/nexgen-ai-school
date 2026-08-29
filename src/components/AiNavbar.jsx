@@ -162,7 +162,7 @@ export default function AiNavbar({
   return (
     <header
       ref={barRef}
-      className="relative flex items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b shrink-0 gap-2"
+      className="relative flex flex-col md:flex-row items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b shrink-0 gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8"
       style={{
         background: `linear-gradient(180deg, ${NAVY_TOP}e6, ${NAVY_BOTTOM}e6)`,
         borderColor: 'rgba(255,255,255,0.06)',
@@ -175,36 +175,35 @@ export default function AiNavbar({
           Menu toggle + Workspace identity
       ===================================== */}
 
-      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+      <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:gap-2.5 min-w-0 px-4 sm:px-6 lg:px-8">
         {/* ─── Mobile Menu Toggle ─── */}
         {onMenuClick && (
-          <button
-            onClick={onMenuClick}
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={onMenuClick}
             aria-label="Open menu"
-            className="md:hidden -ml-1 p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+            className="md:hidden md:block md:hidden -ml-1 p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors shrink-0 px-4 sm:px-6 lg:px-8"
           >
             <Menu size={20} />
-          </button>
+          </Button>
         )}
 
         {/* ─── Workspace Icon ─── */}
         <div
-          className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex flex-col md:flex-row items-center justify-center shrink-0 px-4 sm:px-6 lg:px-8"
           style={{
             background: INDIGO,
             boxShadow: `0 4px 14px -4px ${INDIGO}66`,
           }}
         >
-          <Sparkles size={15} className="text-white sm:hidden" />
-          <Sparkles size={16} className="text-white hidden sm:block" />
+          <Sparkles size={15} className="text-white sm:hidden md:block md:hidden px-4 sm:px-6 lg:px-8" />
+          <Sparkles size={16} className="text-white hidden md:block md:hidden sm:block md:hidden px-4 sm:px-6 lg:px-8" />
         </div>
 
         {/* ─── Workspace Identity ─── */}
-        <div className="leading-tight min-w-0">
-          <p className="text-sm font-semibold text-white tracking-tight truncate">
+        <div className="leading-tight min-w-0 px-4 sm:px-6 lg:px-8">
+          <p className="text-sm md:text-base md:text-base font-semibold text-white tracking-tight truncate px-4 sm:px-6 lg:px-8">
             AI Workspace
           </p>
-          <p className="text-[11px] text-white/40 hidden sm:block">
+          <p className="text-[11px] text-white/40 hidden md:block md:hidden sm:block md:hidden px-4 sm:px-6 lg:px-8">
             ScholarAI is ready to help
           </p>
         </div>
@@ -215,11 +214,10 @@ export default function AiNavbar({
           Actions + User profile
       ===================================== */}
 
-      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+      <div className="flex flex-col md:flex-row items-center gap-1 sm:gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 shrink-0 px-4 sm:px-6 lg:px-8">
         {/* ─── Notification Bell ─── */}
-        <button
-          onClick={onNotificationClick}
-          className="relative p-1.5 sm:p-2 rounded-lg text-white/50 hover:text-white transition-colors"
+        <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={onNotificationClick}
+          className="relative p-1.5 sm:p-2 rounded-lg text-white/50 hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
           onMouseEnter={(e) =>
             gsap.to(e.currentTarget, { backgroundColor: 'rgba(255,255,255,0.06)', duration: 0.2 })
           }
@@ -233,18 +231,17 @@ export default function AiNavbar({
           {notificationCount > 0 && (
             <span
               ref={badgeRef}
-              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-semibold flex items-center justify-center text-white"
+              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-semibold flex flex-col md:flex-row items-center justify-center text-white px-4 sm:px-6 lg:px-8"
               style={{ background: INDIGO }}
             >
               {notificationCount > 9 ? '9+' : notificationCount}
             </span>
           )}
-        </button>
+        </Button>
 
         {/* ─── Settings Button (desktop only) ─── */}
-        <button
-          onClick={onSettingsClick}
-          className="hidden sm:inline-flex p-1.5 sm:p-2 rounded-lg text-white/50 hover:text-white transition-colors"
+        <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={onSettingsClick}
+          className="hidden md:block md:hidden sm:inline-flex flex-col md:flex-row p-1.5 sm:p-2 rounded-lg text-white/50 hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
           onMouseEnter={(e) =>
             gsap.to(e.currentTarget, { backgroundColor: 'rgba(255,255,255,0.06)', duration: 0.2 })
           }
@@ -254,16 +251,16 @@ export default function AiNavbar({
           aria-label="Settings"
         >
           <Settings size={18} />
-        </button>
+        </Button>
 
         {/* ─── Divider ─── */}
-        <div className="hidden sm:block w-px h-6 mx-1" style={{ background: 'rgba(255,255,255,0.1)' }} />
+        <div className="hidden md:block md:hidden sm:block md:hidden w-px h-6 mx-1 px-4 sm:px-6 lg:px-8" style={{ background: 'rgba(255,255,255,0.1)' }} />
 
         {/* ─── User Profile ─── */}
-        <div className="flex items-center gap-2.5 pl-0 sm:pl-1">
+        <div className="flex flex-col md:flex-row items-center gap-2.5 pl-0 sm:pl-1 px-4 sm:px-6 lg:px-8">
           {/* User Avatar */}
           <div
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex flex-col md:flex-row items-center justify-center text-xs font-semibold text-white shrink-0 px-4 sm:px-6 lg:px-8"
             style={{
               background: INDIGO,
               boxShadow: `0 0 0 2px rgba(255,255,255,0.08)`,
@@ -272,18 +269,17 @@ export default function AiNavbar({
             {initials(userName)}
           </div>
           {/* User Name & Role (desktop only) */}
-          <div className="leading-tight hidden md:block">
-            <p className="text-sm font-medium text-white truncate max-w-[120px]">
+          <div className="leading-tight hidden md:block md:hidden md:block md:hidden px-4 sm:px-6 lg:px-8">
+            <p className="text-sm md:text-base md:text-base font-medium text-white truncate max-w-[120px] px-4 sm:px-6 lg:px-8">
               {userName || 'User'}
             </p>
-            <p className="text-[11px] text-white/40 capitalize">{userRole}</p>
+            <p className="text-[11px] text-white/40 capitalize px-4 sm:px-6 lg:px-8">{userRole}</p>
           </div>
         </div>
 
         {/* ─── Logout Button ─── */}
-        <button
-          onClick={onLogout}
-          className="ml-0.5 sm:ml-1 p-1.5 sm:p-2 rounded-lg text-white/40 hover:text-red-400 transition-colors"
+        <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={onLogout}
+          className="ml-0.5 sm:ml-1 p-1.5 sm:p-2 rounded-lg text-white/40 hover:text-red-400 transition-colors px-4 sm:px-6 lg:px-8"
           onMouseEnter={(e) =>
             gsap.to(e.currentTarget, { backgroundColor: 'rgba(248,113,113,0.1)', duration: 0.2 })
           }
@@ -293,7 +289,7 @@ export default function AiNavbar({
           aria-label="Log out"
         >
           <LogOut size={18} />
-        </button>
+        </Button>
       </div>
     </header>
   );

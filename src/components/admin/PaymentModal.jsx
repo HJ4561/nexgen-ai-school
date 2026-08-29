@@ -10,7 +10,7 @@
  * - Outstanding amount display
  * - Payment method selection (Cash, Bank Transfer, Cheque, Other)
  * - Payment date picker
- - Optional notes field
+ * - Optional notes field
  * - Loading state during submission
  * - Modal with backdrop blur
  * - Responsive design

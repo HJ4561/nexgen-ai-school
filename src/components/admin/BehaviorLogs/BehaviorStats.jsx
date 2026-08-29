@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { 
   AlertCircle, CheckCircle, Clock, Users, 
@@ -83,28 +83,28 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
     {
       label: "Total Reports",
       value: total,
-      icon: <Users className="w-5 h-5" />,
+      icon: <Users className="w-5 h-5 px-4 sm:px-6 lg:px-8" />,
       color: "blue",
       subtitle: "All time",
     },
     {
       label: "Positive",
       value: positive,
-      icon: <CheckCircle className="w-5 h-5" />,
+      icon: <CheckCircle className="w-5 h-5 px-4 sm:px-6 lg:px-8" />,
       color: "green",
       subtitle: "Good behavior",
     },
     {
       label: "Negative",
       value: negative,
-      icon: <AlertCircle className="w-5 h-5" />,
+      icon: <AlertCircle className="w-5 h-5 px-4 sm:px-6 lg:px-8" />,
       color: "red",
       subtitle: "Needs attention",
     },
     {
       label: "Neutral",
       value: neutral,
-      icon: <Clock className="w-5 h-5" />,
+      icon: <Clock className="w-5 h-5 px-4 sm:px-6 lg:px-8" />,
       color: "gray",
       subtitle: "Mixed behavior",
     },
@@ -113,10 +113,10 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100">
-          <p className="text-sm font-semibold text-gray-800">{label}</p>
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-100 px-4 sm:px-6 lg:px-8">
+          <p className="text-sm md:text-base md:text-base font-semibold text-gray-800 px-4 sm:px-6 lg:px-8">{label}</p>
           {payload.map((p, i) => (
-            <p key={i} className="text-xs text-gray-600">
+            <p key={i} className="text-xs text-gray-600 px-4 sm:px-6 lg:px-8">
               {p.name}: {p.value}
             </p>
           ))}
@@ -131,22 +131,22 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4 sm:px-6 lg:px-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         {statsCards.map((stat, index) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className={"bg-white rounded-xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-" + stat.color + "-500"}
+            className={"bg-white rounded-xl border border-gray-100 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-" + stat.color + "-500"}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8">
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-800 mt-1">{stat.value}</p>
-                <p className="text-xs text-gray-400 mt-1">{stat.subtitle}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 sm:px-6 lg:px-8">{stat.label}</p>
+                <p className="text-2xl md:text-3xl font-bold text-gray-800 mt-1 px-4 sm:px-6 lg:px-8">{stat.value}</p>
+                <p className="text-xs text-gray-400 mt-1 px-4 sm:px-6 lg:px-8">{stat.subtitle}</p>
               </div>
               <div className={"p-3 rounded-xl bg-" + stat.color + "-50"}>
                 <div className={"text-" + stat.color + "-500"}>{stat.icon}</div>
@@ -157,16 +157,16 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <PieChart className="w-4 h-4 text-blue-500" />
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 lg:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+        <Card className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border border-gray-100 shadow-sm px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-4 sm:px-6 lg:px-8">
+            <h3 className="text-sm md:text-base md:text-base font-semibold text-gray-700 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+              <PieChart className="w-4 h-4 text-blue-500 px-4 sm:px-6 lg:px-8" />
               Behavior Type Distribution
             </h3>
-            <span className="text-xs text-gray-400">{total} total records</span>
+            <span className="text-xs text-gray-400 px-4 sm:px-6 lg:px-8">{total} total records</span>
           </div>
-          <div className="h-64">
+          <div className="h-64 px-4 sm:px-6 lg:px-8">
             <ResponsiveContainer width="100%" height="100%">
               <RePieChart>
                 <Pie
@@ -191,15 +191,15 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
           </div>
         </Card>
 
-        <Card className="p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-purple-500" />
+        <Card className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border border-gray-100 shadow-sm px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-4 sm:px-6 lg:px-8">
+            <h3 className="text-sm md:text-base md:text-base font-semibold text-gray-700 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+              <BarChart3 className="w-4 h-4 text-purple-500 px-4 sm:px-6 lg:px-8" />
               Severity Levels
             </h3>
-            <span className="text-xs text-gray-400">By severity</span>
+            <span className="text-xs text-gray-400 px-4 sm:px-6 lg:px-8">By severity</span>
           </div>
-          <div className="h-64">
+          <div className="h-64 px-4 sm:px-6 lg:px-8">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={severityData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -219,15 +219,15 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
       </div>
 
       {/* Monthly Trend Chart */}
-      <Card className="p-4 border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
+      <Card className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border border-gray-100 shadow-sm px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-4 sm:px-6 lg:px-8">
+          <h3 className="text-sm md:text-base md:text-base font-semibold text-gray-700 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <TrendingUp className="w-4 h-4 text-emerald-500 px-4 sm:px-6 lg:px-8" />
             Monthly Trend
           </h3>
-          <span className="text-xs text-gray-400">Last 6 months</span>
+          <span className="text-xs text-gray-400 px-4 sm:px-6 lg:px-8">Last 6 months</span>
         </div>
-        <div className="h-64">
+        <div className="h-64 px-4 sm:px-6 lg:px-8">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trendData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -268,17 +268,17 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
       </Card>
 
       {/* Recent Logs */}
-      <Card className="p-4 border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-gray-500" />
+      <Card className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border border-gray-100 shadow-sm px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-4 px-4 sm:px-6 lg:px-8">
+          <h3 className="text-sm md:text-base md:text-base font-semibold text-gray-700 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <Clock className="w-4 h-4 text-gray-500 px-4 sm:px-6 lg:px-8" />
             Recent Activity
           </h3>
-          <span className="text-xs text-gray-400">{recentLogs.length} recent logs</span>
+          <span className="text-xs text-gray-400 px-4 sm:px-6 lg:px-8">{recentLogs.length} recent logs</span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 px-4 sm:px-6 lg:px-8">
           {recentLogs.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
+            <p className="text-sm md:text-base md:text-base text-gray-500 text-center py-4 px-4 sm:px-6 lg:px-8">No recent activity</p>
           ) : (
             recentLogs.slice(0, 5).map((log, index) => (
               <motion.div
@@ -286,26 +286,26 @@ const BehaviorStats = ({ logs, recentLogs, onViewDetail }) => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex flex-col md:flex-row items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer px-4 sm:px-6 lg:px-8"
                 onClick={() => onViewDetail(log)}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex flex-col md:flex-row items-center justify-center text-white text-xs font-bold px-4 sm:px-6 lg:px-8">
                     {getInitials(log.student_name)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{log.student_name}</p>
-                    <p className="text-xs text-gray-500 truncate max-w-xs">
+                    <p className="text-sm md:text-base md:text-base font-medium text-gray-800 px-4 sm:px-6 lg:px-8">{log.student_name}</p>
+                    <p className="text-xs text-gray-500 truncate max-w-xs px-4 sm:px-6 lg:px-8">
                       {log.description?.slice(0, 50)}...
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
                   <Badge className={"text-[10px] border " + getSeverityBadgeClass(log.severity)}>
                     {log.severity || "Medium"}
                   </Badge>
-                  <span className="text-xs text-gray-400">{formatDate(log.created_at)}</span>
-                  <Eye className="w-4 h-4 text-gray-400 hover:text-blue-500 transition-colors" />
+                  <span className="text-xs text-gray-400 px-4 sm:px-6 lg:px-8">{formatDate(log.created_at)}</span>
+                  <Eye className="w-4 h-4 text-gray-400 hover:text-blue-500 transition-colors px-4 sm:px-6 lg:px-8" />
                 </div>
               </motion.div>
             ))

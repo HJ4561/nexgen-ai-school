@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import api from "@/services/api";
 
 const ITEMS_PER_PAGE = 10;
@@ -11,7 +11,7 @@ export function useBehaviorData() {
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ─── Fetch Logs ──────────────────────────────────────────────────
+  // --- Fetch Logs --------------------------------------------------
   const fetchLogs = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -32,7 +32,7 @@ export function useBehaviorData() {
     fetchLogs();
   }, [fetchLogs]);
 
-  // ─── Filtering ──────────────────────────────────────────────────
+  // --- Filtering --------------------------------------------------
   const filteredByDate = useMemo(() => {
     return logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }, [logs]);
@@ -58,7 +58,7 @@ export function useBehaviorData() {
     return result;
   }, [logs, search, filterSeverity]);
 
-  // ─── Pagination ──────────────────────────────────────────────────
+  // --- Pagination --------------------------------------------------
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -68,7 +68,7 @@ export function useBehaviorData() {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
-  // ─── Stats ──────────────────────────────────────────────────────
+  // --- Stats ------------------------------------------------------
   const stats = useMemo(() => {
     const total = logs.length;
     const positive = logs.filter((l) => l.type === "positive").length;
@@ -77,7 +77,7 @@ export function useBehaviorData() {
     return { total, positive, negative, neutral };
   }, [logs]);
 
-  // ─── Recent Logs ────────────────────────────────────────────────
+  // --- Recent Logs ------------------------------------------------
   const recentLogs = useMemo(() => {
     return [...logs]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))

@@ -82,7 +82,7 @@ const getPlacementColors = (position) => {
  * ============================================
  * 
  * Ticket-style date tile — the month/day live in one glanceable
- * block instead of being buried in a row of icon + text lines.
+ * block md:hidden instead of being buried in a row of icon + text lines.
  * 
  * @param {Object} props - Component props
  * @param {string} props.date - Date string
@@ -93,13 +93,13 @@ const DateTile = ({ date, colors }) => {
   const d = new Date(date);
   return (
     <div
-      className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm"
+      className="flex flex-col md:flex-row h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl text-white shadow-sm px-4 sm:px-6 lg:px-8"
       style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
     >
-      <span className="text-[10px] font-semibold uppercase tracking-wide opacity-90">
+      <span className="text-[10px] font-semibold uppercase tracking-wide opacity-90 px-4 sm:px-6 lg:px-8">
         {d.toLocaleDateString("en-US", { month: "short" })}
       </span>
-      <span className="-mt-0.5 text-xl font-bold leading-none">{d.getDate()}</span>
+      <span className="-mt-0.5 text-xl md:text-2xl md:text-2xl font-bold leading-none px-4 sm:px-6 lg:px-8">{d.getDate()}</span>
     </div>
   );
 };
@@ -144,10 +144,10 @@ const YourParticipations = () => {
   return (
     <Card hover={false}>
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-start justify-between gap-4">
+      <div className="mb-6 flex flex-col md:flex-row items-start justify-between gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         <div>
-          <h2 className="text-xl font-semibold">Your Participations</h2>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h2 className="text-xl md:text-2xl md:text-2xl font-semibold px-4 sm:px-6 lg:px-8">Your Participations</h2>
+          <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
             A quick look at the events you've taken part in.
           </p>
         </div>
@@ -155,12 +155,12 @@ const YourParticipations = () => {
         {/* View All Link */}
         <Link
           to={EVENTS_PAGE_PATH}
-          className="group flex shrink-0 items-center gap-1 whitespace-nowrap text-sm font-medium text-student-primary transition-colors hover:text-student-primary/80"
+          className="group flex flex-col md:flex-row shrink-0 items-center gap-1 whitespace-nowrap text-sm md:text-base md:text-base font-medium text-student-primary transition-colors hover:text-student-primary/80 px-4 sm:px-6 lg:px-8"
         >
           View all
           <ArrowRight
             size={15}
-            className="transition-transform duration-200 group-hover:translate-x-0.5"
+            className="transition-transform duration-200 group-hover:translate-x-0.5 px-4 sm:px-6 lg:px-8"
           />
         </Link>
       </div>
@@ -168,17 +168,17 @@ const YourParticipations = () => {
       {/* ─── Participation List ────────────────────────────────── */}
       {recentParticipations.length === 0 ? (
         // ─── Empty State ──────────────────────────────────────────
-        <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center">
-          <Users size={42} className="mx-auto text-slate-400" />
-          <p className="mt-4 font-medium">No Participations Yet</p>
-          <p className="mt-1 text-sm text-text-secondary">
+        <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center px-4 sm:px-6 lg:px-8">
+          <Users size={42} className="mx-auto text-slate-400 px-4 sm:px-6 lg:px-8" />
+          <p className="mt-4 font-medium px-4 sm:px-6 lg:px-8">No Participations Yet</p>
+          <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
             Events you register for will show up here.
           </p>
         </div>
       ) : (
-        <div className="relative">
+        <div className="relative px-4 sm:px-6 lg:px-8">
           {/* ─── Scrollable List ──────────────────────────────────── */}
-          <div className="events-scroll max-h-[520px] space-y-3 overflow-y-auto pr-1.5">
+          <div className="events-scroll max-h-[520px] space-y-3 overflow-y-auto pr-1.5 px-4 sm:px-6 lg:px-8">
             {recentParticipations.map((participation, index) => {
               const colors = getPlacementColors(participation.position);
 
@@ -191,17 +191,17 @@ const YourParticipations = () => {
                   }}
                   className="rounded-xl border border-slate-200 border-l-4 p-5 opacity-0
                              [animation-fill-mode:forwards] animate-[event-in_0.5s_ease-out]
-                             transition-all duration-200 hover:-translate-y-0.5 hover:border-student-primary hover:shadow-sm"
+                             transition-all duration-200 hover:-translate-y-0.5 hover:border-student-primary hover:shadow-sm px-4 sm:px-6 lg:px-8"
                 >
                   {/* ─── Title Row ─── */}
-                  <div className="mb-4 flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
+                  <div className="mb-4 flex flex-col md:flex-row items-start justify-between gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
                       <DateTile date={participation.event_date} colors={colors} />
                       <div>
-                        <h3 className="text-lg font-semibold text-text-primary">
+                        <h3 className="text-lg md:text-xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
                           {participation.event_name}
                         </h3>
-                        <p className="mt-1 flex items-center gap-1.5 text-sm text-text-secondary">
+                        <p className="mt-1 flex flex-col md:flex-row items-center gap-1.5 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
                           <Users size={14} />
                           {participation.role}
                         </p>
@@ -210,7 +210,7 @@ const YourParticipations = () => {
 
                     {/* Placement Badge */}
                     {participation.position && (
-                      <Badge variant="success" className="gap-1 whitespace-nowrap">
+                      <Badge variant="success" className="gap-1 whitespace-nowrap px-4 sm:px-6 lg:px-8">
                         <Trophy size={12} />
                         {participation.position}
                       </Badge>
@@ -218,7 +218,7 @@ const YourParticipations = () => {
                   </div>
 
                   {/* ─── Event Date ─── */}
-                  <div className="mb-2 flex items-center gap-2 text-sm text-text-secondary">
+                  <div className="mb-2 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
                     <CalendarDays size={16} />
                     {new Date(participation.event_date).toLocaleDateString("en-US", {
                       weekday: "short",
@@ -230,10 +230,10 @@ const YourParticipations = () => {
 
                   {/* ─── Certificate Earned ─── */}
                   {participation.certificate && (
-                    <div className="rounded-lg bg-student-light p-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Award size={16} className="text-student-primary" />
-                        <span className="font-medium">Certificate Earned</span>
+                    <div className="rounded-lg bg-student-light p-3 px-4 sm:px-6 lg:px-8">
+                      <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8">
+                        <Award size={16} className="text-student-primary px-4 sm:px-6 lg:px-8" />
+                        <span className="font-medium px-4 sm:px-6 lg:px-8">Certificate Earned</span>
                       </div>
                     </div>
                   )}
@@ -244,7 +244,7 @@ const YourParticipations = () => {
 
           {/* ─── Fade Hint ────────────────────────────────────────── */}
           {recentParticipations.length > 3 && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white to-transparent px-4 sm:px-6 lg:px-8" />
           )}
         </div>
       )}

@@ -118,7 +118,6 @@ const ProfileForm = ({ role }) => {
    * Populates form fields when profile data loads
    */
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFormData({
       full_name: profile.full_name || "",
       email: profile.email || "",
@@ -277,7 +276,7 @@ const ProfileForm = ({ role }) => {
 
       {/* ─── Profile Form ─── */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {/* Full Name (Editable) */}
           <Input
             label="Full Name"

@@ -6,6 +6,7 @@
 // - label: Text displayed in the sidebar
 // - path: Route path for navigation
 // - icon: Lucide React icon component
+// - badge: Optional badge text (e.g., "New", "Beta")
 // ======================================================
 
 import {
@@ -60,6 +61,32 @@ import {
   Shield,
   UserPlus,
   BarChart3,
+  Target,
+  Brain,
+  History,
+  Fingerprint,
+  DoorOpen,
+  UserCircle,
+  Activity,
+  Bot,
+  Bus,
+  Book,
+  Coffee,
+  FileArchive,
+  Gauge,
+  Lightbulb,
+  ListChecks,
+  ScrollText,
+  TicketCheck,
+  Upload,
+  Eye,
+  // --- New icons for teacher routes ---
+  Users as StudentsIcon,
+  GraduationCap as ExamsIcon,
+  Activity as BehaviorIcon,
+  Handshake as PTMIcon,
+  MessageSquare as MessagesIcon,
+  User as ProfileIcon,
 } from "lucide-react";
 
 /* ======================================================
@@ -300,7 +327,6 @@ export const adminRoutes = [
   },
 
   // ─── System ────────────────────────────────────────────────────────────
-  // ⭐ Only ONE System entry (combined System Logs + System Health)
   {
     label: "System",
     path: "/admin/system-logs",
@@ -316,14 +342,23 @@ export const adminRoutes = [
 ];
 
 /* ======================================================
-   TEACHER SIDEBAR ROUTES
+   TEACHER SIDEBAR ROUTES - COMPLETE
    Accessible only by Teacher users
+   Based on Smart School API Documentation
 ====================================================== */
 export const teacherRoutes = [
+  // ─── Dashboard ──────────────────────────────────────────────────────────
   {
     label: "Dashboard",
     path: "/teacher/dashboard",
     icon: LayoutDashboard,
+  },
+
+  // ─── Academic Management ──────────────────────────────────────────────
+  {
+    label: "Students",
+    path: "/teacher/students",
+    icon: StudentsIcon,
   },
   {
     label: "Attendance",
@@ -341,9 +376,37 @@ export const teacherRoutes = [
     icon: NotebookPen,
   },
   {
+    label: "Submissions",          // ← NEW
+    path: "/teacher/submissions",   // ← NEW
+    icon: Upload,                   // ← NEW
+    badge: "Grade",                 // ← Optional: shows a "Grade" badge
+  },
+  {
     label: "Timetable",
     path: "/teacher/timetable",
     icon: Clock3,
+  },
+  {
+    label: "Exams",
+    path: "/teacher/exams",
+    icon: ExamsIcon,
+  },
+  {
+    label: "Behavior Logs",
+    path: "/teacher/behavior-logs",
+    icon: BehaviorIcon,
+  },
+  {
+    label: "PTM",
+    path: "/teacher/ptm",
+    icon: PTMIcon,
+  },
+
+  // ─── Communication ────────────────────────────────────────────────────
+  {
+    label: "Messages",
+    path: "/teacher/messages",
+    icon: MessagesIcon,
   },
   {
     label: "Complaints",
@@ -351,14 +414,47 @@ export const teacherRoutes = [
     icon: AlertCircle,
   },
   {
+    label: "Notifications",
+    path: "/teacher/notifications",
+    icon: Bell,
+  },
+
+  // ─── Events ──────────────────────────────────────────────────────────
+  {
     label: "Events",
     path: "/teacher/events",
     icon: Calendar,
   },
+
+  // ─── HR ──────────────────────────────────────────────────────────────
   {
-    label: "Notifications",
-    path: "/teacher/notifications",
-    icon: Bell,
+    label: "Leaves",
+    path: "/teacher/leaves",
+    icon: CalendarDays,
+  },
+  {
+    label: "Payroll",
+    path: "/teacher/payroll",
+    icon: Wallet,
+  },
+
+  // ─── Analytics ────────────────────────────────────────────────────────
+  {
+    label: "Predictions",
+    path: "/teacher/predictions",
+    icon: Sparkles,
+  },
+  {
+    label: "Recommendations",
+    path: "/teacher/recommendations",
+    icon: Lightbulb,
+  },
+
+  // ─── Profile & Settings ──────────────────────────────────────────────
+  {
+    label: "My Profile",
+    path: "/teacher/profile",
+    icon: ProfileIcon,
   },
   {
     label: "Settings",
@@ -368,24 +464,30 @@ export const teacherRoutes = [
 ];
 
 /* ======================================================
-   STUDENT SIDEBAR ROUTES
+   STUDENT SIDEBAR ROUTES - COMPLETE
    Accessible only by Student users
+   Based on Smart School API Documentation
 ====================================================== */
 export const studentRoutes = [
+  // ─── Dashboard ──────────────────────────────────────────────────────────
   {
     label: "Dashboard",
     path: "/student/dashboard",
     icon: LayoutDashboard,
   },
+
+  // ─── Profile ──────────────────────────────────────────────────────────
+  {
+    label: "My Profile",
+    path: "/student/profile",
+    icon: User,
+  },
+
+  // ─── Academics ────────────────────────────────────────────────────────
   {
     label: "Attendance",
     path: "/student/attendance",
     icon: ClipboardCheck,
-  },
-  {
-    label: "Report Card",
-    path: "/student/report-card",
-    icon: FileText,
   },
   {
     label: "Assignments",
@@ -393,20 +495,56 @@ export const studentRoutes = [
     icon: NotebookPen,
   },
   {
+    label: "Submissions",
+    path: "/student/submissions",
+    icon: Upload,
+  },
+  {
+    label: "Exams & Results",
+    path: "/student/exams",
+    icon: Award,
+  },
+  {
+    label: "Report Card",
+    path: "/student/report-card",
+    icon: ScrollText,
+  },
+  {
     label: "Timetable",
     path: "/student/timetable",
-    icon: Clock3,
+    icon: CalendarDays,
   },
+
+  // ─── Financial ────────────────────────────────────────────────────────
   {
     label: "Fees & Payments",
     path: "/student/fees",
     icon: Wallet,
   },
+
+  // ─── Extracurricular ──────────────────────────────────────────────────
   {
     label: "Events",
     path: "/student/events",
     icon: Calendar,
   },
+  {
+    label: "Transport",
+    path: "/student/transport",
+    icon: Bus,
+  },
+  {
+    label: "Library",
+    path: "/student/library",
+    icon: LibraryIcon,
+  },
+  {
+    label: "Canteen",
+    path: "/student/canteen",
+    icon: Coffee,
+  },
+
+  // ─── Communication ────────────────────────────────────────────────────
   {
     label: "Complaints",
     path: "/student/complaints",
@@ -417,6 +555,37 @@ export const studentRoutes = [
     path: "/student/notifications",
     icon: Bell,
   },
+
+  // ─── Security ─────────────────────────────────────────────────────────
+  {
+    label: "Security",
+    path: "/student/security",
+    icon: Shield,
+  },
+
+  // ─── Documents ──────────────────────────────────────────────────────
+  {
+    label: "Documents",
+    path: "/student/documents",
+    icon: FileArchive,
+  },
+
+  // ─── Analytics ────────────────────────────────────────────────────────
+  {
+    label: "Analytics",
+    path: "/student/analytics",
+    icon: Gauge,
+  },
+
+  // ─── AI Chat ──────────────────────────────────────────────────────────
+  {
+    label: "AI Chat Assistant",
+    path: "/student/chat",
+    icon: Bot,
+    badge: "Beta",
+  },
+
+  // ─── Settings ─────────────────────────────────────────────────────────
   {
     label: "Settings",
     path: "/student/settings",
@@ -425,15 +594,26 @@ export const studentRoutes = [
 ];
 
 /* ======================================================
-   PARENT SIDEBAR ROUTES
+   PARENT SIDEBAR ROUTES - COMPLETE
    Accessible only by Parent users
+   Based on Smart School API Documentation
 ====================================================== */
 export const parentRoutes = [
+  // ─── Dashboard ──────────────────────────────────────────────────────────
   {
     label: "Dashboard",
     path: "/parent/dashboard",
     icon: LayoutDashboard,
   },
+
+  // ─── Profile ──────────────────────────────────────────────────────────
+  {
+    label: "My Profile",
+    path: "/parent/profile",
+    icon: User,
+  },
+
+  // ─── Child Management ────────────────────────────────────────────────
   {
     label: "Attendance",
     path: "/parent/attendance",
@@ -450,14 +630,28 @@ export const parentRoutes = [
     icon: ShieldAlert,
   },
   {
-    label: "Fees",
+    label: "Student Details",
+    path: "/parent/student-details",
+    icon: UserCircle,
+  },
+
+  // ─── Financial ────────────────────────────────────────────────────────
+  {
+    label: "Fees & Payments",
     path: "/parent/fees",
     icon: Wallet,
   },
   {
-    label: "Events",
-    path: "/parent/events",
-    icon: Calendar,
+    label: "Finance",
+    path: "/parent/finance",
+    icon: DollarSign,
+  },
+
+  // ─── Communication ────────────────────────────────────────────────────
+  {
+    label: "Messages",
+    path: "/parent/messages",
+    icon: MessageSquare,
   },
   {
     label: "Complaints",
@@ -469,6 +663,84 @@ export const parentRoutes = [
     path: "/parent/notifications",
     icon: Bell,
   },
+
+  // ─── Events ──────────────────────────────────────────────────────────
+  {
+    label: "Events",
+    path: "/parent/events",
+    icon: Calendar,
+  },
+  {
+    label: "Calendar",
+    path: "/parent/calendar",
+    icon: CalendarDays,
+  },
+
+  // ─── Transport ─────────────────────────────────────────────────────────
+  {
+    label: "Transport",
+    path: "/parent/transport",
+    icon: MapPin,
+  },
+
+  // ─── Library ──────────────────────────────────────────────────────────
+  {
+    label: "Library",
+    path: "/parent/library",
+    icon: LibraryIcon,
+  },
+
+  // ─── Canteen ──────────────────────────────────────────────────────────
+  {
+    label: "Canteen",
+    path: "/parent/canteen",
+    icon: Utensils,
+  },
+
+  // ─── PTM ──────────────────────────────────────────────────────────────
+  {
+    label: "PTM",
+    path: "/parent/ptm",
+    icon: Handshake,
+  },
+
+  // ─── Certificates ──────────────────────────────────────────────────────
+  {
+    label: "Certificates",
+    path: "/parent/certificates",
+    icon: Award,
+  },
+
+  // ─── Submissions ──────────────────────────────────────────────────────
+  {
+    label: "Submissions",
+    path: "/parent/submissions",
+    icon: FileCheck,
+  },
+
+  // ─── Security ─────────────────────────────────────────────────────────
+  {
+    label: "Security",
+    path: "/parent/security",
+    icon: Shield,
+  },
+
+  // ─── Analytics ────────────────────────────────────────────────────────
+  {
+    label: "Analytics",
+    path: "/parent/analytics",
+    icon: BarChart3,
+  },
+
+  // ─── AI Chat ──────────────────────────────────────────────────────────
+  {
+    label: "AI Chat Assistant",
+    path: "/parent/chat",
+    icon: MessageSquare,
+    badge: "Beta",
+  },
+
+  // ─── Settings ─────────────────────────────────────────────────────────
   {
     label: "Settings",
     path: "/parent/settings",

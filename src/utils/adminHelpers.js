@@ -1,4 +1,4 @@
-﻿// ─── Format Currency ──────────────────────────────────────────────────────
+// --- Format Currency ------------------------------------------------------
 export const formatCurrency = (amount) => {
   const numAmount = Number(amount);
   if (isNaN(numAmount) || numAmount === 0) {
@@ -15,7 +15,7 @@ export const formatCurrency = (amount) => {
   }).format(numAmount);
 };
 
-// ─── Get Status ────────────────────────────────────────────────────────────
+// --- Get Status ------------------------------------------------------------
 export const getStatus = (status) => {
   const statusMap = {
     available: { label: "Available", className: "bg-green-100 text-green-700 border-green-200" },
@@ -26,7 +26,7 @@ export const getStatus = (status) => {
   return statusMap[status] || { label: status || "Unknown", className: "bg-gray-100 text-gray-700 border-gray-200" };
 };
 
-// ─── Get Category Style ────────────────────────────────────────────────────
+// --- Get Category Style ----------------------------------------------------
 export const getCategoryStyle = (category) => {
   const styles = {
     stationery: "bg-blue-50 text-blue-700 border-blue-200",
@@ -39,9 +39,9 @@ export const getCategoryStyle = (category) => {
   return styles[category?.toLowerCase()] || "bg-gray-50 text-gray-700 border-gray-200";
 };
 
-// ─── Format Date ───────────────────────────────────────────────────────────
+// --- Format Date -----------------------------------------------------------
 export const formatDate = (dateString) => {
-  if (!dateString) return "—";
+  if (!dateString) return "�";
   return new Date(dateString).toLocaleDateString("en-PK", {
     year: "numeric",
     month: "short",

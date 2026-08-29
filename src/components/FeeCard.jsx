@@ -166,8 +166,7 @@ function FeeCard({
             rounded-full
             px-4
             py-2
-            text-sm
-            font-medium
+            text-sm font-medium
             ${statusStyles[status]}
           `}
         >
@@ -243,12 +242,10 @@ function FeeCard({
           onClick={onPay}
           className="
             mt-6
-            flex
-            w-full
+            flex w-full
             items-center
             justify-center
-            gap-2
-            rounded-button
+            gap-2 rounded-button
             bg-gradient-to-r
             from-brand-primary
             to-parent-primary
@@ -259,8 +256,7 @@ function FeeCard({
             transition-all
             duration-300
             hover:-translate-y-1
-            hover:shadow-lg
-          "
+            hover:shadow-lg"
         >
           <Wallet size={18} />
           Pay Now
@@ -275,21 +271,16 @@ function FeeCard({
         <div
           className="
             mt-6
-            flex
-            items-center
+            flex items-center
             justify-center
-            gap-2
-            rounded-button
+            gap-2 rounded-button
             bg-success-bg
             px-4
             py-3
             font-medium
-            text-success-text
-          "
+            text-success-text"
         >
-          <CircleDollarSign
-            size={18}
-          />
+          <CircleDollarSign size={18} />
           Payment Completed
         </div>
       )}

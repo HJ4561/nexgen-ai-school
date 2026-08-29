@@ -150,8 +150,8 @@ export default function BehaviorStats({ logs, recentLogs, onViewDetail }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-xs">
-          <p className="font-semibold text-[var(--color-text-primary)]">{label}</p>
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200 text-xs px-4 sm:px-6 lg:px-8">
+          <p className="font-semibold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">{label}</p>
           {payload.map((entry) => (
             <p key={entry.name} style={{ color: entry.color }}>
               {entry.name}: {entry.value}
@@ -178,22 +178,22 @@ export default function BehaviorStats({ logs, recentLogs, onViewDetail }) {
   const hasData = trendData.length > 0 && trendData.some(d => d.High > 0 || d.Medium > 0 || d.Low > 0);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 lg:grid-cols-5 gap-5 px-4 sm:px-6 lg:px-8">
       {/* ─── Trend Chart (60%) ─── */}
-      <div className="lg:col-span-3 bg-white rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100">
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-4">
+      <div className="lg:col-span-3 bg-white rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 px-4 sm:px-6 lg:px-8">
+        <h3 className="text-sm md:text-base md:text-base font-semibold text-[var(--color-text-primary)] mb-4 px-4 sm:px-6 lg:px-8">
           Behavior Trends Over Time
         </h3>
         {!hasData ? (
           // Empty state when no data is available
-          <div className="flex items-center justify-center h-48 text-sm text-[var(--color-text-muted)]">
+          <div className="flex flex-col md:flex-row items-center justify-center h-48 text-sm md:text-base md:text-base text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
             {trendData.length === 0
               ? 'No behavior data available to display trends.'
               : 'All severity counts are zero.'}
           </div>
         ) : (
           // Trend chart with three severity lines
-          <div className="h-64 w-full">
+          <div className="h-64 w-full px-4 sm:px-6 lg:px-8">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -236,48 +236,48 @@ export default function BehaviorStats({ logs, recentLogs, onViewDetail }) {
       </div>
 
       {/* ─── Recent Logs (40%) ─── */}
-      <div className="lg:col-span-2 bg-white rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
+      <div className="lg:col-span-2 bg-white rounded-xl p-5 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-3 px-4 sm:px-6 lg:px-8">
+          <h3 className="text-sm md:text-base md:text-base font-semibold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
             Recent Logs
           </h3>
           {recentLogs.length > 0 && (
-            <span className="text-[10px] text-[var(--color-text-muted)]">
+            <span className="text-[10px] text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
               Latest {recentLogs.length} entries
             </span>
           )}
         </div>
         {recentLogs.length === 0 ? (
           // Empty state when no recent logs
-          <div className="text-center py-6">
-            <p className="text-sm text-[var(--color-text-muted)]">No logs yet</p>
+          <div className="text-center py-6 px-4 sm:px-6 lg:px-8">
+            <p className="text-sm md:text-base md:text-base text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">No logs yet</p>
           </div>
         ) : (
           // List of recent logs with click-to-view functionality
-          <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-80 overflow-y-auto pr-1 px-4 sm:px-6 lg:px-8">
             {recentLogs.map((log) => (
               <div
                 key={log.id}
-                className="group bg-[var(--color-surface-dim)] rounded-lg p-3 hover:bg-white transition-all cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm"
+                className="group bg-[var(--color-surface-dim)] rounded-lg p-3 hover:bg-white transition-all cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm px-4 sm:px-6 lg:px-8"
                 onClick={() => onViewDetail(log)}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
+                <div className="flex flex-col md:flex-row items-start justify-between gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                  <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
                     {/* Student name */}
-                    <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                    <p className="text-sm md:text-base md:text-base font-medium text-[var(--color-text-primary)] truncate px-4 sm:px-6 lg:px-8">
                       {log.student_name}
                     </p>
                     {/* Description */}
-                    <p className="text-xs text-[var(--color-text-muted)] truncate mt-0.5">
+                    <p className="text-xs text-[var(--color-text-muted)] truncate mt-0.5 px-4 sm:px-6 lg:px-8">
                       {log.description}
                     </p>
                     {/* Metadata: reporter and date */}
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-[var(--color-text-muted)]">
+                    <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 mt-1 px-4 sm:px-6 lg:px-8">
+                      <span className="text-[10px] text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                         {log.reported_by_name}
                       </span>
-                      <span className="w-0.5 h-0.5 rounded-full bg-[var(--color-text-muted)]" />
-                      <span className="text-[10px] text-[var(--color-text-muted)]">
+                      <span className="w-0.5 h-0.5 rounded-full bg-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+                      <span className="text-[10px] text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                         {formatDate(log.created_at)}
                       </span>
                     </div>
@@ -290,7 +290,7 @@ export default function BehaviorStats({ logs, recentLogs, onViewDetail }) {
                   >
                     {log.severity}
                   </span>
-                  <ChevronRight size={14} className="text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1" />
+                  <ChevronRight size={14} className="text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1 px-4 sm:px-6 lg:px-8" />
                 </div>
               </div>
             ))}

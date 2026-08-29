@@ -1,37 +1,36 @@
+// src/modules/student/pages/Attendance.jsx
+
 /**
  * ============================================
- * STUDENT ATTENDANCE COMPONENT
+ * STUDENT ATTENDANCE - REDESIGNED WITH IMPROVED UI/UX
  * ============================================
  * 
- * Purpose: Displays student attendance history with monthly view
+ * Purpose: View student attendance history with beautiful UI
  * Used by: Student module routes
  * 
  * Features:
- * - Monthly attendance overview with donut chart
- * - Present/Absent/Leave statistics cards
- * - Month selector with calendar icon
- * - Paginated attendance history
- * - Status badges with color coding
- * - Animated entrance effects
- * - Role-based theming (student primary color)
- * - Responsive design
+ * - Beautiful gradient design with glass morphism
+ * - Animated donut chart with smooth transitions
+ * - Real API data with Redux integration
+ * - Filter by month with elegant dropdown
+ * - Pagination with smooth animations
+ * - Responsive design for all devices
+ * - Loading skeleton states
+ * - Error handling with retry
+ * - New API fields: student_name, teacher_name, marked_by_name
  * 
- * Dependencies:
- * - lucide-react for icons
- * - @/components/layout/PageHeader for page header
- * - @/components/ui/Card for containers
- * - @/components/ui/Badge for status indicators
- * - @/modules/student/store/studentThunks for data fetching
- * - react-redux for state management
+ * API Endpoints:
+ * - GET /api/attendance/attendance/ - Get attendance records
  * 
  * Usage:
  * <Route path="/student/attendance" element={<Attendance />} />
  * ============================================
  */
 
-import React from 'react';
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   CheckCircle2,
@@ -40,83 +39,115 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Loader2,
+  AlertCircle,
+  User,
+  Users,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  PieChart,
+  Sparkles,
+  Zap,
+  Award,
+  Star,
 } from "lucide-react";
 
-import { fetchAttendance } from "@/modules/student/store/studentThunks";
-
 import PageHeader from "@/components/layout/PageHeader";
-import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
+
+// ─── Redux ──────────────────────────────────────────────────────────────
+import {
+  fetchAttendance,
+} from "@/modules/student/store/studentThunks";
+
+import {
+  selectStudentAttendance,
+  selectStudentLoading,
+  selectStudentError,
+} from "@/modules/student/store/studentSlice";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-/**
- * ============================================
- * STATUS COLORS
- * ============================================
- * 
- * Color schemes for each attendance status
- * - present: Emerald → Teal
- * - absent: Rose → Crimson
- * - leave: Amber → Orange
- */
 const STATUS_COLORS = {
   present: ["#34D399", "#0D9488"],
   absent: ["#FB7185", "#E11D48"],
   leave: ["#FBBF24", "#D97706"],
+  late: ["#60A5FA", "#2563EB"],
+  holiday: ["#A78BFA", "#7C3AED"],
 };
 
-/**
- * ============================================
- * ATTENDANCE PER PAGE
- * ============================================
- * 
- * Number of attendance records to display per page
- */
-const ATTENDANCE_PER_PAGE = 8;
+const STATUS_ICONS = {
+  present: CheckCircle2,
+  absent: XCircle,
+  leave: Clock3,
+  late: Clock3,
+  holiday: Calendar,
+};
 
-// ─── Visual Primitives ──────────────────────────────────────────────────────
+const ATTENDANCE_PER_PAGE = 6;
 
-/**
- * ============================================
- * ATTENDANCE DONUT CHART
- * ============================================
- * 
- * Animated multi-segment donut showing the present/absent/leave
- * composition of the selected month, with the overall attendance
- * percentage sitting in the center.
- * 
- * @param {Object} props - Component props
- * @param {number} props.present - Number of present days
- * @param {number} props.absent - Number of absent days
- * @param {number} props.leave - Number of leave days
- * @param {number} props.percentage - Overall attendance percentage
- * @param {number} props.size - Chart size in pixels (default: 156)
- * @param {number} props.thickness - Stroke thickness (default: 16)
- * @returns {JSX.Element} Donut chart with center text
- */
-const AttendanceDonut = ({ present, absent, leave, percentage, size = 156, thickness = 16 }) => {
+// ─── Status Badge ──────────────────────────────────────────────────────────
+
+const StatusBadge = ({ status }) => {
+  const configs = {
+    present: { color: "bg-emerald-100 text-emerald-700 border-emerald-200", label: "Present" },
+    absent: { color: "bg-red-100 text-red-700 border-red-200", label: "Absent" },
+    leave: { color: "bg-amber-100 text-amber-700 border-amber-200", label: "Leave" },
+    on_leave: { color: "bg-amber-100 text-amber-700 border-amber-200", label: "On Leave" },
+    late: { color: "bg-blue-100 text-blue-700 border-blue-200", label: "Late" },
+    holiday: { color: "bg-purple-100 text-purple-700 border-purple-200", label: "Holiday" },
+  };
+
+  const normalizedStatus = status?.toLowerCase() || "present";
+  const config = configs[normalizedStatus] || configs.present;
+
+  return (
+    <motion.span
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${config.color}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${config.color.replace('bg-', 'bg-').split(' ')[0]}`} />
+      {config.label}
+    </motion.span>
+  );
+};
+
+// ─── AttendanceDonut Component ─────────────────────────────────────────────
+
+const AttendanceDonut = ({ present, absent, leave, late, percentage, size = 160, thickness = 18 }) => {
   const [mounted, setMounted] = useState(false);
+  
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(raf);
+    const timer = setTimeout(() => setMounted(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  const total = present + absent + leave || 1;
+  const total = present + absent + leave + late || 1;
   const radius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * radius;
 
   const segments = [
-    { key: "present", value: present, colors: STATUS_COLORS.present },
-    { key: "absent", value: absent, colors: STATUS_COLORS.absent },
-    { key: "leave", value: leave, colors: STATUS_COLORS.leave },
+    { key: "present", value: present, colors: STATUS_COLORS.present, label: "Present" },
+    { key: "absent", value: absent, colors: STATUS_COLORS.absent, label: "Absent" },
+    { key: "leave", value: leave, colors: STATUS_COLORS.leave, label: "Leave" },
+    { key: "late", value: late, colors: STATUS_COLORS.late, label: "Late" },
   ];
 
   let cumulative = 0;
 
   return (
-    <div className="relative flex h-[156px] w-[156px] items-center justify-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+    <div className="relative flex items-center justify-center">
+      {/* Glow effect */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/20 to-blue-500/20 blur-2xl scale-110" />
+      
+      <svg 
+        width={size} 
+        height={size} 
+        viewBox={`0 0 ${size} ${size}`} 
+        className="-rotate-90 relative z-10"
+      >
         <defs>
           {segments.map((s) => (
             <linearGradient key={s.key} id={`donut-${s.key}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -133,10 +164,9 @@ const AttendanceDonut = ({ present, absent, leave, percentage, size = 156, thick
           r={radius}
           fill="none"
           strokeWidth={thickness}
-          className="stroke-slate-100 dark:stroke-slate-800"
+          className="stroke-gray-100"
         />
 
-        {/* Segments */}
         {segments.map((s) => {
           const share = s.value / total;
           const dash = mounted ? share * circumference : 0;
@@ -157,98 +187,67 @@ const AttendanceDonut = ({ present, absent, leave, percentage, size = 156, thick
               stroke={`url(#donut-${s.key})`}
               strokeDasharray={`${dash} ${circumference}`}
               strokeDashoffset={offset}
-              style={{ transition: "stroke-dasharray 1s cubic-bezier(0.22, 1, 0.36, 1)" }}
+              style={{ 
+                transition: "stroke-dasharray 1.2s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
             />
           );
         })}
       </svg>
 
-      {/* Center text */}
-      <div className="absolute flex flex-col items-center">
-        <span className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+      <div className="absolute flex flex-col items-center z-20">
+        <motion.span 
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+          className="text-3xl sm:text-4xl font-bold text-gray-900"
+        >
           {percentage}%
+        </motion.span>
+        <span className="text-xs font-medium text-gray-400">
+          Attendance Rate
         </span>
-        <span className="text-xs font-medium text-slate-400 dark:text-slate-500">Present</span>
       </div>
     </div>
   );
 };
 
-/**
- * ============================================
- * METRIC CARD
- * ============================================
- * 
- * Compact gradient-badge stat card used in the top row
- * 
- * @param {Object} props - Component props
- * @param {string} props.label - Card label
- * @param {number|string} props.value - Metric value
- * @param {string} props.footer - Footer text
- * @param {Component} props.icon - Lucide icon component
- * @param {Array} props.colors - Gradient color array
- * @param {number} props.delay - Animation delay in ms
- * @returns {JSX.Element} Metric card UI
- */
-const MetricCard = ({ label, value, footer, icon: Icon, colors, delay }) => (
-  <div
-    style={{ animationDelay: `${delay}ms` }}
-    className="group relative overflow-hidden rounded-2xl border border-student-border bg-white p-5
-               opacity-0 shadow-sm [animation-fill-mode:forwards] animate-[attendance-in_0.6s_ease-out]
-               transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60"
+// ─── MetricCard Component ──────────────────────────────────────────────────
+
+const MetricCard = ({ label, value, icon: Icon, colors, delay }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: delay || 0, duration: 0.5, type: "spring", stiffness: 100 }}
+    whileHover={{ y: -6, transition: { duration: 0.2 } }}
+    className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100"
   >
     <div
-      aria-hidden
-      className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-0 blur-2xl
-                 transition-opacity duration-500 group-hover:opacity-20"
+      className="absolute -right-8 -top-8 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20"
       style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
     />
+    
     <div className="relative flex items-start justify-between">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-        <p className="mt-1.5 text-3xl font-semibold text-slate-800">{value}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+          {label}
+        </p>
+        <p className="mt-1 text-2xl sm:text-3xl font-bold text-gray-900">
+          {value}
+        </p>
       </div>
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm
-                   transition-transform duration-300 group-hover:scale-105"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110"
         style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
       >
-        <Icon size={20} strokeWidth={2.25} />
+        <Icon size={20} strokeWidth={2} />
       </div>
     </div>
-    <p className="relative mt-3 text-sm font-medium text-slate-500">{footer}</p>
-  </div>
+  </motion.div>
 );
 
-/**
- * ============================================
- * STATUS META
- * ============================================
- * 
- * Maps status to icon and color scheme
- */
-const STATUS_META = {
-  Present: { icon: CheckCircle2, colors: STATUS_COLORS.present },
-  Absent: { icon: XCircle, colors: STATUS_COLORS.absent },
-  Leave: { icon: Clock3, colors: STATUS_COLORS.leave },
-};
+// ─── Pagination Component ──────────────────────────────────────────────────
 
-// ─── Pagination ──────────────────────────────────────────────────────────────
-
-/**
- * ============================================
- * PAGINATION COMPONENT
- * ============================================
- * 
- * Prev/Next + a compact page-number strip, with ellipses once the
- * page count grows past what's comfortable to show in full.
- * 
- * @param {Object} props - Component props
- * @param {number} props.currentPage - Current page number
- * @param {number} props.totalPages - Total number of pages
- * @param {Function} props.onPageChange - Page change callback
- * @returns {JSX.Element|null} Pagination controls or null
- */
 function Pagination({ currentPage, totalPages, onPageChange }) {
   if (totalPages <= 1) return null;
 
@@ -271,34 +270,28 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+    <div className="flex flex-wrap items-center justify-center gap-1.5">
       <button
-        type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-student-border bg-white text-text-secondary transition-colors hover:enabled:border-student-primary/40 hover:enabled:text-student-primary disabled:cursor-not-allowed disabled:opacity-40"
-        aria-label="Previous page"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-all hover:border-blue-400 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronLeft size={16} />
       </button>
 
       {getPageNumbers().map((page, index) =>
         page === "..." ? (
-          <span
-            key={`ellipsis-${index}`}
-            className="flex h-9 w-9 items-center justify-center text-sm text-text-secondary"
-          >
+          <span key={`ellipsis-${index}`} className="flex h-9 w-9 items-center justify-center text-sm text-gray-400">
             …
           </span>
         ) : (
           <button
             key={page}
-            type="button"
             onClick={() => onPageChange(page)}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
+            className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-semibold transition-all ${
               page === currentPage
-                ? "bg-student-primary text-white shadow-sm"
-                : "border border-student-border bg-white text-text-secondary hover:border-student-primary/40 hover:text-student-primary"
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                : "border border-gray-200 bg-white text-gray-600 hover:border-blue-400 hover:text-blue-600"
             }`}
           >
             {page}
@@ -307,11 +300,9 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
       )}
 
       <button
-        type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-student-border bg-white text-text-secondary transition-colors hover:enabled:border-student-primary/40 hover:enabled:text-student-primary disabled:cursor-not-allowed disabled:opacity-40"
-        aria-label="Next page"
+        className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-all hover:border-blue-400 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronRight size={16} />
       </button>
@@ -319,116 +310,120 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   );
 }
 
+// ─── Loading Skeleton ─────────────────────────────────────────────────────
+
+const AttendanceSkeleton = () => (
+  <div className="space-y-4">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-11 w-11 rounded-xl bg-gray-200" />
+            <div>
+              <div className="h-5 w-48 bg-gray-200 rounded-lg" />
+              <div className="mt-1.5 h-4 w-32 bg-gray-200 rounded-lg" />
+            </div>
+          </div>
+          <div className="ml-auto h-7 w-20 bg-gray-200 rounded-full" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 
-/**
- * ============================================
- * ATTENDANCE COMPONENT
- * ============================================
- * 
- * Renders the student attendance page with monthly view
- * 
- * @returns {JSX.Element} Student attendance page
- * 
- * @example
- * // In student routes
- * <Route path="/student/attendance" element={<Attendance />} />
- * ============================================
- */
 function Attendance() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { attendance, loading } = useSelector((state) => state.student);
 
-  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  // ─── Redux State ──────────────────────────────────────────────────────
+  const attendance = useSelector(selectStudentAttendance);
+  const loading = useSelector(selectStudentLoading);
+  const error = useSelector(selectStudentError);
+
+  // ─── Local State ──────────────────────────────────────────────────────
   const currentYear = new Date().getFullYear();
-
-  // ─── State Management ──────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * STATE
-   * ============================================
-   * 
-   * - selectedMonth: Currently selected month for filtering
-   * - currentPage: Current page for pagination
-   */
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState("All Months");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ─── Data Fetching ─────────────────────────────────────────────────────
+  // ─── Fetch Attendance ──────────────────────────────────────────────────
 
   useEffect(() => {
-    dispatch(fetchAttendance());
-  }, [dispatch]);
+    const fetchAttendanceData = async () => {
+      try {
+        console.log("🔍 Fetching attendance using Redux...");
+        await dispatch(fetchAttendance()).unwrap();
+      } catch (err) {
+        console.error("❌ Error fetching attendance:", err);
+        if (err?.response?.status === 401) {
+          navigate('/login');
+        }
+      }
+    };
 
-  // ─── Month Options ─────────────────────────────────────────────────────
+    fetchAttendanceData();
+  }, [dispatch, navigate]);
+
+  // ─── Computed Values ───────────────────────────────────────────────────
 
   const months = [
+    "All Months",
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
   ];
 
-  // ─── Computed Data ─────────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * MONTHLY ATTENDANCE
-   * ============================================
-   * 
-   * Filters attendance records for the selected month
-   */
   const monthlyAttendance = useMemo(() => {
+    if (!attendance || attendance.length === 0) return [];
+    
+    if (selectedMonth === "All Months") {
+      return attendance;
+    }
+    
     return attendance.filter((item) => {
-      const month = new Date(item.date).toLocaleString("default", { month: "long" });
-      return month === selectedMonth;
+      if (!item.date) return false;
+      try {
+        const month = new Date(item.date).toLocaleString("default", { month: "long" });
+        return month === selectedMonth;
+      } catch (e) {
+        return false;
+      }
     });
   }, [attendance, selectedMonth]);
 
-  /**
-   * ============================================
-   * STATS
-   * ============================================
-   * 
-   * Calculates attendance statistics for the selected month
-   * - present: Number of present days
-   * - absent: Number of absent days
-   * - leave: Number of leave days
-   * - percentage: Overall attendance percentage
-   */
+  const sortedAttendance = useMemo(() => {
+    return [...monthlyAttendance].sort((a, b) => {
+      try {
+        return new Date(b.date) - new Date(a.date);
+      } catch (e) {
+        return 0;
+      }
+    });
+  }, [monthlyAttendance]);
+
   const stats = useMemo(() => {
-    const present = monthlyAttendance.filter((item) => item.status === "Present").length;
-    const absent = monthlyAttendance.filter((item) => item.status === "Absent").length;
-    const leave = monthlyAttendance.filter((item) => item.status === "Leave").length;
+    const present = monthlyAttendance.filter((item) => item.status?.toLowerCase() === "present").length;
+    const absent = monthlyAttendance.filter((item) => item.status?.toLowerCase() === "absent").length;
+    const leave = monthlyAttendance.filter((item) => {
+      const status = item.status?.toLowerCase() || '';
+      return status === "leave" || status === "on_leave";
+    }).length;
+    const late = monthlyAttendance.filter((item) => {
+      const status = item.status?.toLowerCase() || '';
+      return status === "late";
+    }).length;
     const percentage = monthlyAttendance.length
       ? Math.round((present / monthlyAttendance.length) * 100)
       : 0;
 
-    return { present, absent, leave, percentage };
+    return { present, absent, leave, late, percentage, total: monthlyAttendance.length };
   }, [monthlyAttendance]);
 
-  /**
-   * ============================================
-   * SORTED ATTENDANCE
-   * ============================================
-   * 
-   * Sorts attendance records by date (newest first)
-   */
-  const sortedAttendance = useMemo(() => {
-    return [...monthlyAttendance].sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [monthlyAttendance]);
-
-  // ─── Pagination ────────────────────────────────────────────────────────
-
-  // Reset to page 1 whenever the selected month or attendance data changes
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedMonth, attendance]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedAttendance.length / ATTENDANCE_PER_PAGE)
-  );
-
+  const totalPages = Math.max(1, Math.ceil(sortedAttendance.length / ATTENDANCE_PER_PAGE));
   const paginatedAttendance = useMemo(() => {
     const start = (currentPage - 1) * ATTENDANCE_PER_PAGE;
     return sortedAttendance.slice(start, start + ATTENDANCE_PER_PAGE);
@@ -439,39 +434,57 @@ function Attendance() {
     setCurrentPage(page);
   };
 
-  // ─── Helper Functions ──────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * GET BADGE
-   * ============================================
-   * 
-   * Returns the appropriate badge component for a status
-   * 
-   * @param {string} status - Attendance status
-   * @returns {JSX.Element} Badge component
-   */
-  const getBadge = (status) => {
-    switch (status) {
-      case "Present":
-        return <Badge color="success">Present</Badge>;
-      case "Absent":
-        return <Badge color="danger">Absent</Badge>;
-      case "Leave":
-        return <Badge color="warning">Leave</Badge>;
-      default:
-        return <Badge color="secondary">Unknown</Badge>;
-    }
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value);
   };
 
   // ─── Loading State ─────────────────────────────────────────────────────
 
-  if (loading) {
+  if (loading && !attendance.length) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-student-primary border-t-transparent" />
-          <p className="text-sm text-text-secondary">Loading attendance...</p>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <PageHeader 
+            title="Attendance" 
+            subtitle="View your monthly attendance history" 
+            breadcrumbs={["Student", "Attendance"]} 
+            bgColor="bg-blue-50" 
+          />
+          <div className="mt-6">
+            <AttendanceSkeleton />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Error State ──────────────────────────────────────────────────────
+
+  if (error && !attendance.length) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <PageHeader 
+            title="Attendance" 
+            subtitle="View your monthly attendance history" 
+            breadcrumbs={["Student", "Attendance"]} 
+            bgColor="bg-blue-50" 
+          />
+          <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <AlertCircle className="h-10 w-10 text-red-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">Failed to load attendance</h3>
+              <p className="text-gray-500 mt-2 max-w-md">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="mt-6 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all hover:scale-105"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -480,193 +493,260 @@ function Attendance() {
   // ─── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-8">
-      {/* ─── Page Header ────────────────────────────────────────────────── */}
-      <PageHeader
-        bgColor="bg-student-light"
-        title="Attendance"
-        subtitle="View your monthly attendance history and records."
-        breadcrumbs={["Student", "Attendance"]}
-      />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20">
+        
+        <PageHeader
+          bgColor="bg-blue-50"
+          title="Attendance"
+          subtitle="Track your attendance progress and history"
+          breadcrumbs={["Student", "Attendance"]}
+        />
 
-      {/* ─── Overview: Donut + Metric Cards ─────────────────────────────── */}
-      <Card>
-        <div className="flex flex-col items-center gap-8 md:flex-row md:items-stretch">
-          {/* Donut Chart */}
-          <div className="flex shrink-0 items-center justify-center md:pr-8 md:border-r md:border-student-border">
-            <AttendanceDonut
-              present={stats.present}
-              absent={stats.absent}
-              leave={stats.leave}
-              percentage={stats.percentage}
-            />
-          </div>
+        {/* ─── Stats Overview ─────────────────────────────────────────────── */}
+        <div className="mt-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row items-center gap-8">
+              {/* Donut Chart */}
+              <div className="flex shrink-0 items-center justify-center lg:pr-8 lg:border-r lg:border-gray-200">
+                <AttendanceDonut
+                  present={stats.present}
+                  absent={stats.absent}
+                  leave={stats.leave}
+                  late={stats.late}
+                  percentage={stats.percentage}
+                />
+              </div>
 
-          {/* Metric Cards */}
-          <div className="grid flex-1 gap-4 sm:grid-cols-3">
-            <MetricCard
-              label="Present"
-              value={stats.present}
-              footer="Days recorded"
-              icon={CheckCircle2}
-              colors={STATUS_COLORS.present}
-              delay={0}
-            />
-            <MetricCard
-              label="Absent"
-              value={stats.absent}
-              footer="Days recorded"
-              icon={XCircle}
-              colors={STATUS_COLORS.absent}
-              delay={90}
-            />
-            <MetricCard
-              label="Leave"
-              value={stats.leave}
-              footer="Days recorded"
-              icon={Clock3}
-              colors={STATUS_COLORS.leave}
-              delay={180}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* ─── Attendance History ──────────────────────────────────────────── */}
-      <Card>
-        {/* Header with Month Selector */}
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-student-text">Attendance History</h2>
-            <p className="mt-1 text-sm text-text-secondary">
-              Daily attendance records for the selected month.
-            </p>
-          </div>
-
-          <div className="relative w-full md:w-56">
-            <Calendar
-              size={16}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-student-primary"
-            />
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full appearance-none rounded-xl border border-student-border bg-white
-                         py-3 pl-10 pr-9 text-sm font-medium outline-none transition-colors
-                         focus:border-student-primary"
-            >
-              {months.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={16}
-              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary"
-            />
-          </div>
-        </div>
-
-        {/* Month Title */}
-        <div className="mb-8 flex items-center gap-3">
-          <Calendar size={22} className="text-student-primary" />
-          <h3 className="text-lg font-bold text-student-text">
-            {selectedMonth} {currentYear}
-          </h3>
-        </div>
-
-        {/* Attendance Records */}
-        {sortedAttendance.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-20 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-student-light">
-              <Calendar size={24} className="text-student-primary" />
+              {/* Stats Grid */}
+              <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1">
+                <MetricCard
+                  label="Present Days"
+                  value={stats.present}
+                  icon={CheckCircle2}
+                  colors={STATUS_COLORS.present}
+                  delay={0.05}
+                />
+                <MetricCard
+                  label="Absent Days"
+                  value={stats.absent}
+                  icon={XCircle}
+                  colors={STATUS_COLORS.absent}
+                  delay={0.1}
+                />
+                <MetricCard
+                  label="Leave Days"
+                  value={stats.leave}
+                  icon={Clock3}
+                  colors={STATUS_COLORS.leave}
+                  delay={0.15}
+                />
+                <MetricCard
+                  label="Late Days"
+                  value={stats.late}
+                  icon={Clock3}
+                  colors={STATUS_COLORS.late}
+                  delay={0.2}
+                />
+              </div>
             </div>
-            <p className="text-text-secondary">
-              No attendance records found for {selectedMonth}.
-            </p>
+
+            {/* Summary Bar */}
+            <div className="mt-6 pt-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-emerald-500" />
+                  <span className="text-sm text-gray-600">Present</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.present}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-red-500" />
+                  <span className="text-sm text-gray-600">Absent</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.absent}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-amber-500" />
+                  <span className="text-sm text-gray-600">Leave</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.leave}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-blue-500" />
+                  <span className="text-sm text-gray-600">Late</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.late}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <BarChart3 size={16} />
+                <span>{stats.total} total records</span>
+              </div>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="space-y-3">
-              {paginatedAttendance.map((item, index) => {
-                const meta = STATUS_META[item.status] || {
-                  icon: Clock3,
-                  colors: ["#94A3B8", "#64748B"],
-                };
-                const StatusIcon = meta.icon;
+        </div>
 
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      borderLeftColor: meta.colors[1],
-                      animationDelay: `${Math.min(index, 10) * 45}ms`,
-                    }}
-                    className="flex flex-col gap-4 rounded-2xl border border-student-border
-                               border-l-4 bg-student-light p-5 opacity-0 shadow-sm
-                               [animation-fill-mode:forwards] animate-[attendance-in_0.5s_ease-out]
-                               transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md
-                               md:flex-row md:items-center md:justify-between"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
-                        style={{ background: `linear-gradient(135deg, ${meta.colors[0]}, ${meta.colors[1]})` }}
-                      >
-                        <StatusIcon size={20} strokeWidth={2.25} />
-                      </div>
+        {/* ─── Attendance History ──────────────────────────────────────────── */}
+        <div className="mt-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <Calendar className="h-6 w-6 text-blue-600" />
+                  Attendance History
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Daily attendance records for the selected month
+                </p>
+              </div>
 
-                      <div>
-                        <p className="font-semibold text-text-primary">
-                          {new Date(item.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </p>
-                        <p className="mt-1 text-sm text-text-secondary">
-                          Recorded by Teacher #{item.marked_by_teacher_id}
-                        </p>
-                      </div>
-                    </div>
+              <div className="relative w-full sm:w-56">
+                <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600" />
+                <select
+                  value={selectedMonth}
+                  onChange={handleMonthChange}
+                  className="w-full appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-8 text-sm font-medium text-gray-900 outline-none transition-colors focus:border-blue-500"
+                >
+                  {months.map((month) => (
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
 
-                    {getBadge(item.status)}
+            {/* Month Title */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {selectedMonth === "All Months" ? "All Records" : `${selectedMonth} ${currentYear}`}
+              </h3>
+              <span className="text-sm text-gray-500">
+                {sortedAttendance.length} record{sortedAttendance.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+
+            {/* Attendance List */}
+            {sortedAttendance.length === 0 ? (
+              <div className="flex flex-col items-center gap-4 py-16 text-center">
+                <div className="h-16 w-16 rounded-full bg-blue-50 flex items-center justify-center">
+                  <Calendar size={32} className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-lg font-medium text-gray-800">
+                    {!attendance || attendance.length === 0 
+                      ? "No attendance records found" 
+                      : `No records for ${selectedMonth}`}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {!attendance || attendance.length === 0
+                      ? "Records will appear once your teacher marks attendance"
+                      : "Try selecting a different month"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <AnimatePresence>
+                    {paginatedAttendance.map((item, index) => {
+                      const StatusIcon = STATUS_ICONS[item.status?.toLowerCase()] || Clock3;
+                      const colors = STATUS_COLORS[item.status?.toLowerCase()] || STATUS_COLORS.present;
+                      
+                      // Use new API fields
+                      const studentName = item.student_name || item.student?.name || 'You';
+                      const teacherName = item.teacher_name || item.marked_by_name || item.teacher?.name || 'Teacher';
+                      const className = item.class_name || item.class_obj?.name || '';
+
+                      return (
+                        <motion.div
+                          key={item.id || index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          whileHover={{ y: -2 }}
+                          className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 sm:p-5 transition-all hover:shadow-md"
+                        >
+                          {/* Left accent bar */}
+                          <div 
+                            className="absolute left-0 top-0 h-full w-1 rounded-l-full"
+                            style={{ background: `linear-gradient(180deg, ${colors[0]}, ${colors[1]})` }}
+                          />
+                          
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pl-4">
+                            <div className="flex items-center gap-4">
+                              <div
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-lg"
+                                style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
+                              >
+                                <StatusIcon size={18} strokeWidth={2} />
+                              </div>
+
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {item.date ? new Date(item.date).toLocaleDateString("en-US", {
+                                    weekday: "long",
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  }) : "Unknown date"}
+                                </p>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                                  <span className="flex items-center gap-1">
+                                    <User size={12} className="text-gray-400" />
+                                    {studentName}
+                                  </span>
+                                  {teacherName && (
+                                    <span className="flex items-center gap-1">
+                                      <Users size={12} className="text-gray-400" />
+                                      {teacherName}
+                                    </span>
+                                  )}
+                                  {className && (
+                                    <span className="text-gray-400">• {className}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 self-start sm:self-center">
+                              <StatusBadge status={item.status} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-6 pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="text-xs text-gray-500">
+                      Showing {(currentPage - 1) * ATTENDANCE_PER_PAGE + 1}
+                      {"–"}
+                      {Math.min(currentPage * ATTENDANCE_PER_PAGE, sortedAttendance.length)} of{" "}
+                      {sortedAttendance.length} record{sortedAttendance.length !== 1 ? 's' : ''}
+                    </p>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
                   </div>
-                );
-              })}
-            </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
 
-            {/* Pagination */}
-            <div className="mt-6 flex flex-col items-center gap-2">
-              <p className="text-xs text-text-secondary">
-                Showing {(currentPage - 1) * ATTENDANCE_PER_PAGE + 1}
-                {"–"}
-                {Math.min(currentPage * ATTENDANCE_PER_PAGE, sortedAttendance.length)} of{" "}
-                {sortedAttendance.length} records
-              </p>
-
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          </>
-        )}
-      </Card>
-
-      {/* ─── Animation Styles ───────────────────────────────────────────── */}
-      <style>{`
-        @keyframes attendance-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          [class*="animate-[attendance-in"] { animation: none !important; opacity: 1 !important; transform: none !important; }
-        }
-      `}</style>
+        {/* Footer */}
+        <div className="mt-8 text-center text-xs text-gray-400">
+          <p>© 2024 Smart School Management System • Attendance Module</p>
+          <p className="mt-1">
+            {stats.total} total records • {stats.percentage}% attendance rate
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

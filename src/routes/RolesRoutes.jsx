@@ -1,4 +1,5 @@
-﻿// src/routes/RolesRoutes.jsx
+// src/routes/RolesRoutes.jsx
+// ? CORRECT: No .jsx for package imports
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -10,7 +11,7 @@ function RoleRoute({ allowedRoles }) {
   const authData = JSON.parse(localStorage.getItem("auth_data") || "{}");
   const userRole = authData.role || user?.role_name || user?.role || localStorage.getItem("user_role");
   
-  console.log("🔐 RoleRoute Debug:", {
+  console.log("?? RoleRoute Debug:", {
     allowedRoles,
     userRole,
     isAuthenticated,
@@ -23,7 +24,7 @@ function RoleRoute({ allowedRoles }) {
   const isLoggedIn = isAuthenticated || !!authData.access;
   
   if (!isLoggedIn) {
-    console.log("❌ Not authenticated, redirecting to login");
+    console.log("? Not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
@@ -33,11 +34,11 @@ function RoleRoute({ allowedRoles }) {
   );
 
   if (!hasAllowedRole) {
-    console.log(`❌ Role "${userRole}" not allowed. Allowed:`, allowedRoles);
+    console.log(`? Role "${userRole}" not allowed. Allowed:`, allowedRoles);
     return <Navigate to="/login" replace />;
   }
 
-  console.log(`✅ Role "${userRole}" allowed, rendering outlet`);
+  console.log(`? Role "${userRole}" allowed, rendering outlet`);
   return <Outlet />;
 }
 

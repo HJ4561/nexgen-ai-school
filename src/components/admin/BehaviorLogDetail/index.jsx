@@ -1,4 +1,4 @@
-﻿// src/components/admin/BehaviorLogDetail/index.jsx
+// src/components/admin/BehaviorLogDetail/index.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -91,8 +91,8 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
           transition={{ duration: 0.3, delay: 0.05 }}
           className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         >
-          {/* ─── Header ─── */}
-          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+          {/* --- Header --- */}
+          <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-4 text-white">
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -132,7 +132,7 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
             </div>
           </div>
 
-          {/* ─── Quick Actions Bar ─── */}
+          {/* --- Quick Actions Bar --- */}
           <div className="flex items-center gap-2 px-6 py-3 bg-gray-50 border-b border-gray-100">
             <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-colors">
               <Download className="w-3.5 h-3.5" />
@@ -152,7 +152,7 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
             </span>
           </div>
 
-          {/* ─── Content ─── */}
+          {/* --- Content --- */}
           <div className="flex-1 overflow-y-auto p-6">
             {/* Tabs */}
             <div className="flex gap-1 mb-6 border-b border-gray-100">
@@ -171,7 +171,7 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
               ))}
             </div>
 
-            {/* ─── Tab: Details ─── */}
+            {/* --- Tab: Details --- */}
             {activeTab === "details" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Left Column */}
@@ -232,7 +232,7 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
               </div>
             )}
 
-            {/* ─── Tab: Timeline ─── */}
+            {/* --- Tab: Timeline --- */}
             {activeTab === "timeline" && (
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm text-gray-500">
@@ -258,7 +258,7 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
               </div>
             )}
 
-            {/* ─── Tab: Notes ─── */}
+            {/* --- Tab: Notes --- */}
             {activeTab === "notes" && (
               <div className="space-y-4">
                 <div className="bg-gray-50 rounded-xl p-4">
@@ -273,18 +273,17 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                   />
-                  <Button 
-                    className="mt-2" 
-                    size="sm"
+                  <button 
+                    className="mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
                     disabled={!note.trim()}
                     onClick={() => {
                       console.log("Note added:", note);
                       setNote("");
                     }}
                   >
-                    <MessageSquare className="w-4 h-4 mr-1.5" />
+                    <MessageSquare className="w-4 h-4 mr-1.5 inline" />
                     Add Note
-                  </Button>
+                  </button>
                 </div>
                 <div className="text-center text-sm text-gray-400 py-4">
                   No notes added yet
@@ -293,41 +292,35 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
             )}
           </div>
 
-          {/* ─── Footer ─── */}
+          {/* --- Footer --- */}
           <div className="border-t border-gray-100 px-6 py-4 bg-gray-50 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
               {log.status !== "resolved" && (
                 <>
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 hover:text-green-800 rounded-lg transition-all disabled:opacity-50"
                     disabled={isUpdating}
                     onClick={() => handleStatusUpdate("resolved")}
-                    className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 hover:text-green-800"
                   >
-                    <CheckCircle className="w-4 h-4 mr-1.5" />
+                    <CheckCircle className="w-4 h-4" />
                     Resolve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  </button>
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 hover:text-blue-800 rounded-lg transition-all disabled:opacity-50"
                     disabled={isUpdating}
                     onClick={() => handleStatusUpdate("in_progress")}
-                    className="bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800"
                   >
-                    <ClockIcon className="w-4 h-4 mr-1.5" />
+                    <ClockIcon className="w-4 h-4" />
                     In Progress
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  </button>
+                  <button
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-800 rounded-lg transition-all disabled:opacity-50"
                     disabled={isUpdating}
                     onClick={() => handleStatusUpdate("dismissed")}
-                    className="bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700 hover:text-gray-800"
                   >
-                    <X className="w-4 h-4 mr-1.5" />
+                    <X className="w-4 h-4" />
                     Dismiss
-                  </Button>
+                  </button>
                 </>
               )}
               {isUpdating && (
@@ -338,20 +331,18 @@ const BehaviorLogDetail = ({ log, onStatusUpdate, onClose }) => {
               )}
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
                 onClick={onClose}
               >
                 Close
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
+              </button>
+              <button
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
               >
-                <FileText className="w-4 h-4 mr-1.5" />
+                <FileText className="w-4 h-4" />
                 Full Report
-              </Button>
+              </button>
             </div>
           </div>
         </motion.div>

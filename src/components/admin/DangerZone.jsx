@@ -82,11 +82,8 @@ const DangerZone = ({ role }) => {
       {/* ─── Header Section ─── */}
       <div className="mb-6 flex items-center gap-3">
         {/* Warning icon container */}
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-danger/10">
-          <TriangleAlert
-            size={24}
-            className="text-danger"
-          />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-danger/10">
+          <TriangleAlert size={24} className="text-danger" />
         </div>
 
         <div>
@@ -137,9 +134,9 @@ const DangerZone = ({ role }) => {
         </p>
 
         <Button
-          className="mt-4"
           variant="outline"
           disabled
+          className="mt-4"
         >
           Delete Account (Coming Soon)
         </Button>

@@ -1,3 +1,5 @@
+// src/hooks/data/useTimetableData.js
+
 /**
  * ============================================
  * USE TIMETABLE DATA HOOK
@@ -7,7 +9,7 @@
  * Used by: Teacher - Timetable Management page
  * 
  * Data Sources:
- * - fetchTeacherTimetable: Teacher's timetable entries
+ * - fetchTimetable: Teacher's timetable entries
  * - fetchTeacherClasses: Teacher's assigned classes
  * 
  * Features:
@@ -43,7 +45,22 @@
 
 import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTeacherTimetable, fetchTeacherClasses } from "@/modules/teacher/store/teacherThunks";
+import { 
+  fetchTimetable, 
+  fetchTeacherClasses,
+  fetchSections,
+  fetchSubjects,
+  fetchRooms,
+} from "@/modules/teacher/store/teacherThunks";
+import {
+  selectTeacherTimetable,
+  selectTeacherClasses,
+  selectTeacherSections,
+  selectTeacherSubjects,
+  selectTeacherRooms,
+  selectTeacherLoading,
+  selectTeacherError,
+} from "@/modules/teacher/store/teacherSlice";
 import { SUBJECT_LIST } from '@/utils/SubjectMapping';
 
 // ─── Time Configuration ──────────────────────────────────────────────
@@ -110,6 +127,10 @@ export const isSlotCompleted = (dayShort, startTime) => {
 /**
  * useTimetableData Hook
  * 
+ * @param {Object} params - Query parameters for fetching timetable
+ * @param {number} params.class_id - Filter by class ID
+ * @param {number} params.teacher_id - Filter by teacher ID
+ * @param {string} params.day - Filter by day
  * @returns {Object} Timetable data and management functions
  * 
  * @example
@@ -122,33 +143,49 @@ export const isSlotCompleted = (dayShort, startTime) => {
  *   progressPercent
  * } = useTimetableData();
  */
-export function useTimetableData() {
+export function useTimetableData(params = {}) {
   const dispatch = useDispatch();
-  const { timetable, classes } = useSelector(state => state.teacher);
-  const { data: entries = [], loading, error } = timetable;
+  
+  // Use selectors to get data from Redux store
+  const timetable = useSelector(selectTeacherTimetable);
+  const classes = useSelector(selectTeacherClasses);
+  const sections = useSelector(selectTeacherSections);
+  const subjects = useSelector(selectTeacherSubjects);
+  const rooms = useSelector(selectTeacherRooms);
+  const loading = useSelector(selectTeacherLoading);
+  const error = useSelector(selectTeacherError);
 
   // ─── Fetch Data on Mount ──────────────────────────────────────────
   useEffect(() => {
-    dispatch(fetchTeacherTimetable());
+    dispatch(fetchTimetable(params));
     if (!classes?.length) {
       dispatch(fetchTeacherClasses());
+      dispatch(fetchSections());
+      dispatch(fetchSubjects());
+      dispatch(fetchRooms());
     }
-  }, [dispatch]);
+  }, [dispatch, JSON.stringify(params)]);
 
   // ─── Enrich entries with names ──────────────────────────────────
   const enrichedEntries = useMemo(() => {
-    return entries.map(entry => {
-      const subjectInfo = SUBJECT_LIST.find(s => s.id === entry.subject);
-      const classInfo = classes?.find(c => c.id === entry.class_section);
+    if (!timetable || !Array.isArray(timetable)) return [];
+    
+    return timetable.map(entry => {
+      const subjectInfo = subjects?.find(s => s.id === entry.subject);
+      const classInfo = classes?.find(c => c.id === entry.class_obj || c.id === entry.class_section);
+      const sectionInfo = sections?.find(s => s.id === entry.section);
+      const roomInfo = rooms?.find(r => r.id === entry.room);
+      
       return {
         ...entry,
-        subjectName: subjectInfo?.subject_name || `Subject ${entry.subject}`,
-        className: classInfo ? `${classInfo.class_name}-${classInfo.section}` : `Class ${entry.class_section}`,
-        roomName: `Room ${entry.room}`,
-        startSlot: entry.start_time.slice(0, 5),
+        subjectName: subjectInfo?.name || `Subject ${entry.subject}`,
+        className: classInfo?.name || `Class ${entry.class_obj || entry.class_section}`,
+        sectionName: sectionInfo?.name || `Section ${entry.section}`,
+        roomName: roomInfo?.name || `Room ${entry.room}`,
+        startSlot: entry.start_time?.slice(0, 5) || entry.start_time,
       };
     }).filter(entry => TIME_SLOTS.includes(entry.startSlot)); // only defined slots
-  }, [entries, classes]);
+  }, [timetable, classes, sections, subjects, rooms]);
 
   // ─── Today's Entries ──────────────────────────────────────────────
   const todayShort = getCurrentDayShort();
@@ -201,6 +238,36 @@ export function useTimetableData() {
     ? Math.round((stats.completedToday / stats.today) * 100)
     : 0;
 
+  // ─── Refresh Function ──────────────────────────────────────────
+  const refresh = () => {
+    dispatch(fetchTimetable(params));
+    dispatch(fetchTeacherClasses());
+    dispatch(fetchSections());
+    dispatch(fetchSubjects());
+    dispatch(fetchRooms());
+  };
+
+  // ─── Helper Functions ──────────────────────────────────────────
+  const getClassName = (classId) => {
+    const cls = classes?.find(c => c.id === classId);
+    return cls?.name || `Class ${classId}`;
+  };
+
+  const getSectionName = (sectionId) => {
+    const section = sections?.find(s => s.id === sectionId);
+    return section?.name || `Section ${sectionId}`;
+  };
+
+  const getSubjectName = (subjectId) => {
+    const subject = subjects?.find(s => s.id === subjectId);
+    return subject?.name || `Subject ${subjectId}`;
+  };
+
+  const getRoomName = (roomId) => {
+    const room = rooms?.find(r => r.id === roomId);
+    return room?.name || `Room ${roomId}`;
+  };
+
   return {
     loading,
     error,
@@ -212,8 +279,19 @@ export function useTimetableData() {
     upNext,
     progressPercent,
     todayShort,
+    refresh,
+    // Helper functions
+    getClassName,
+    getSectionName,
+    getSubjectName,
+    getRoomName,
+    // Raw data
+    timetable,
+    classes,
+    sections,
+    subjects,
+    rooms,
   };
 }
-
 
 export default useTimetableData;

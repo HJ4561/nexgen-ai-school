@@ -1,90 +1,64 @@
+// src/layouts/AuthLayout.jsx
+
 /**
  * ============================================
- * AUTH LAYOUT
+ * AUTH LAYOUT - CLEAN MODERN
  * ============================================
  * 
  * Purpose: Wrapper for all authentication pages
  * Pages: Login, Register, ForgotPassword, PendingApproval
  * 
  * Features:
- * - Light navy tint background with subtle dot grid pattern
- * - Centered white card with shadow
- * - School logo above the card
- * - Uses Outlet for nested routes
- * 
- * Usage:
- * <Route path="/login" element={<AuthLayout />}>
- *   <Route index element={<Login />} />
- * </Route>
+ * - Clean gradient background
+ * - Centered card with subtle shadow
+ * - School branding
+ * - Responsive design
  * ============================================
  */
 
 import { Outlet } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { GraduationCap, Sparkles } from 'lucide-react';
 
-/**
- * AuthLayout Component
- * 
- * Provides a consistent layout for all authentication pages
- * 
- * Layout Structure:
- * 1. Full viewport with gradient background
- * 2. School logo (GraduationCap icon + "School ERP" text)
- * 3. White card container for auth forms
- * 4. Outlet renders nested routes (Login, Register, etc.)
- * 
- * @returns {JSX.Element} Auth layout with outlet for child routes
- * 
- * @example
- * // In router configuration:
- * <Route path="/auth" element={<AuthLayout />}>
- *   <Route path="login" element={<Login />} />
- *   <Route path="register" element={<Register />} />
- *   <Route path="forgot-password" element={<ForgotPassword />} />
- * </Route>
- */
 function AuthLayout() {
   return (
-    /*
-      bg-[#EEF2F7]          → very light navy tint (brand-light)
-      bg-[radial-gradient…] → dot pattern using inline bg-image style
-      We use a style prop for the dot pattern since Tailwind v4 can't
-      build arbitrary background-image values reliably.
-    */
-    <div
-      className="flex min-h-screen flex-col items-center justify-center px-4 py-10"
-      style={{
-        backgroundColor: '#EEF2F7',
-        backgroundImage: 'radial-gradient(circle, #1E3A5F1A 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-      }}
-    >
-      {/* Logo above card */}
-      <div className="mb-6 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary">
-          <GraduationCap size={20} className="text-white" />
-        </div>
-        <span className="text-xl font-bold text-brand-primary tracking-tight">
-          School ERP
-        </span>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50 p-4">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-100 rounded-full opacity-20 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-100 rounded-full opacity-20 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-100 rounded-full opacity-10 blur-3xl" />
       </div>
 
-      {/* Card */}
-      <div className="w-full max-w-lg rounded-modal bg-surface p-8 shadow-soft">
-        <Outlet />
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative w-full max-w-md"
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <GraduationCap className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">NexGen School</h1>
+            <p className="text-xs text-gray-400">Management System</p>
+          </div>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          <Outlet />
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-gray-400 mt-6">
+          © 2024 NexGen School. All rights reserved.
+        </p>
+      </motion.div>
     </div>
   );
 }
 
 export default AuthLayout;
-
-
-
-
-
-
-
-
-
-

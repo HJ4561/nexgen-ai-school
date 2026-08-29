@@ -1,42 +1,116 @@
+// src/modules/teacher/services/teacherService.js
+
 /**
  * ============================================
- * TEACHER SERVICE
+ * TEACHER SERVICE - COMPLETE
  * ============================================
  * 
  * Purpose: Handles all teacher-related API calls
  * Used by: teacherThunks and teacher components
  * 
- * Features:
- * - Profile management
- * - Class and student management
- * - Attendance tracking
- * - Timetable operations
- * - Assignment CRUD operations
- * - Grade management
- * - Behavior logs
- * - Complaint handling
- * - Notification management
- * - Settings and password management
- * 
- * Dependencies:
- * - @/services/api for HTTP requests
- * 
- * API Endpoints:
- * - /teacher/profile
- * - /teacher/classes
- * - /teacher/attendance
- * - /teacher/timetable
- * - /teacher/assignments
- * - /teacher/grades
- * - /teacher/behavior-logs
- * - /teacher/complaints
- * - /teacher/notifications
- * - /teacher/settings
- * - /teacher/change-password
+ * API Endpoints (from Smart_School_API_Documentation):
+ * - /api/users/students/ - Student management (GET, GET/{id})
+ * - /api/users/teachers/ - Teacher management (GET, GET/{id})
+ * - /api/users/staff/ - Staff management (GET)
+ * - /api/users/parents/ - Parent management (GET)
+ * - /api/academics/classes/ - Class information (GET)
+ * - /api/academics/sections/ - Sections (GET)
+ * - /api/academics/subjects/ - Subjects (GET)
+ * - /api/academics/rooms/ - Rooms (GET)
+ * - /api/academics/class-subjects/ - Class subjects (GET)
+ * - /api/academics/timetable/ - Timetable (GET)
+ * - /api/attendance/attendance/ - Attendance (GET, POST, PATCH/{id})
+ * - /api/attendance/behavior-logs/ - Behavior logs (GET, POST)
+ * - /api/assignments/assignments/ - Assignments (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/assignments/submissions/ - Submissions (GET, PATCH/{id})
+ * - /api/exams/exams/ - Exams (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/exams/results/ - Results (GET, POST, PATCH/{id})
+ * - /api/exams/grade-scale/ - Grade scale (GET)
+ * - /api/exams/questions/ - Questions (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/exams/student-answers/ - Student answers (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/exams/ai-auto-checking/ - AI auto checking (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/communication/messages/ - Messages (GET, POST, PATCH/{id}, DELETE/{id})
+ * - /api/communication/notifications/ - Notifications (GET, PATCH/{id})
+ * - /api/ptm/ptm/ - PTM (GET)
+ * - /api/ptm/ptm-meetings/ - PTM meetings (GET, PATCH/{id})
+ * - /api/ptm/ptm-attendees/ - PTM attendees (GET)
+ * - /api/events/events/ - Events (GET)
+ * - /api/events/event-participation/ - Event participation (GET, POST)
+ * - /api/hr/leaves/ - Leave management (GET, POST)
+ * - /api/hr/payroll/ - Payroll (GET)
  * ============================================
  */
 
 import api from '@/services/api';
+
+// ─── ENDPOINTS ─────────────────────────────────────────────────────────
+
+const ENDPOINTS = {
+  // Users & Roles (Teacher has read access to students, staff, parents)
+  STUDENTS: '/users/students/',
+  TEACHERS: '/users/teachers/',
+  STAFF: '/users/staff/',
+  PARENTS: '/users/parents/',
+  
+  // Academics (Teacher has read access)
+  CLASSES: '/academics/classes/',
+  SECTIONS: '/academics/sections/',
+  SUBJECTS: '/academics/subjects/',
+  ROOMS: '/academics/rooms/',
+  CLASS_SUBJECTS: '/academics/class-subjects/',
+  TIMETABLE: '/academics/timetable/',
+  
+  // Attendance (Teacher has CRUD)
+  ATTENDANCE: '/attendance/attendance/',
+  BEHAVIOR_LOGS: '/attendance/behavior-logs/',
+  
+  // Assignments (Teacher has CRUD)
+  ASSIGNMENTS: '/assignments/assignments/',
+  SUBMISSIONS: '/assignments/submissions/',
+  
+  // Exams (Teacher has CRUD)
+  EXAMS: '/exams/exams/',
+  RESULTS: '/exams/results/',
+  GRADE_SCALE: '/exams/grade-scale/',
+  QUESTIONS: '/exams/questions/',
+  STUDENT_ANSWERS: '/exams/student-answers/',
+  AI_AUTO_CHECKING: '/exams/ai-auto-checking/',
+  
+  // Communication (Teacher has CRUD for messages, read for notifications)
+  MESSAGES: '/communication/messages/',
+  NOTIFICATIONS: '/communication/notifications/',
+  
+  // PTM (Teacher has read/update)
+  PTM: '/ptm/ptm/',
+  PTM_MEETINGS: '/ptm/ptm-meetings/',
+  PTM_ATTENDEES: '/ptm/ptm-attendees/',
+  
+  // Events (Teacher has read/create)
+  EVENTS: '/events/events/',
+  EVENT_PARTICIPATION: '/events/event-participation/',
+  
+  LEAVES: '/hr/leaves/',
+LEAVE_HISTORY: '/hr/leave-history/',
+
+  // HR (Teacher has read for self)
+  LEAVES: '/hr/leaves/',
+  PAYROLL: '/hr/payroll/',
+  LEAVE_HISTORY: '/hr/leave-history/',
+  SALARY_HISTORY: '/hr/salary-history/',
+   PAYROLL_SUMMARY: '/hr/payroll/summary/',
+  
+  // Analytics (Teacher has read)
+  PREDICTIONS: '/analytics/predictions/',
+  RECOMMENDATIONS: '/analytics/recommendations/',
+  STUDENT_GOALS: '/analytics/student-goals/',
+  STUDENT_SKILLS: '/analytics/student-skills/',
+  
+  // Profile (Teacher's own profile)
+  PROFILE: '/users/teachers/me',
+  
+  // Complaints
+  COMPLAINTS: '/complaints/',
+};
 
 /**
  * ============================================
@@ -49,627 +123,879 @@ export const teacherService = {
   // ─── Profile ──────────────────────────────────────────────────────────────
 
   /**
-   * ============================================
-   * GET PROFILE
-   * ============================================
-   * 
-   * Fetches the authenticated teacher's profile information
-   * 
-   * @returns {Promise<Object>} Teacher profile data
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const profile = await teacherService.getProfile();
-   * console.log(profile.full_name);
-   */
-  getProfile: async () => {
-    const response = await api.get('/teacher/profile');
-    return response.data;
-  },
+ * GET PROFILE
+ * Fetches the authenticated teacher's profile information
+ * Uses: GET /api/users/teachers/me
+ */
+getProfile: async () => {
+  const response = await api.get(ENDPOINTS.PROFILE);
+  console.log('📊 getProfile API response:', response.data);
+  return response.data;
+},
 
   /**
-   * ============================================
    * UPDATE PROFILE
-   * ============================================
-   * 
    * Updates the authenticated teacher's profile information
-   * 
-   * @param {Object} data - Profile data to update
-   * @param {string} data.full_name - Teacher's full name
-   * @param {string} data.email - Teacher's email address
-   * @param {string} data.phone - Teacher's phone number
-   * @param {string} data.specialization - Teacher's specialization
-   * @returns {Promise<Object>} Updated profile data
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await teacherService.updateProfile({
-   *   full_name: 'Dr. Sarah Jenkins',
-   *   phone: '+92-300-1234567'
-   * });
+   * Uses: PATCH /api/users/teachers/me/
    */
   updateProfile: async (data) => {
-    const response = await api.put('/teacher/profile', data);
+    const response = await api.patch(`${ENDPOINTS.TEACHERS}me/`, data);
     return response.data;
   },
 
-  // ─── Classes ─────────────────────────────────────────────────────────────
-
   /**
-   * ============================================
-   * GET CLASSES
-   * ============================================
-   * 
-   * Fetches all classes assigned to the teacher
-   * 
-   * @returns {Promise<Array>} Array of class objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const classes = await teacherService.getClasses();
-   * console.log(`Teaching ${classes.length} classes`);
+   * CHANGE PASSWORD
+   * Changes the teacher's password
+   * Uses: POST /api/users/teachers/me/change-password/
    */
-  getClasses: async () => {
-    const response = await api.get('/teacher/classes');
+  changePassword: async (data) => {
+    const response = await api.post(`${ENDPOINTS.TEACHERS}me/change-password/`, data);
     return response.data;
   },
 
+  // ─── Users & Roles ───────────────────────────────────────────────────────
+
   /**
-   * ============================================
    * GET STUDENTS
-   * ============================================
-   * 
-   * Fetches students for a specific class
-   * 
-   * @param {number} classId - Class section ID
-   * @returns {Promise<Array>} Array of student objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const students = await teacherService.getStudents(1);
-   * students.forEach(s => console.log(s.full_name));
+   * Fetches all students (teacher has read access)
+   * Uses: GET /api/users/students/
    */
-  getStudents: async (classId) => {
-    const response = await api.get(`/teacher/classes/${classId}/students`);
+  getStudents: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.STUDENTS, { params });
     return response.data;
   },
 
+  /**
+   * GET STUDENT DETAILS
+   * Fetches details for a specific student
+   * Uses: GET /api/users/students/{id}/
+   */
+  getStudentDetails: async (id) => {
+    const response = await api.get(`${ENDPOINTS.STUDENTS}${id}/`);
+    return response.data;
+  },
+
+  /**
+   * GET TEACHERS
+   * Fetches all teachers (teacher has read access)
+   * Uses: GET /api/users/teachers/
+   */
+  getTeachers: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.TEACHERS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET TEACHER BY ID
+   * Fetches a specific teacher's details
+   * Uses: GET /api/users/teachers/{id}/
+   */
+  getTeacherById: async (id) => {
+    const response = await api.get(`${ENDPOINTS.TEACHERS}${id}/`);
+    return response.data;
+  },
+
+  /**
+   * GET STAFF
+   * Fetches all staff (teacher has read access)
+   * Uses: GET /api/users/staff/
+   */
+  getStaff: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.STAFF, { params });
+    return response.data;
+  },
+
+  /**
+   * GET PARENTS
+   * Fetches all parents (teacher has read access)
+   * Uses: GET /api/users/parents/
+   */
+  getParents: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PARENTS, { params });
+    return response.data;
+  },
+
+  // ─── Academics ───────────────────────────────────────────────────────────
+
+  /**
+   * GET CLASSES
+   * Fetches all classes
+   * Uses: GET /api/academics/classes/
+   */
+  getClasses: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.CLASSES, { params });
+    return response.data;
+  },
+
+  /**
+   * GET CLASS BY ID
+   * Fetches a specific class
+   * Uses: GET /api/academics/classes/{id}/
+   */
+  getClassById: async (id) => {
+    const response = await api.get(`${ENDPOINTS.CLASSES}${id}/`);
+    return response.data;
+  },
+
+  /**
+   * GET SECTIONS
+   * Fetches all sections
+   * Uses: GET /api/academics/sections/
+   */
+  getSections: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.SECTIONS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET SUBJECTS
+   * Fetches all subjects
+   * Uses: GET /api/academics/subjects/
+   */
+  getSubjects: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.SUBJECTS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET ROOMS
+   * Fetches all rooms
+   * Uses: GET /api/academics/rooms/
+   */
+  getRooms: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.ROOMS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET CLASS SUBJECTS
+   * Fetches class-subject mappings
+   * Uses: GET /api/academics/class-subjects/
+   */
+  getClassSubjects: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.CLASS_SUBJECTS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET TIMETABLE
+   * Fetches timetable entries
+   * Uses: GET /api/academics/timetable/
+   */
+  getTimetable: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.TIMETABLE, { params });
+    return response.data;
+  },
+
+/**
+ * CREATE LEAVE REQUEST
+ * Creates a new leave request
+ * Uses: POST /api/hr/leaves/
+ */
+createLeave: async (data) => {
+  const response = await api.post(ENDPOINTS.LEAVES, data);
+  return response.data;
+},
+
+/**
+ * GET LEAVE HISTORY
+ * Fetches teacher's own leave history
+ * Uses: GET /api/hr/leave-history/
+ */
+getLeaveHistory: async (params = {}) => {
+  const response = await api.get(ENDPOINTS.LEAVE_HISTORY, { params });
+  return response.data;
+},
+
+/**
+ * UPDATE LEAVE
+ * Updates an existing leave request (if allowed)
+ * Uses: PATCH /api/hr/leaves/{id}/
+ */
+updateLeave: async (id, data) => {
+  const response = await api.patch(`${ENDPOINTS.LEAVES}${id}/`, data);
+  return response.data;
+},
+
+/**
+ * DELETE LEAVE
+ * Deletes a leave request (if pending)
+ * Uses: DELETE /api/hr/leaves/{id}/
+ */
+deleteLeave: async (id) => {
+  const response = await api.delete(`${ENDPOINTS.LEAVES}${id}/`);
+  return response.data;
+},
   // ─── Attendance ──────────────────────────────────────────────────────────
 
   /**
-   * ============================================
    * GET ATTENDANCE
-   * ============================================
-   * 
-   * Fetches attendance records for a specific class and date
-   * 
-   * @param {number} classId - Class section ID
-   * @param {string} date - Date in YYYY-MM-DD format
-   * @returns {Promise<Array>} Attendance records
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const attendance = await teacherService.getAttendance(1, '2026-07-15');
+   * Fetches attendance records
+   * Uses: GET /api/attendance/attendance/
    */
-  getAttendance: async (classId, date) => {
-    const response = await api.get(`/teacher/attendance`, { params: { classId, date } });
+  getAttendance: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.ATTENDANCE, { params });
     return response.data;
   },
 
   /**
-   * ============================================
    * MARK ATTENDANCE
-   * ============================================
-   * 
-   * Marks attendance for students in a class
-   * 
-   * @param {Object} data - Attendance data
-   * @param {number} data.classId - Class section ID
-   * @param {string} data.date - Date in YYYY-MM-DD format
-   * @param {Array} data.records - Array of { studentId, status }
-   * @param {string} data.records[].status - 'Present', 'Absent', or 'Late'
-   * @returns {Promise<Object>} Created attendance records
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const result = await teacherService.markAttendance({
-   *   classId: 1,
-   *   date: '2026-07-15',
-   *   records: [
-   *     { studentId: 101, status: 'Present' },
-   *     { studentId: 102, status: 'Absent' }
-   *   ]
-   * });
+   * Marks attendance for students
+   * Uses: POST /api/attendance/attendance/
    */
   markAttendance: async (data) => {
-    const response = await api.post('/teacher/attendance', data);
+    const response = await api.post(ENDPOINTS.ATTENDANCE, data);
     return response.data;
   },
 
   /**
-   * ============================================
    * UPDATE ATTENDANCE
-   * ============================================
-   * 
    * Updates an existing attendance record
-   * 
-   * @param {number} id - Attendance record ID
-   * @param {Object} data - Updated attendance data
-   * @param {string} data.status - New status ('Present', 'Absent', or 'Late')
-   * @returns {Promise<Object>} Updated attendance record
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await teacherService.updateAttendance(123, {
-   *   status: 'Present'
-   * });
+   * Uses: PATCH /api/attendance/attendance/{id}/
    */
   updateAttendance: async (id, data) => {
-    const response = await api.put(`/teacher/attendance/${id}`, data);
+    const response = await api.patch(`${ENDPOINTS.ATTENDANCE}${id}/`, data);
     return response.data;
   },
 
-  // ─── Timetable ───────────────────────────────────────────────────────────
+  /**
+   * GET ATTENDANCE STATS
+   * Fetches attendance statistics
+   * Uses: GET /api/attendance/attendance/monthly-summary/
+   */
+  getAttendanceStats: async (params = {}) => {
+    try {
+      const response = await api.get(`${ENDPOINTS.ATTENDANCE}monthly-summary/`, { params });
+      return response.data;
+    } catch (error) {
+      console.warn('Attendance stats endpoint error:', error.response?.data);
+      return null;
+    }
+  },
 
   /**
-   * ============================================
-   * GET TIMETABLE
-   * ============================================
-   * 
-   * Fetches the teacher's weekly timetable
-   * 
-   * @returns {Promise<Array>} Timetable entries
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const timetable = await teacherService.getTimetable();
-   * // Returns: [{ day: 'Monday', startTime: '09:00', subject: 'Math', class: '10-A' }]
+   * GET BEHAVIOR LOGS
+   * Fetches behavior logs
+   * Uses: GET /api/attendance/behavior-logs/
    */
-  getTimetable: async () => {
-    const response = await api.get('/teacher/timetable');
+  getBehaviorLogs: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.BEHAVIOR_LOGS, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE BEHAVIOR LOG
+   * Creates a new behavior log entry
+   * Uses: POST /api/attendance/behavior-logs/
+   */
+  createBehaviorLog: async (data) => {
+    const response = await api.post(ENDPOINTS.BEHAVIOR_LOGS, data);
+    return response.data;
+  },
+
+  /**
+   * GET BEHAVIOR STATS
+   * Fetches behavior statistics
+   */
+  getBehaviorStats: async (params = {}) => {
+    const response = await api.get(`${ENDPOINTS.BEHAVIOR_LOGS}stats/`, { params });
+    return response.data;
+  },
+
+  /**
+   * UPDATE BEHAVIOR LOG
+   * Updates an existing behavior log
+   * Uses: PATCH /api/attendance/behavior-logs/{id}/
+   */
+  updateBehaviorLog: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.BEHAVIOR_LOGS}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * DELETE BEHAVIOR LOG
+   * Deletes a behavior log
+   * Uses: DELETE /api/attendance/behavior-logs/{id}/
+   */
+  deleteBehaviorLog: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.BEHAVIOR_LOGS}${id}/`);
     return response.data;
   },
 
   // ─── Assignments ─────────────────────────────────────────────────────────
 
   /**
-   * ============================================
    * GET ASSIGNMENTS
-   * ============================================
-   * 
-   * Fetches all assignments created by the teacher
-   * 
-   * @returns {Promise<Array>} Array of assignment objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const assignments = await teacherService.getAssignments();
+   * Fetches all assignments
+   * Uses: GET /api/assignments/assignments/
    */
-  getAssignments: async () => {
-    const response = await api.get('/teacher/assignments');
+  getAssignments: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.ASSIGNMENTS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
    * CREATE ASSIGNMENT
-   * ============================================
-   * 
    * Creates a new assignment
-   * 
-   * @param {Object} data - Assignment data
-   * @param {string} data.title - Assignment title
-   * @param {string} data.description - Assignment description
-   * @param {number} data.subject_id - Subject ID
-   * @param {number} data.class_section_id - Class section ID
-   * @param {string} data.due_date - Due date in YYYY-MM-DD format
-   * @param {string} data.attachment_url - Optional attachment URL
-   * @returns {Promise<Object>} Created assignment
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const assignment = await teacherService.createAssignment({
-   *   title: 'Quadratic Equations Quiz',
-   *   description: 'Solve 10 quadratic equations',
-   *   subject_id: 1,
-   *   class_section_id: 1,
-   *   due_date: '2026-07-20'
-   * });
+   * Uses: POST /api/assignments/assignments/
    */
   createAssignment: async (data) => {
-    const response = await api.post('/teacher/assignments', data);
+    const response = await api.post(ENDPOINTS.ASSIGNMENTS, data);
     return response.data;
   },
 
   /**
-   * ============================================
    * UPDATE ASSIGNMENT
-   * ============================================
-   * 
    * Updates an existing assignment
-   * 
-   * @param {number} id - Assignment ID
-   * @param {Object} data - Updated assignment data
-   * @returns {Promise<Object>} Updated assignment
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await teacherService.updateAssignment(1, {
-   *   title: 'Updated Quiz Title'
-   * });
+   * Uses: PATCH /api/assignments/assignments/{id}/
    */
   updateAssignment: async (id, data) => {
-    const response = await api.put(`/teacher/assignments/${id}`, data);
+    const response = await api.patch(`${ENDPOINTS.ASSIGNMENTS}${id}/`, data);
     return response.data;
   },
 
   /**
-   * ============================================
    * DELETE ASSIGNMENT
-   * ============================================
-   * 
-   * Deletes an assignment by ID
-   * 
-   * @param {number} id - Assignment ID
-   * @returns {Promise<Object>} Deletion confirmation
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * await teacherService.deleteAssignment(1);
+   * Deletes an assignment
+   * Uses: DELETE /api/assignments/assignments/{id}/
    */
   deleteAssignment: async (id) => {
-    const response = await api.delete(`/teacher/assignments/${id}`);
+    const response = await api.delete(`${ENDPOINTS.ASSIGNMENTS}${id}/`);
     return response.data;
   },
 
   /**
-   * ============================================
    * GET SUBMISSIONS
-   * ============================================
-   * 
-   * Fetches submissions for a specific assignment
-   * 
-   * @param {number} assignmentId - Assignment ID
-   * @returns {Promise<Array>} Array of submission objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const submissions = await teacherService.getSubmissions(1);
-   * console.log(`${submissions.length} students submitted`);
+   * Fetches submissions for an assignment
+   * Uses: GET /api/assignments/submissions/
    */
-  getSubmissions: async (assignmentId) => {
-    const response = await api.get(`/teacher/assignments/${assignmentId}/submissions`);
+  getSubmissions: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.SUBMISSIONS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
    * GRADE SUBMISSION
-   * ============================================
-   * 
    * Grades a student's submission
-   * 
-   * @param {number} submissionId - Submission ID
-   * @param {Object} data - Grade data
-   * @param {number} data.marks - Marks obtained
-   * @param {string} data.feedback - Optional feedback text
-   * @returns {Promise<Object>} Updated submission with grade
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const graded = await teacherService.gradeSubmission(15, {
-   *   marks: 85,
-   *   feedback: 'Excellent work!'
-   * });
+   * Uses: PATCH /api/assignments/submissions/{id}/
    */
-  gradeSubmission: async (submissionId, data) => {
-    const response = await api.put(`/teacher/submissions/${submissionId}/grade`, data);
+  gradeSubmission: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.SUBMISSIONS}${id}/`, data);
     return response.data;
   },
 
-  // ─── Grades ──────────────────────────────────────────────────────────────
+  // ─── Exams ──────────────────────────────────────────────────────────────
 
   /**
-   * ============================================
-   * GET GRADES
-   * ============================================
-   * 
-   * Fetches all grades for the teacher's classes
-   * 
-   * @returns {Promise<Array>} Array of grade objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const grades = await teacherService.getGrades();
+   * GET EXAMS
+   * Fetches all exams
+   * Uses: GET /api/exams/exams/
    */
-  getGrades: async () => {
-    const response = await api.get('/teacher/grades');
+  getExams: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.EXAMS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
-   * SAVE GRADES
-   * ============================================
-   * 
-   * Saves or updates multiple grades (bulk operation)
-   * 
-   * @param {Array} data - Array of grade objects
-   * @param {number} data[].studentId - Student ID
-   * @param {number} data[].subjectId - Subject ID
-   * @param {number} data[].obtainedMarks - Marks obtained
-   * @param {number} data[].totalMarks - Total marks
-   * @param {string} data[].examType - Type of exam
-   * @returns {Promise<Object>} Saved grades confirmation
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const saved = await teacherService.saveGrades([
-   *   { studentId: 101, subjectId: 1, obtainedMarks: 85, totalMarks: 100 },
-   *   { studentId: 102, subjectId: 1, obtainedMarks: 72, totalMarks: 100 }
-   * ]);
+   * CREATE EXAM
+   * Creates a new exam
+   * Uses: POST /api/exams/exams/
    */
-  saveGrades: async (data) => {
-    const response = await api.post('/teacher/grades', data);
+  createExam: async (data) => {
+    const response = await api.post(ENDPOINTS.EXAMS, data);
     return response.data;
   },
 
   /**
-   * ============================================
-   * PUBLISH GRADES
-   * ============================================
-   * 
-   * Publishes grades to make them visible to students
-   * 
-   * @param {Object} data - Publication data
-   * @param {number} data.classId - Class section ID
-   * @param {string} data.examType - Exam type to publish
-   * @param {string} data.publishDate - Publication date
-   * @returns {Promise<Object>} Publication confirmation
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const result = await teacherService.publishGrades({
-   *   classId: 1,
-   *   examType: 'Mid Term',
-   *   publishDate: '2026-07-20'
-   * });
+   * UPDATE EXAM
+   * Updates an existing exam
+   * Uses: PATCH /api/exams/exams/{id}/
    */
-  publishGrades: async (data) => {
-    const response = await api.post('/teacher/grades/publish', data);
-    return response.data;
-  },
-
-  // ─── Behavior Logs ──────────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * GET BEHAVIOR LOGS
-   * ============================================
-   * 
-   * Fetches behavior logs for the teacher's students
-   * 
-   * @param {Object} params - Query parameters (optional)
-   * @param {number} params.studentId - Filter by student ID
-   * @param {string} params.severity - Filter by severity (Low, Medium, High)
-   * @param {string} params.startDate - Start date filter
-   * @param {string} params.endDate - End date filter
-   * @returns {Promise<Array>} Behavior log entries
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const logs = await teacherService.getBehaviorLogs({ severity: 'High' });
-   */
-  getBehaviorLogs: async (params) => {
-    const response = await api.get('/teacher/behavior-logs', { params });
+  updateExam: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.EXAMS}${id}/`, data);
     return response.data;
   },
 
   /**
-   * ============================================
-   * CREATE BEHAVIOR LOG
-   * ============================================
-   * 
-   * Creates a new behavior log entry
-   * 
-   * @param {Object} data - Behavior log data
-   * @param {number} data.studentId - Student ID
-   * @param {string} data.description - Behavior description
-   * @param {string} data.severity - Severity level (Low, Medium, High)
-   * @param {string} data.actionTaken - Action taken
-   * @returns {Promise<Object>} Created behavior log
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const log = await teacherService.createBehaviorLog({
-   *   studentId: 101,
-   *   description: 'Disruptive behavior in class',
-   *   severity: 'Medium',
-   *   actionTaken: 'Verbal warning given'
-   * });
+   * DELETE EXAM
+   * Deletes an exam
+   * Uses: DELETE /api/exams/exams/{id}/
    */
-  createBehaviorLog: async (data) => {
-    const response = await api.post('/teacher/behavior-logs', data);
-    return response.data;
-  },
-
-  // ─── Complaints ──────────────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * GET COMPLAINTS
-   * ============================================
-   * 
-   * Fetches all complaints filed by or related to the teacher
-   * 
-   * @returns {Promise<Array>} Array of complaint objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const complaints = await teacherService.getComplaints();
-   */
-  getComplaints: async () => {
-    const response = await api.get('/teacher/complaints');
+  deleteExam: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.EXAMS}${id}/`);
     return response.data;
   },
 
   /**
-   * ============================================
-   * CREATE COMPLAINT
-   * ============================================
-   * 
-   * Creates a new complaint
-   * 
-   * @param {Object} data - Complaint data
-   * @param {string} data.complaint_type - Type of complaint
-   * @param {string} data.description - Complaint description
-   * @param {string} data.against_user - User being complained about
-   * @param {string} data.attachment_url - Optional attachment URL
-   * @returns {Promise<Object>} Created complaint
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const complaint = await teacherService.createComplaint({
-   *   complaint_type: 'Facilities',
-   *   description: 'Broken projector in Room 402',
-   *   against_user: 'Maintenance Department'
-   * });
+   * GET RESULTS
+   * Fetches exam results
+   * Uses: GET /api/exams/results/
    */
-  createComplaint: async (data) => {
-    const response = await api.post('/teacher/complaints', data);
+  getResults: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.RESULTS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
-   * UPDATE COMPLAINT
-   * ============================================
-   * 
-   * Updates an existing complaint
-   * 
-   * @param {number} id - Complaint ID
-   * @param {Object} data - Updated complaint data
-   * @returns {Promise<Object>} Updated complaint
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await teacherService.updateComplaint(1, {
-   *   status: 'Resolved'
-   * });
+   * CREATE RESULT
+   * Creates a new exam result
+   * Uses: POST /api/exams/results/
    */
-  updateComplaint: async (id, data) => {
-    const response = await api.put(`/teacher/complaints/${id}`, data);
+  createResult: async (data) => {
+    const response = await api.post(ENDPOINTS.RESULTS, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE RESULT
+   * Updates an existing exam result
+   * Uses: PATCH /api/exams/results/{id}/
+   */
+  updateResult: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.RESULTS}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * GET GRADE SCALE
+   * Fetches grade scale
+   * Uses: GET /api/exams/grade-scale/
+   */
+  getGradeScale: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.GRADE_SCALE, { params });
+    return response.data;
+  },
+
+  /**
+   * GET QUESTIONS
+   * Fetches questions for an exam
+   * Uses: GET /api/exams/questions/
+   */
+  getQuestions: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.QUESTIONS, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE QUESTION
+   * Creates a new question for an exam
+   * Uses: POST /api/exams/questions/
+   */
+  createQuestion: async (data) => {
+    const response = await api.post(ENDPOINTS.QUESTIONS, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE QUESTION
+   * Updates an existing question
+   * Uses: PATCH /api/exams/questions/{id}/
+   */
+  updateQuestion: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.QUESTIONS}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * DELETE QUESTION
+   * Deletes a question
+   * Uses: DELETE /api/exams/questions/{id}/
+   */
+  deleteQuestion: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.QUESTIONS}${id}/`);
+    return response.data;
+  },
+
+  /**
+   * GET STUDENT ANSWERS
+   * Fetches student answers for an exam
+   * Uses: GET /api/exams/student-answers/
+   */
+  getStudentAnswers: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.STUDENT_ANSWERS, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE STUDENT ANSWER
+   * Creates a new student answer
+   * Uses: POST /api/exams/student-answers/
+   */
+  createStudentAnswer: async (data) => {
+    const response = await api.post(ENDPOINTS.STUDENT_ANSWERS, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE STUDENT ANSWER
+   * Updates an existing student answer
+   * Uses: PATCH /api/exams/student-answers/{id}/
+   */
+  updateStudentAnswer: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.STUDENT_ANSWERS}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * DELETE STUDENT ANSWER
+   * Deletes a student answer
+   * Uses: DELETE /api/exams/student-answers/{id}/
+   */
+  deleteStudentAnswer: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.STUDENT_ANSWERS}${id}/`);
+    return response.data;
+  },
+
+  /**
+   * GET AI AUTO CHECKING
+   * Fetches AI auto checking results
+   * Uses: GET /api/exams/ai-auto-checking/
+   */
+  getAIAutoChecking: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.AI_AUTO_CHECKING, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE AI AUTO CHECKING
+   * Creates AI auto checking record
+   * Uses: POST /api/exams/ai-auto-checking/
+   */
+  createAIAutoChecking: async (data) => {
+    const response = await api.post(ENDPOINTS.AI_AUTO_CHECKING, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE AI AUTO CHECKING
+   * Updates AI auto checking record
+   * Uses: PATCH /api/exams/ai-auto-checking/{id}/
+   */
+  updateAIAutoChecking: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.AI_AUTO_CHECKING}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * DELETE AI AUTO CHECKING
+   * Deletes AI auto checking record
+   * Uses: DELETE /api/exams/ai-auto-checking/{id}/
+   */
+  deleteAIAutoChecking: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.AI_AUTO_CHECKING}${id}/`);
+    return response.data;
+  },
+
+  // ─── PTM ─────────────────────────────────────────────────────────────────
+
+  /**
+   * GET PTM
+   * Fetches all PTM events
+   * Uses: GET /api/ptm/ptm/
+   */
+  getPTM: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PTM, { params });
+    return response.data;
+  },
+
+  /**
+   * GET PTM MEETINGS
+   * Fetches PTM meetings
+   * Uses: GET /api/ptm/ptm-meetings/
+   */
+  getPTMMeetings: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PTM_MEETINGS, { params });
+    return response.data;
+  },
+
+  /**
+   * UPDATE PTM MEETING
+   * Updates a PTM meeting
+   * Uses: PATCH /api/ptm/ptm-meetings/{id}/
+   */
+  updatePTMMeeting: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.PTM_MEETINGS}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * GET PTM ATTENDEES
+   * Fetches PTM attendees
+   * Uses: GET /api/ptm/ptm-attendees/
+   */
+  getPTMAttendees: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PTM_ATTENDEES, { params });
+    return response.data;
+  },
+
+  // ─── Messages ────────────────────────────────────────────────────────────
+
+  /**
+   * GET MESSAGES
+   * Fetches all messages for the teacher
+   * Uses: GET /api/communication/messages/
+   */
+  getMessages: async (params = {}) => {
+  try {
+    const response = await api.get(ENDPOINTS.MESSAGES, { params });
+    return response.data;
+  } catch (error) {
+    console.error('❌ getMessages error:', error);
+    return { results: [] };
+  }
+},
+
+  /**
+   * SEND MESSAGE
+   * Sends a new message
+   * Uses: POST /api/communication/messages/
+   */
+  sendMessage: async (data) => {
+    const response = await api.post(ENDPOINTS.MESSAGES, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE MESSAGE
+   * Updates a message
+   * Uses: PATCH /api/communication/messages/{id}/
+   */
+  updateMessage: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.MESSAGES}${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * DELETE MESSAGE
+   * Deletes a message
+   * Uses: DELETE /api/communication/messages/{id}/
+   */
+  deleteMessage: async (id) => {
+    const response = await api.delete(`${ENDPOINTS.MESSAGES}${id}/`);
     return response.data;
   },
 
   // ─── Notifications ──────────────────────────────────────────────────────
 
   /**
-   * ============================================
    * GET NOTIFICATIONS
-   * ============================================
-   * 
    * Fetches all notifications for the teacher
-   * 
-   * @returns {Promise<Array>} Array of notification objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const notifications = await teacherService.getNotifications();
+   * Uses: GET /api/communication/notifications/
    */
-  getNotifications: async () => {
-    const response = await api.get('/teacher/notifications');
+  getNotifications: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.NOTIFICATIONS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
    * MARK NOTIFICATION READ
-   * ============================================
-   * 
    * Marks a single notification as read
-   * 
-   * @param {number} id - Notification ID
-   * @returns {Promise<Object>} Updated notification
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * await teacherService.markNotificationRead(5);
+   * Uses: PATCH /api/communication/notifications/{id}/
    */
   markNotificationRead: async (id) => {
-    const response = await api.put(`/teacher/notifications/${id}/read`);
+    const response = await api.patch(`${ENDPOINTS.NOTIFICATIONS}${id}/`, { is_read: true });
     return response.data;
   },
 
   /**
-   * ============================================
    * MARK ALL NOTIFICATIONS READ
-   * ============================================
-   * 
    * Marks all notifications as read
-   * 
-   * @returns {Promise<Object>} Confirmation of update
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * await teacherService.markAllNotificationsRead();
+   * Uses: POST /api/communication/notifications/mark-all-read/
    */
   markAllNotificationsRead: async () => {
-    const response = await api.put('/teacher/notifications/read-all');
+    const response = await api.post(`${ENDPOINTS.NOTIFICATIONS}mark-all-read/`);
     return response.data;
   },
 
-  // ─── Settings ────────────────────────────────────────────────────────────
+  // ─── Events ─────────────────────────────────────────────────────────────
 
   /**
-   * ============================================
-   * UPDATE SETTINGS
-   * ============================================
-   * 
-   * Updates teacher settings and preferences
-   * 
-   * @param {Object} data - Settings data
-   * @param {string} data.theme - UI theme preference
-   * @param {string} data.language - Language preference
-   * @param {boolean} data.emailNotifications - Email notification preference
-   * @param {string} data.timezone - Timezone setting
-   * @returns {Promise<Object>} Updated settings
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const settings = await teacherService.updateSettings({
-   *   theme: 'dark',
-   *   emailNotifications: true
-   * });
+   * GET EVENTS
+   * Fetches all events
+   * Uses: GET /api/events/events/
    */
-  updateSettings: async (data) => {
-    const response = await api.put('/teacher/settings', data);
+  getEvents: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.EVENTS, { params });
     return response.data;
   },
 
   /**
-   * ============================================
-   * CHANGE PASSWORD
-   * ============================================
-   * 
-   * Changes the teacher's password
-   * 
-   * @param {Object} data - Password change data
-   * @param {string} data.current_password - Current password
-   * @param {string} data.new_password - New password
-   * @param {string} data.confirm_password - Confirm new password
-   * @returns {Promise<Object>} Password change confirmation
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const result = await teacherService.changePassword({
-   *   current_password: 'old123',
-   *   new_password: 'new456',
-   *   confirm_password: 'new456'
-   * });
+   * GET EVENT PARTICIPATIONS
+   * Fetches event participations
+   * Uses: GET /api/events/event-participation/
    */
-  changePassword: async (data) => {
-    const response = await api.put('/teacher/change-password', data);
+  getEventParticipations: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.EVENT_PARTICIPATION, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE EVENT PARTICIPATION
+   * Creates an event participation
+   * Uses: POST /api/events/event-participation/
+   */
+  createEventParticipation: async (data) => {
+    const response = await api.post(ENDPOINTS.EVENT_PARTICIPATION, data);
+    return response.data;
+  },
+
+  // ─── HR (Teacher's own records) ────────────────────────────────────────
+
+  /**
+   * GET LEAVES
+   * Fetches teacher's own leave records
+   * Uses: GET /api/hr/leaves/
+   */
+  getLeaves: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.LEAVES, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE LEAVE REQUEST
+   * Creates a new leave request
+   * Uses: POST /api/hr/leaves/
+   */
+  createLeave: async (data) => {
+    const response = await api.post(ENDPOINTS.LEAVES, data);
+    return response.data;
+  },
+
+  /**
+   * GET PAYROLL
+   * Fetches teacher's own payroll records
+   * Uses: GET /api/hr/payroll/
+   */
+  getPayroll: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PAYROLL, { params });
+    return response.data;
+  },
+
+  /**
+ * GET PAYROLL SUMMARY
+ * Fetches payroll summary for the teacher
+ * Uses: GET /api/hr/payroll/summary/
+ */
+getPayrollSummary: async (params = {}) => {
+  try {
+    const response = await api.get(ENDPOINTS.PAYROLL_SUMMARY, { params });
+    return response.data;
+  } catch (error) {
+    console.warn('Payroll summary endpoint error:', error.response?.data);
+    // Return null to indicate no data, or return a default summary
+    return {
+      total_earnings: 0,
+      total_deductions: 0,
+      net_pay: 0,
+      total_paid: 0,
+      total_pending: 0,
+      average_salary: 0,
+      last_payment_date: null,
+      next_payment_date: null,
+    };
+  }
+},
+  /**
+   * GET SALARY HISTORY
+   * Fetches teacher's own salary history
+   * Uses: GET /api/hr/salary-history/
+   */
+  getSalaryHistory: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.SALARY_HISTORY, { params });
+    return response.data;
+  },
+
+  // ─── Analytics ──────────────────────────────────────────────────────────
+
+  /**
+   * GET PREDICTIONS
+   * Fetches predictions for the teacher's students
+   * Uses: GET /api/analytics/predictions/
+   */
+  getPredictions: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.PREDICTIONS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET RECOMMENDATIONS
+   * Fetches recommendations for the teacher
+   * Uses: GET /api/analytics/recommendations/
+   */
+  getRecommendations: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.RECOMMENDATIONS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET STUDENT GOALS
+   * Fetches student goals
+   * Uses: GET /api/analytics/student-goals/
+   */
+  getStudentGoals: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.STUDENT_GOALS, { params });
+    return response.data;
+  },
+
+  /**
+   * GET STUDENT SKILLS
+   * Fetches student skills
+   * Uses: GET /api/analytics/student-skills/
+   */
+  getStudentSkills: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.STUDENT_SKILLS, { params });
+    return response.data;
+  },
+
+  // ─── Grades ─────────────────────────────────────────────────────────────
+
+  /**
+   * GET GRADES
+   * Fetches all grades for the teacher's classes
+   */
+  getGrades: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.RESULTS, { params });
+    return response.data;
+  },
+
+  /**
+   * SAVE GRADES
+   * Saves multiple grades at once (bulk operation)
+   */
+  saveGrades: async (data) => {
+    const response = await api.post(`${ENDPOINTS.RESULTS}bulk/`, data);
+    return response.data;
+  },
+
+  // ─── Complaints ──────────────────────────────────────────────────────────
+
+  /**
+   * GET COMPLAINTS
+   * Fetches all complaints
+   * Uses: GET /api/complaints/
+   */
+  getComplaints: async (params = {}) => {
+    const response = await api.get(ENDPOINTS.COMPLAINTS, { params });
+    return response.data;
+  },
+
+  /**
+   * CREATE COMPLAINT
+   * Creates a new complaint
+   * Uses: POST /api/complaints/
+   */
+  createComplaint: async (data) => {
+    const response = await api.post(ENDPOINTS.COMPLAINTS, data);
+    return response.data;
+  },
+
+  /**
+   * UPDATE COMPLAINT
+   * Updates an existing complaint
+   * Uses: PATCH /api/complaints/{id}/
+   */
+  updateComplaint: async (id, data) => {
+    const response = await api.patch(`${ENDPOINTS.COMPLAINTS}${id}/`, data);
     return response.data;
   },
 };

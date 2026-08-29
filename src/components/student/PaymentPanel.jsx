@@ -123,7 +123,7 @@ function PaymentPanel({
   const isPaid = selectedFee.status === "Paid";
 
   return (
-    <Card className="sticky top-6 overflow-hidden">
+    <Card className="sticky top-4 overflow-hidden">
       {/* ─── Header ────────────────────────────────────────────── */}
       <div className="border-b border-student-border bg-student-light p-5">
         <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ function PaymentPanel({
       </div>
 
       {/* ─── Content ────────────────────────────────────────────── */}
-      <div className="space-y-5 p-6">
+      <div className="space-y-5 p-4">
         {/* ─── Fee Month ─── */}
         <div className="flex items-center justify-between rounded-xl bg-student-light p-4">
           <div className="flex items-center gap-3">

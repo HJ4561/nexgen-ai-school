@@ -17,7 +17,7 @@
  * Dependencies:
  * - lucide-react for icons (MessageSquare, Clock, CheckCircle, AlertCircle)
  * - @/components/ui/Badge for status indicators
- * - @/components/composite/StatusBadge for status display
+ * - @/components/common/StatusBadge for status display
  * - @/utils/helpers for formatting utilities
  * 
  * Usage:
@@ -32,7 +32,7 @@
 import React from 'react';
 import { MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 import { formatDate, getInitials } from '@/utils/helpers';
 
 /**
@@ -142,7 +142,7 @@ const LatestComplaints = ({
 
   return (
     <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 p-4">
-      {/* ─── Header ─── */}
+      {/* â”€â”€â”€ Header â”€â”€â”€ */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <MessageSquare size={18} className="text-[var(--color-admin-primary)]" />
@@ -155,9 +155,9 @@ const LatestComplaints = ({
         </Badge>
       </div>
 
-      {/* ─── Complaint List ─── */}
+      {/* â”€â”€â”€ Complaint List â”€â”€â”€ */}
       {recentComplaints.length === 0 ? (
-        // ─── Empty State ───
+        // â”€â”€â”€ Empty State â”€â”€â”€
         <div className="text-center py-6">
           <MessageSquare size={32} className="mx-auto text-gray-300 mb-2" />
           <p className="text-sm text-[var(--color-text-muted)]">No complaints yet</p>
@@ -175,13 +175,13 @@ const LatestComplaints = ({
                 onClick={() => onViewComplaint?.(complaint)}
               >
                 <div className="flex items-start gap-3">
-                  {/* ─── Reporter Avatar ─── */}
+                  {/* â”€â”€â”€ Reporter Avatar â”€â”€â”€ */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${roleColor}`}>
                     {initials}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    {/* ─── Complaint Header ─── */}
+                    {/* â”€â”€â”€ Complaint Header â”€â”€â”€ */}
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-[var(--color-text-primary)] truncate">
                         {complaint.complaint_type}
@@ -192,12 +192,12 @@ const LatestComplaints = ({
                       />
                     </div>
 
-                    {/* ─── Description ─── */}
+                    {/* â”€â”€â”€ Description â”€â”€â”€ */}
                     <p className="text-xs text-[var(--color-text-muted)] truncate mt-0.5">
                       {complaint.description}
                     </p>
 
-                    {/* ─── Reporter and Date ─── */}
+                    {/* â”€â”€â”€ Reporter and Date â”€â”€â”€ */}
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[10px] text-[var(--color-text-muted)]">
                         {complaint.reporter_name || complaint.user_name || 'Unknown'}
@@ -209,7 +209,7 @@ const LatestComplaints = ({
                     </div>
                   </div>
 
-                  {/* ─── Status Icon ─── */}
+                  {/* â”€â”€â”€ Status Icon â”€â”€â”€ */}
                   <div className="shrink-0 mt-1">
                     {getStatusIcon(complaint.status)}
                   </div>
@@ -220,14 +220,14 @@ const LatestComplaints = ({
         </div>
       )}
 
-      {/* ─── View All Link ─── */}
+      {/* â”€â”€â”€ View All Link â”€â”€â”€ */}
       {recentComplaints.length > 0 && complaints.length > maxItems && (
         <div className="mt-3 pt-3 border-t border-gray-200 text-center">
           <button
             onClick={() => onViewComplaint?.('all')}
             className="text-xs font-medium text-[var(--color-admin-primary)] hover:underline transition-colors"
           >
-            View all {complaints.length} complaints →
+            View all {complaints.length} complaints â†’
           </button>
         </div>
       )}

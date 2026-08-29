@@ -64,11 +64,11 @@ import Select from '@/components/ui/Select';
  */
 const AssignmentFilter = ({ filters, onChange }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         {/* ─── Search Input ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Search</label>
+          <label className="text-sm md:text-base md:text-base text-gray-600 mb-1 block md:hidden px-4 sm:px-6 lg:px-8">Search</label>
           <Input
             placeholder="Search assignments..."
             value={filters?.search || ''}
@@ -78,7 +78,7 @@ const AssignmentFilter = ({ filters, onChange }) => {
 
         {/* ─── Subject Filter Dropdown ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Subject</label>
+          <label className="text-sm md:text-base md:text-base text-gray-600 mb-1 block md:hidden px-4 sm:px-6 lg:px-8">Subject</label>
           <Select
             value={filters?.subject || ''}
             onChange={(e) => onChange('subject', e.target.value)}
@@ -92,7 +92,7 @@ const AssignmentFilter = ({ filters, onChange }) => {
 
         {/* ─── Status Filter Dropdown ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Status</label>
+          <label className="text-sm md:text-base md:text-base text-gray-600 mb-1 block md:hidden px-4 sm:px-6 lg:px-8">Status</label>
           <Select
             value={filters?.status || ''}
             onChange={(e) => onChange('status', e.target.value)}
@@ -106,7 +106,7 @@ const AssignmentFilter = ({ filters, onChange }) => {
 
         {/* ─── Date Filter Input ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Date</label>
+          <label className="text-sm md:text-base md:text-base text-gray-600 mb-1 block md:hidden px-4 sm:px-6 lg:px-8">Date</label>
           <Input
             type="date"
             value={filters?.date || ''}

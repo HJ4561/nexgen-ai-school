@@ -4,13 +4,12 @@ import { Send, Paperclip, Mic } from 'lucide-react';
 import gsap from 'gsap';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { sendMessage } from '@/store/chat/chatThunks';
-import MessageBubble from '@/modules/chat/components/MessageBubble';
-import TypingIndicator from '@/modules/chat/components/TypingIndicator';
-import PromptCards from '@/modules/chat/components/PromptCards';
-import RobotGreeting from '@/modules/chat/components/RobotGreeting';
-// import ChildSelector from '../../components/ChildSelector'; // removed
+import MessageBubble from '@/components/chat/MessageBubble';
+import TypingIndicator from '@/components/chat/TypingIndicator';
+import PromptCards from '@/components/chat/PromptCards';
+import RobotGreeting from '@/components/chat/RobotGreeting';
 
-// Same palette as ChatCompact / MessageBubble / TypingIndicator — keep in sync.
+// Same palette as ChatCompact / MessageBubble / TypingIndicator â€” keep in sync.
 const INDIGO = '#6366f1';
 const BLUE = '#3b82f6';
 const CYAN = '#06b6d4';
@@ -59,7 +58,7 @@ export default function ChatArea() {
         { opacity: 1, scale: 1, duration: 0.55, ease: 'power2.out' },
         '-=0.35'
       );
-    }, 1400); // roughly one loop of the intro animation before dismissing
+    }, 1400);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,7 +90,7 @@ export default function ChatArea() {
     }, rootRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [showIntro]);
 
   // Stagger-in animation for newly arrived messages
   useEffect(() => {
@@ -152,7 +151,7 @@ export default function ChatArea() {
       className="relative flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 h-full"
       style={{ background: '#f8fafc' }}
     >
-      {/* Soft ambient background */}
+      {/* Soft ambient background - Responsive orbs */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         preserveAspectRatio="xMidYMid slice"
@@ -172,22 +171,67 @@ export default function ChatArea() {
             <stop offset="100%" stopColor={CYAN} stopOpacity="0" />
           </radialGradient>
         </defs>
-        <circle ref={orbARef} cx="18%" cy="20%" r="180" className="sm:hidden" fill="url(#orbA)" />
-        <circle ref={orbARef} cx="18%" cy="20%" r="260" className="hidden sm:block" fill="url(#orbA)" />
-        <circle ref={orbBRef} cx="85%" cy="15%" r="150" className="sm:hidden" fill="url(#orbB)" />
-        <circle ref={orbBRef} cx="85%" cy="15%" r="220" className="hidden sm:block" fill="url(#orbB)" />
-        <circle ref={orbCRef} cx="50%" cy="90%" r="200" className="sm:hidden" fill="url(#orbC)" />
-        <circle ref={orbCRef} cx="50%" cy="90%" r="300" className="hidden sm:block" fill="url(#orbC)" />
+        {/* Orb A - Top Left */}
+        <circle 
+          ref={orbARef} 
+          cx="18%" 
+          cy="20%" 
+          r="180" 
+          className="hidden sm:block" 
+          fill="url(#orbA)" 
+        />
+        <circle 
+          ref={orbARef} 
+          cx="18%" 
+          cy="20%" 
+          r="260" 
+          className="hidden md:block" 
+          fill="url(#orbA)" 
+        />
+        {/* Orb B - Top Right */}
+        <circle 
+          ref={orbBRef} 
+          cx="85%" 
+          cy="15%" 
+          r="150" 
+          className="hidden sm:block" 
+          fill="url(#orbB)" 
+        />
+        <circle 
+          ref={orbBRef} 
+          cx="85%" 
+          cy="15%" 
+          r="220" 
+          className="hidden md:block" 
+          fill="url(#orbB)" 
+        />
+        {/* Orb C - Bottom Center */}
+        <circle 
+          ref={orbCRef} 
+          cx="50%" 
+          cy="90%" 
+          r="200" 
+          className="hidden sm:block" 
+          fill="url(#orbC)" 
+        />
+        <circle 
+          ref={orbCRef} 
+          cx="50%" 
+          cy="90%" 
+          r="300" 
+          className="hidden md:block" 
+          fill="url(#orbC)" 
+        />
       </svg>
 
-      {/* Intro splash — plays once when the chat UI opens */}
+      {/* Intro splash â€” plays once when the chat UI opens */}
       {showIntro && (
         <div
           ref={introRef}
-          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 px-6"
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 sm:gap-4"
           style={{ background: '#f8fafc' }}
         >
-          <div className="w-[220px] h-[220px] sm:w-[320px] sm:h-[320px] lg:w-[400px] lg:h-[400px]">
+          <div className="w-[180px] h-[180px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] lg:w-[400px] lg:h-[400px]">
             <DotLottieReact
               src="/animations/Guy talking to Robot _ AI Help.lottie"
               autoplay
@@ -196,21 +240,21 @@ export default function ChatArea() {
             />
           </div>
           <p className="text-[10px] sm:text-xs tracking-widest uppercase text-center" style={{ color: MUTED }}>
-            Waking up ScholarAI…
+            Waking up ScholarAIâ€¦
           </p>
         </div>
       )}
 
-      {/* Content — this is the scroll container; only it scrolls, not the whole page */}
+      {/* Content â€” this is the scroll container; only it scrolls, not the whole page */}
       <div
         ref={contentRef}
         className="relative z-10 flex-1 w-full min-h-0 overflow-y-auto overscroll-contain"
       >
         <div
-          className={`max-w-[900px] mx-auto w-full flex flex-col items-center px-4 sm:px-6 pb-32 sm:pb-32 lg:pb-28 ${
+          className={`max-w-[900px] mx-auto w-full flex flex-col items-center px-3 sm:px-4 md:px-6 pb-28 sm:pb-32 lg:pb-28 ${
             messages.length === 0 && !loading
               ? 'justify-center min-h-full'
-              : 'justify-start pt-6 sm:pt-8'
+              : 'justify-start pt-4 sm:pt-6 md:pt-8'
           }`}
         >
           {messages.length === 0 && !loading ? (
@@ -219,7 +263,7 @@ export default function ChatArea() {
               <PromptCards />
             </>
           ) : (
-            <div ref={listRef} className="w-full space-y-3 sm:space-y-4">
+            <div ref={listRef} className="w-full space-y-2 sm:space-y-3 md:space-y-4">
               {messages.map((msg, i) => (
                 <div data-msg key={i}>
                   <MessageBubble message={msg} />
@@ -232,14 +276,14 @@ export default function ChatArea() {
         </div>
       </div>
 
-      {/* Input bar */}
+      {/* Input bar - Responsive positioning */}
       <div
         ref={inputBarRef}
-        className="fixed bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 lg:bottom-8 lg:left-[calc(256px+48px)] lg:right-[48px] max-w-[900px] mx-auto z-40"
+        className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 md:bottom-6 md:left-6 md:right-6 lg:bottom-8 lg:left-[calc(256px+48px)] lg:right-[48px] max-w-[900px] mx-auto z-40"
       >
         <div
           ref={inputWrapRef}
-          className="rounded-full p-1.5 pl-3 sm:p-2 sm:pl-6 flex items-center gap-1.5 sm:gap-3 border transition-colors"
+          className="rounded-full p-1 pl-3 sm:p-1.5 sm:pl-4 md:p-2 md:pl-6 flex items-center gap-1.5 sm:gap-2 md:gap-3 border transition-colors"
           style={{
             background: '#ffffff',
             borderColor: BORDER,
@@ -247,7 +291,6 @@ export default function ChatArea() {
               '0 20px 40px -16px rgba(15,23,42,0.16), 0 4px 12px -4px rgba(15,23,42,0.06)',
           }}
         >
-         
           <input
             type="text"
             value={input}
@@ -256,16 +299,15 @@ export default function ChatArea() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder="Type your prompt here"
-            className="flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 text-sm sm:text-base"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 text-sm sm:text-base px-2 sm:px-3"
             style={{ color: INK }}
           />
-          <div className="flex items-center gap-1 sm:gap-2 pr-0.5 sm:pr-1 shrink-0">
-           
+          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 pr-0.5 sm:pr-1 shrink-0">
             <button
               ref={sendBtnRef}
               onClick={handleSend}
               disabled={!input.trim() || loading}
-              className="p-2.5 sm:p-3 rounded-full flex items-center justify-center active:scale-95 transition-all disabled:opacity-40 text-white shrink-0"
+              className="p-2 sm:p-2.5 md:p-3 rounded-full flex items-center justify-center active:scale-95 transition-all disabled:opacity-40 text-white shrink-0"
               style={{
                 background:
                   !input.trim() || loading
@@ -273,13 +315,12 @@ export default function ChatArea() {
                     : `linear-gradient(135deg, ${INDIGO}, ${BLUE} 55%, ${CYAN})`,
               }}
             >
-              <Send size={18} className="sm:hidden" />
-              <Send size={20} className="hidden sm:block" />
+              <Send className="w-4 h-4 sm:w-[18px] sm:h-[18px] md:w-5 md:h-5" />
             </button>
           </div>
         </div>
         <p
-          className="text-center mt-2 sm:mt-3 text-[9px] sm:text-[10px] uppercase tracking-widest px-2"
+          className="text-center mt-1.5 sm:mt-2 md:mt-3 text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-widest px-2"
           style={{ color: '#94a3b8' }}
         >
           ScholarAI can make mistakes. Verify your research.

@@ -9,7 +9,7 @@
  * - Icon with dynamic role-based styling
  * - Page title and description
  * - Accent left border via Card component
- * - Responsive layout (flex column on mobile, row on desktop)
+ * - Responsive layout (flex flex-col md:flex-row column on mobile, row on desktop)
  * 
  * Dependencies:
  * - lucide-react for icons (MessageSquareWarning)
@@ -64,16 +64,16 @@ const ComplaintHeader = ({ role }) => {
 
   return (
     <Card tone={role} accentLeft hover={false}>
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col md:flex-row-col gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 md:flex-row md:items-center md:justify-between px-4 sm:px-6 lg:px-8">
         {/* =====================================
             LEFT SECTION
             Icon + Title + Description
         ===================================== */}
 
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col md:flex-row items-start gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
           {/* ─── Role-Based Icon ─── */}
           <div 
-            className="flex h-14 w-14 items-center justify-center rounded-xl"
+            className="flex flex-col md:flex-row h-14 w-14 items-center justify-center rounded-xl px-4 sm:px-6 lg:px-8"
             style={{ background: lightColor }}
           >
             <MessageSquareWarning
@@ -84,11 +84,11 @@ const ComplaintHeader = ({ role }) => {
 
           {/* ─── Title and Description ─── */}
           <div>
-            <h1 className="text-3xl font-bold text-text-primary">
+            <h1 className="text-3xl font-bold text-text-primary px-4 sm:px-6 lg:px-8">
               Complaint Management
             </h1>
 
-            <p className="mt-2 max-w-2xl text-text-secondary">
+            <p className="mt-2 max-w-2xl text-text-secondary px-4 sm:px-6 lg:px-8">
               Submit complaints, monitor their progress,
               and keep track of resolutions in one place.
             </p>

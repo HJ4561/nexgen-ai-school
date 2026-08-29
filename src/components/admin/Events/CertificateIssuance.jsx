@@ -59,8 +59,9 @@ export default function CertificateIssuance({
   onGenerate,
 }) {
   // ─── Get selected event and its participants ──────────────────────────
- const selectedEvent = events.find(e => e.id === selectedEventId);
- const eventParticipants = selectedEventId ? participants[selectedEventId] || [] : [];
+  const selectedEvent = events.find(e => e.id === selectedEventId);
+  const eventParticipants = selectedEventId ? participants[selectedEventId] || [] : [];
+  
   return (
     <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 p-5">
       {/* ─── Header ────────────────────────────────────────────────────── */}
@@ -116,47 +117,23 @@ export default function CertificateIssuance({
               For outstanding performance in
             </p>
             <p className="text-xs font-semibold text-[var(--color-text-primary)]">
-  {selectedEvent ? selectedEvent.name || selectedEvent.event_name : '[Event Name]'}
-</p>
+              {selectedEvent ? selectedEvent.name || selectedEvent.event_name : '[Event Name]'}
+            </p>
           </div>
         </div>
 
         {/* ─── Generate Button ────────────────────────────────────────────── */}
-        <Button
-          variant="primary"
-          tone="admin"
-          fullWidth
-          leftIcon={<Award size={14} />}
+        <button
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[var(--color-admin-primary)] rounded-lg hover:bg-[var(--color-admin-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => selectedEventId && onGenerate(selectedEventId)}
           disabled={!selectedEventId || eventParticipants.length === 0}
         >
+          <Award size={14} />
           {selectedEventId
             ? `Generate & Email (${eventParticipants.length} participants)`
             : 'Select an event first'}
-        </Button>
+        </button>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

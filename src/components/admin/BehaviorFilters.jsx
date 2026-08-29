@@ -95,15 +95,13 @@ export default function BehaviorFilters({
 
       {/* Export Button */}
       <div className="ml-auto">
-        <Button
-          variant="outline"
-          tone="admin"
-          size="sm"
-          leftIcon={<Download size={14} />}
+        <button
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all"
           onClick={onExport}
         >
+          <Download size={14} />
           Export CSV
-        </Button>
+        </button>
       </div>
     </div>
   );

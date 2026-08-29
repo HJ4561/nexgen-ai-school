@@ -134,7 +134,7 @@ export default function GradeTable({
             step="0.01"
             value={value}
             onChange={(e) => onMarkChange(row.id, 'obtained_marks', e.target.value)}
-            className={`w-20 px-2 py-1.5 border rounded-lg text-sm font-bold text-center focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none transition-all ${
+            className={`w-20 px-2 py-1.5 border rounded-lg text-sm md:text-base md:text-base font-bold text-center focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none transition-all ${
               isLow
                 ? 'border-[var(--color-danger)]/30 text-[var(--color-danger)] focus:ring-[var(--color-danger)]/20'
                 : 'border-gray-200 text-[var(--color-text-primary)] focus:ring-[var(--color-teacher-primary)]/20'
@@ -157,7 +157,7 @@ export default function GradeTable({
             step="0.01"
             value={value}
             onChange={(e) => onMarkChange(row.id, 'total_marks', e.target.value)}
-            className="w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-sm font-bold text-center focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none transition-all text-[var(--color-text-primary)]"
+            className="w-20 px-2 py-1.5 border border-gray-200 rounded-lg text-sm md:text-base md:text-base font-bold text-center focus:ring-2 focus:ring-[var(--color-teacher-primary)] outline-none transition-all text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8"
           />
         );
       },
@@ -179,13 +179,13 @@ export default function GradeTable({
   const mobileActions = useCallback((row) => null, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────────── */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-[var(--color-surface-dim)]/30">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-6 bg-[var(--color-teacher-primary)] rounded-full" />
-          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Student Grading Roster</h3>
-          <Badge tone="teacher" className="text-[10px]">
+      <div className="px-5 py-4 border-b border-gray-100 flex flex-col md:flex-row items-center justify-between bg-[var(--color-surface-dim)]/30 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <div className="w-1 h-6 bg-[var(--color-teacher-primary)] rounded-full px-4 sm:px-6 lg:px-8" />
+          <h3 className="text-sm md:text-base md:text-base font-semibold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">Student Grading Roster</h3>
+          <Badge tone="teacher" className="text-[10px] px-4 sm:px-6 lg:px-8">
             {grades.length} Students
           </Badge>
         </div>

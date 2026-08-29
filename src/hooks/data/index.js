@@ -1,4 +1,4 @@
-﻿// src/hooks/data/index.js
+// src/hooks/data/index.js
 
 // Admin - Behavior Logs
 export { default as useBehaviorData } from "./useBehaviorData";

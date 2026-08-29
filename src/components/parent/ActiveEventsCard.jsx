@@ -110,12 +110,7 @@ const ActiveEventsCard = () => {
 
         {/* View All Link */}
         <button
-          className="
-            flex items-center gap-1
-            text-sm font-medium
-            text-parent-primary
-            hover:underline
-          "
+          className="flex items-center gap-1 text-sm font-medium text-parent-primary hover:underline"
         >
           View All
           <ChevronRight size={16} />
@@ -128,12 +123,11 @@ const ActiveEventsCard = () => {
           mt-6 space-y-4
           max-h-96 overflow-y-auto
           pr-1
-          scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent
-        "
+          scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
       >
         {childEvents.length === 0 ? (
           // ─── Empty State ──────────────────────────────────────────
-          <div className="rounded-xl bg-surface-muted p-6 text-center">
+          <div className="rounded-xl bg-surface-muted p-4 text-center">
             <CalendarDays size={32} className="mx-auto text-text-secondary" />
             <p className="mt-3 text-sm text-text-secondary">
               No upcoming events.
@@ -148,10 +142,8 @@ const ActiveEventsCard = () => {
                 flex items-start justify-between
                 rounded-xl
                 border border-border
-                p-4
-                transition
-                hover:border-parent-primary
-              "
+                p-4 transition
+                hover:border-parent-primary"
             >
               {/* ─── Event Details ─── */}
               <div className="flex gap-3">
@@ -188,8 +180,7 @@ const ActiveEventsCard = () => {
                       bg-green-100
                       px-3 py-1
                       text-xs font-semibold
-                      text-green-700
-                    "
+                      text-green-700"
                   >
                     {event.position}
                   </span>

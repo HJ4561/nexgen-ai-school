@@ -76,7 +76,7 @@ export default function TimetableMobileList({ allScheduleItems }) {
   }, {});
 
   return (
-    <div className="space-y-4 p-3">
+    <div className="space-y-4 p-3 px-4 sm:px-6 lg:px-8">
       {DAYS.map(day => {
         const dayEntries = grouped[day] || [];
         // Skip days with no entries
@@ -85,10 +85,10 @@ export default function TimetableMobileList({ allScheduleItems }) {
         return (
           <div key={day}>
             {/* ─── Day Header ─── */}
-            <h3 className="text-sm font-bold text-[var(--color-text-primary)] mb-2">{DAY_DISPLAY[day]}</h3>
+            <h3 className="text-sm md:text-base md:text-base font-bold text-[var(--color-text-primary)] mb-2 px-4 sm:px-6 lg:px-8">{DAY_DISPLAY[day]}</h3>
             
             {/* ─── Day Entries ─── */}
-            <div className="space-y-2">
+            <div className="space-y-2 px-4 sm:px-6 lg:px-8">
               {dayEntries.map(entry => {
                 // ─── Status Determination ───
                 const timeKey = entry.startSlot;
@@ -112,21 +112,21 @@ export default function TimetableMobileList({ allScheduleItems }) {
                 return (
                   <div 
                     key={entry.id} 
-                    className={`flex items-center p-3 rounded-lg border-l-4 shadow-sm ${statusColor}`}
+                    className={`flex flex-col md:flex-row items-center p-3 rounded-lg border-l-4 shadow-sm ${statusColor}`}
                   >
                     {/* ─── Entry Details ─── */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                    <div className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
+                      <p className="text-sm md:text-base md:text-base font-semibold text-[var(--color-text-primary)] truncate px-4 sm:px-6 lg:px-8">
                         {entry.subjectName}
                       </p>
-                      <p className="text-xs text-[var(--color-text-muted)]">
+                      <p className="text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                         {entry.className} • {entry.roomName}
                       </p>
                     </div>
                     
                     {/* ─── Time & Status ─── */}
-                    <div className="text-right shrink-0 ml-2">
-                      <p className="text-xs font-medium text-[var(--color-text-primary)]">
+                    <div className="text-right shrink-0 ml-2 px-4 sm:px-6 lg:px-8">
+                      <p className="text-xs font-medium text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                         {entry.startSlot}
                       </p>
                       {statusText && (

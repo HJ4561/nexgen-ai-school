@@ -1,34 +1,8 @@
-/**
- * ============================================
- * PROMPT CARDS COMPONENT
- * ============================================
- * 
- * Purpose: Display AI prompt suggestions as interactive cards
- * Used by: ChatArea - AI Workspace
- * 
- * Features:
- * - Role-based prompts (Admin, Teacher, Student, Parent)
- * - Bot-type specific prompts (fee, attendance, assignment, etc.)
- * - Animated entrance with GSAP
- * - Hover effects with scale and underline animation
- * - Color-coded categories
- * - Click to send prompt to AI
- * - Responsive grid layout
- * - Accessibility support
- * 
- * Dependencies:
- * - Redux for chat state and user role
- * - GSAP for animations
- * - Lucide React icons
- * - Prompt suggestions JSON data
- * ============================================
- */
-
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import gsap from 'gsap';
-import { sendMessage } from "@/modules/chat/store/chatThunks";
-import promptSuggestions from "@/modules/chat/data/promptSuggestions.json";
+import { sendMessage } from '@/store/chat/chatThunks';
+import promptSuggestions from '@/modules/chat/data/promptSuggestions.json'; // or inline
 
 import {
   TrendingUp, Handshake, BarChart3, BookOpen, GraduationCap,
@@ -37,13 +11,12 @@ import {
   MessageCircleQuestion,
 } from 'lucide-react';
 
-// ─── Constants ──────────────────────────────────────────────────────────────
 const INK = '#0f172a';
 const MUTED = '#64748b';
 const SURFACE = '#ffffff';
 const BORDER = 'rgba(15, 23, 42, 0.07)';
 
-// ─── Icon mapping per bot type ──────────────────────────────────────────────
+// Icon per bot type, used when a suggestion doesn't name its own.
 const botIconMap = {
   fee: DollarSign,
   attendance: ClipboardList,
@@ -57,13 +30,9 @@ const botIconMap = {
   media: Image,
   general: BarChart3,
 };
+const fallbackIconCycle = [BarChart3, ClipboardList, Calendar, BookOpen, Users, TrendingUp, Handshake, Radio];
 
-const fallbackIconCycle = [
-  BarChart3, ClipboardList, Calendar, BookOpen,
-  Users, TrendingUp, Handshake, Radio
-];
-
-// ─── Accent palette ──────────────────────────────────────────────────────────
+// A small curated accent palette — each card is assigned one, cycling in order.
 const ACCENTS = [
   { fg: '#4f46e5', bg: '#eef2ff' }, // indigo
   { fg: '#0891b2', bg: '#ecfeff' }, // cyan
@@ -75,7 +44,6 @@ const ACCENTS = [
   { fg: '#dc2626', bg: '#fef2f2' }, // red
 ];
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
 function normalizeSuggestion(raw, index, fallbackIcon) {
   const accent = ACCENTS[index % ACCENTS.length];
   if (typeof raw === 'string') {
@@ -93,84 +61,77 @@ function normalizeSuggestion(raw, index, fallbackIcon) {
   };
 }
 
-/**
- * PromptCards Component
- * 
- * @component
- * @returns {JSX.Element|null} Rendered prompt cards or null if no suggestions
- * 
- * @example
- * // In ChatArea:
- * <PromptCards />
- */
 export default function PromptCards() {
   const dispatch = useDispatch();
   const role = useSelector((s) => s.auth.user?.role_name) || 'Admin';
   const currentBot = useSelector((s) => s.chat.currentSession?.bot_type) || 'general';
-
-  // ─── Get suggestions based on role and bot type ────────────────────────
   const rawSuggestions = promptSuggestions[role]?.[currentBot] || promptSuggestions[role]?.general || [];
 
-  // ─── Refs ──────────────────────────────────────────────────────────────
   const rootRef = useRef(null);
   const gridRef = useRef(null);
 
-  // ─── Normalize suggestions ──────────────────────────────────────────────
   const fallbackIcon = botIconMap[currentBot] || MessageCircleQuestion;
-  const suggestions = rawSuggestions
-    .slice(0, 8)
-    .map((raw, idx) => normalizeSuggestion(raw, idx, fallbackIcon));
+  
+  const suggestions = useMemo(() => {
+    return rawSuggestions
+      .slice(0, 8)
+      .map((raw, idx) => normalizeSuggestion(raw, idx, fallbackIcon));
+  }, [rawSuggestions, fallbackIcon]);
 
-  // ─── GSAP Entrance Animation ──────────────────────────────────────────────
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      // Heading animation
-      gsap.fromTo(
-        rootRef.current.querySelector('h2'),
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-      );
-      // Subtitle animation
-      gsap.fromTo(
-        rootRef.current.querySelector('p'),
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.08 }
-      );
-      // Cards stagger animation
-      if (gridRef.current) {
+      const heading = rootRef.current?.querySelector('h2');
+      const paragraph = rootRef.current?.querySelector('p');
+      
+      if (heading) {
         gsap.fromTo(
-          gridRef.current.querySelectorAll('[data-card]'),
-          { opacity: 0, y: 18, scale: 0.97 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)', stagger: 0.06, delay: 0.12 }
+          heading,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
         );
+      }
+      
+      if (paragraph) {
+        gsap.fromTo(
+          paragraph,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', delay: 0.08 }
+        );
+      }
+      
+      if (gridRef.current) {
+        const cards = gridRef.current.querySelectorAll('[data-card]');
+        if (cards.length) {
+          gsap.fromTo(
+            cards,
+            { opacity: 0, y: 18, scale: 0.97 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(1.5)', stagger: 0.06, delay: 0.12 }
+          );
+        }
       }
     }, rootRef);
     return () => ctx.revert();
   }, [currentBot]);
 
-  // ─── Handler ──────────────────────────────────────────────────────────────
   const handleClick = (prompt) => dispatch(sendMessage({ content: prompt }));
 
-  // ─── Return null if no suggestions ──────────────────────────────────────
   if (suggestions.length === 0) return null;
 
   return (
-    <div ref={rootRef} className="text-center mb-10 mt-16 px-4">
-      {/* ─── Header ────────────────────────────────────────────────────── */}
-      <h2 className="text-3xl font-bold mb-2 tracking-tight" style={{ color: INK }}>
+    <div ref={rootRef} className="text-center mb-8 sm:mb-10 mt-8 sm:mt-12 md:mt-16 px-4 sm:px-6">
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 tracking-tight text-gray-800">
         How can I assist you today?
       </h2>
-      <p className="max-w-md mx-auto mb-9" style={{ color: MUTED }}>
+      <p className="max-w-md mx-auto mb-6 sm:mb-8 md:mb-9 text-sm sm:text-base text-gray-500">
         Try one of these questions
       </p>
 
-      {/* ─── Cards Grid ────────────────────────────────────────────────── */}
       <div
         ref={gridRef}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-4xl mx-auto"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full max-w-4xl mx-auto"
       >
         {suggestions.map(({ title, subtitle, prompt, Icon, accent }, idx) => (
           <button
@@ -180,35 +141,32 @@ export default function PromptCards() {
             onClick={() => handleClick(prompt)}
             aria-label={`Ask: ${prompt}`}
             title={prompt}
-            className="group relative flex flex-col items-start gap-3 overflow-hidden rounded-2xl
-                       border p-5 text-left transition-transform duration-200 ease-out
+            className="group relative flex flex-col items-start gap-2 sm:gap-3 overflow-hidden rounded-2xl
+                       border p-4 sm:p-5 text-left transition-transform duration-200 ease-out
                        hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2"
-            style={{
-              background: SURFACE,
-              borderColor: BORDER,
-              '--tw-ring-color': accent.fg,
+            style={{ 
+              background: SURFACE, 
+              borderColor: BORDER, 
+              '--tw-ring-color': accent.fg 
             }}
           >
-            {/* Icon */}
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform
-                         duration-200 group-hover:scale-105"
+              className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-transform
+                         duration-200 group-hover:scale-105 shrink-0"
               style={{ background: accent.bg }}
             >
-              <Icon style={{ color: accent.fg }} size={19} aria-hidden="true" />
+              <Icon style={{ color: accent.fg }} size={17} className="sm:w-[19px] sm:h-[19px]" aria-hidden="true" />
             </div>
 
-            {/* Title & Subtitle */}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold leading-snug" style={{ color: INK }}>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base font-semibold leading-snug text-gray-800 break-words">
                 {title}
               </p>
-              <p className="mt-1 line-clamp-2 text-xs leading-snug" style={{ color: MUTED }}>
+              <p className="mt-0.5 sm:mt-1 line-clamp-2 text-xs sm:text-sm leading-snug text-gray-500">
                 {subtitle}
               </p>
             </div>
 
-            {/* Ask button (visible on hover) */}
             <span
               className="mt-1 inline-flex items-center gap-1 text-xs font-medium opacity-0
                          transition-opacity duration-200 group-hover:opacity-100"
@@ -216,13 +174,12 @@ export default function PromptCards() {
             >
               Ask
               <ArrowRight
-                size={13}
-                className="transition-transform duration-200 group-hover:translate-x-0.5"
+                size={12} className="sm:w-[13px] sm:h-[13px] transition-transform duration-200 group-hover:translate-x-0.5"
                 aria-hidden="true"
               />
             </span>
 
-            {/* Animated underline accent */}
+            {/* Signature underline */}
             <span
               className="pointer-events-none absolute bottom-0 left-0 h-[3px] w-full origin-left
                          scale-x-0 transition-transform duration-300 ease-out
@@ -235,17 +192,3 @@ export default function PromptCards() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

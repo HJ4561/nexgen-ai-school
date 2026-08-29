@@ -1,431 +1,164 @@
-/**
- * ============================================
- * GRADE CHART COMPONENT
- * ============================================
- * 
- * Purpose: Displays student grade analytics with radar chart and exam breakdown
- * Features:
- * - Radar chart for subject-wise performance
- * - Exam-type breakdown with ranked bars
- * - Overall average with letter grade (A-F)
- * - Exam type filter (All, Mid-Term, Final, Quiz, Assignment)
- * - Percentage calculation with tier-based grading
- * - Role-based theming (parent)
- * - Responsive layout
- * - Empty state handling
- * 
- * Dependencies:
- * - recharts for radar chart rendering
- * - lucide-react for icons (Sparkles, BookOpen)
- * - @/components/ui/Card for container
- * - @/modules/parent/store/parentSlice for state management
- * - react-redux for state management
- * 
- * Usage:
- * <GradeChart />
- * ============================================
- */
-
-import { useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
-import { Sparkles, BookOpen } from "lucide-react";
-
+// src/components/parent/grades/GradeChart.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { BarChart3, TrendingUp } from 'lucide-react';
 import Card from '@/components/ui/Card';
-import { setSelectedTerm } from "@/modules/parent/store/parentSlice";
+import { selectGrades, selectSelectedChild, selectSelectedTerm } from '@/modules/parent/store/parentSlice';
 
-/**
- * ============================================
- * HELPERS
- * ============================================
- * 
- * Utility functions for grade calculations and grading tiers
- */
-
-/**
- * Calculate percentage from obtained and total marks
- * 
- * @param {number|string} obtained - Marks obtained
- * @param {number|string} total - Total marks
- * @returns {number} Percentage (0-100)
- */
-const toPercent = (obtained, total) => {
-  const o = parseFloat(obtained);
-  const t = parseFloat(total);
-  if (!t) return 0;
-  return (o / t) * 100;
-};
-
-/**
- * Determine grade tier based on percentage
- * - A: 90-100% (Green)
- * - B: 80-89% (Lime)
- * - C: 70-79% (Amber)
- * - D: 60-69% (Orange)
- * - F: 0-59% (Red)
- * 
- * @param {number} pct - Percentage
- * @returns {Object} Grade tier with label and color
- */
-const tierForPercent = (pct) => {
-  if (pct >= 90) return { label: "A", color: "#22c55e" };
-  if (pct >= 80) return { label: "B", color: "#84cc16" };
-  if (pct >= 70) return { label: "C", color: "#f59e0b" };
-  if (pct >= 60) return { label: "D", color: "#f97316" };
-  return { label: "F", color: "#ef4444" };
-};
-
-/**
- * ============================================
- * EXAM FILTER OPTIONS
- * ============================================
- * 
- * Available exam types for filtering
- * Reads/writes the same `selectedTerm` in Redux that
- * TermSelector and GradeOverview use, so all three stay
- * in sync instead of drifting apart.
- */
-const EXAM_FILTERS = ["All", "Mid-Term", "Final", "Quiz", "Assignment"];
-
-/**
- * ============================================
- * EXAM FILTER BAR SUB-COMPONENT
- * ============================================
- * 
- * Renders filter pills for exam types
- * 
- * @param {Object} props - Component props
- * @param {string} props.value - Currently selected filter
- * @param {Function} props.onChange - Filter change callback
- * @returns {JSX.Element} Filter bar UI
- */
-const ExamFilterBar = ({ value, onChange }) => (
-  <div className="flex flex-wrap items-center gap-2">
-    {EXAM_FILTERS.map((option) => {
-      const active = option === value;
-      return (
-        <button
-          key={option}
-          type="button"
-          onClick={() => onChange(option)}
-          className={`rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-200 ${
-            active
-              ? "border-parent-primary bg-parent-primary text-white shadow-sm"
-              : "border-border bg-white text-text-secondary hover:border-parent-primary/40 hover:text-parent-primary"
-          }`}
-        >
-          {option === "All" ? "All Exams" : option}
-        </button>
-      );
-    })}
-  </div>
-);
-
-/**
- * ============================================
- * RADAR TOOLTIP SUB-COMPONENT
- * ============================================
- * 
- * Custom tooltip for the radar chart
- * Shows subject name and score percentage
- * 
- * @param {Object} props - Recharts tooltip props
- * @param {boolean} props.active - Whether tooltip is active
- * @param {Array} props.payload - Tooltip data payload
- * @returns {JSX.Element|null} Tooltip UI or null
- */
-const RadarTooltip = ({ active, payload }) => {
-  if (!active || !payload?.length) return null;
-  const point = payload[0].payload;
-
-  return (
-    <div className="rounded-xl border border-border bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm">
-      <p className="text-xs font-semibold text-text-secondary">
-        {point.subject}
-      </p>
-      <p className="mt-1 text-lg font-bold text-parent-primary">
-        {point.score}%
-      </p>
-    </div>
-  );
-};
-
-/**
- * ============================================
- * GRADE CHART COMPONENT
- * ============================================
- * 
- * Renders a radar chart and exam breakdown for grade analytics
- * 
- * @returns {JSX.Element} Grade chart UI
- * 
- * @example
- * // In parent dashboard
- * <GradeChart />
- * ============================================
- */
 const GradeChart = () => {
-  const dispatch = useDispatch();
+  const grades = useSelector(selectGrades);
+  const selectedChild = useSelector(selectSelectedChild);
+  const selectedTerm = useSelector(selectSelectedTerm);
 
-  /**
-   * ============================================
-   * REDUX STATE
-   * ============================================
-   * 
-   * Retrieves grades, selectedChild, parentLinks, and selectedTerm
-   */
-  const {
-    grades = [],
-    selectedChild,
-    parentLinks = [],
-    selectedTerm,
-  } = useSelector((state) => state.parent);
+  // Process data for chart
+  const chartData = useMemo(() => {
+    // Filter grades by selected child
+    let filteredGrades = grades;
+    if (selectedChild) {
+      filteredGrades = grades.filter(g => g.student === selectedChild || g.student_id === selectedChild);
+    }
 
-  const selectedStudent = parentLinks.find(
-    (item) => item.student === selectedChild
-  );
+    // Filter by selected term
+    if (selectedTerm && selectedTerm !== 'all') {
+      filteredGrades = filteredGrades.filter(g => g.exam_type === selectedTerm);
+    }
 
-  /**
-   * ============================================
-   * FILTER TO SELECTED CHILD
-   * ============================================
-   * 
-   * Filters grades for the selected student
-   */
-  const childGrades = useMemo(() => {
-    if (!selectedStudent) return [];
-    return grades.filter(
-      (g) => g.student_name === selectedStudent.student_name
-    );
-  }, [grades, selectedStudent]);
-
-  /**
-   * ============================================
-   * FURTHER FILTER BY EXAM TYPE
-   * ============================================
-   * 
-   * Filters grades by the selected exam type
-   * Uses the shared selectedTerm from Redux
-   */
-  const filteredGrades = useMemo(() => {
-    if (selectedTerm === "All") return childGrades;
-    return childGrades.filter((g) => g.exam_type === selectedTerm);
-  }, [childGrades, selectedTerm]);
-
-  /**
-   * ============================================
-   * SUBJECT-WISE AVERAGE (Radar)
-   * ============================================
-   * 
-   * Groups grades by subject and calculates average percentage
-   * Used as data for the radar chart
-   */
-  const subjectData = useMemo(() => {
-    const bySubject = {};
-
-    filteredGrades.forEach((g) => {
-      const pct = toPercent(g.obtained_marks, g.total_marks);
-      if (!bySubject[g.subject_name]) {
-        bySubject[g.subject_name] = { total: 0, count: 0 };
+    // Group by subject
+    const subjectMap = {};
+    filteredGrades.forEach(grade => {
+      const subjectName = grade.subject_name || 'Unknown Subject';
+      if (!subjectMap[subjectName]) {
+        subjectMap[subjectName] = [];
       }
-      bySubject[g.subject_name].total += pct;
-      bySubject[g.subject_name].count += 1;
+      subjectMap[subjectName].push({
+        marks: grade.marks_obtained || 0,
+        total: grade.total_marks || 0,
+        percentage: grade.total_marks > 0 
+          ? Math.round((grade.marks_obtained / grade.total_marks) * 100) 
+          : 0,
+      });
     });
 
-    return Object.entries(bySubject).map(([subject, { total, count }]) => ({
-      subject,
-      score: Math.round(total / count),
-    }));
-  }, [filteredGrades]);
-
-  /**
-   * ============================================
-   * EXAM-TYPE BREAKDOWN (Ranked Bars)
-   * ============================================
-   * 
-   * Groups grades by exam type and calculates average
-   * Sorted by average (highest first)
-   * Includes grade tier and color
-   */
-  const examTypeData = useMemo(() => {
-    const byType = {};
-
-    filteredGrades.forEach((g) => {
-      const pct = toPercent(g.obtained_marks, g.total_marks);
-      if (!byType[g.exam_type]) {
-        byType[g.exam_type] = { total: 0, count: 0 };
-      }
-      byType[g.exam_type].total += pct;
-      byType[g.exam_type].count += 1;
+    // Calculate average percentage per subject
+    return Object.entries(subjectMap).map(([subject, values]) => {
+      const avgPercentage = values.reduce((sum, v) => sum + v.percentage, 0) / values.length;
+      return {
+        subject,
+        percentage: Math.round(avgPercentage),
+        count: values.length,
+      };
     });
+  }, [grades, selectedChild, selectedTerm]);
 
-    return Object.entries(byType)
-      .map(([type, { total, count }]) => {
-        const avg = Math.round(total / count);
-        return { type, avg, ...tierForPercent(avg) };
-      })
-      .sort((a, b) => b.avg - a.avg);
-  }, [filteredGrades]);
+  const maxPercentage = useMemo(() => {
+    if (chartData.length === 0) return 100;
+    const max = Math.max(...chartData.map(d => d.percentage));
+    return Math.ceil(max / 10) * 10;
+  }, [chartData]);
 
-  /**
-   * ============================================
-   * OVERALL AVERAGE
-   * ============================================
-   * 
-   * Marks-weighted average (sum obtained / sum total)
-   * Matches the calculation GradeOverview uses,
-   * so the two cards never disagree for the same filter.
-   */
-  const overallAvg = useMemo(() => {
-    if (!filteredGrades.length) return 0;
-
-    const obtained = filteredGrades.reduce(
-      (sum, g) => sum + Number(g.obtained_marks),
-      0
+  if (chartData.length === 0) {
+    return (
+      <Card className="p-6 md:p-8 text-center border border-gray-100">
+        <div className="flex flex-col items-center gap-3">
+          <BarChart3 className="w-12 h-12 text-gray-300" />
+          <p className="text-gray-500 font-medium">No grade data available</p>
+          <p className="text-sm text-gray-400">Grades will appear here once available</p>
+        </div>
+      </Card>
     );
-    const total = filteredGrades.reduce(
-      (sum, g) => sum + Number(g.total_marks),
-      0
-    );
-
-    return total ? Math.round((obtained / total) * 100) : 0;
-  }, [filteredGrades]);
-
-  const overallTier = tierForPercent(overallAvg);
-  const isEmpty = filteredGrades.length === 0;
+  }
 
   return (
-    <Card className="h-full">
-      {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-parent-primary/10 p-3">
-            <Sparkles size={22} className="text-parent-primary" />
+    <Card className="p-4 md:p-6 border border-gray-100 hover:shadow-md transition-shadow duration-200">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <div className="flex items-center gap-2">
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
           </div>
-          <div>
-            <h3 className="font-semibold text-text-primary">
-              Performance Snapshot
-            </h3>
-            <p className="text-sm text-text-secondary">
-              {selectedTerm === "All"
-                ? "Subject-wise average score"
-                : `Subject-wise average — ${selectedTerm} only`}
-            </p>
-          </div>
+          <h3 className="text-base md:text-lg font-semibold text-gray-800">Subject Performance</h3>
         </div>
-
-        {/* ─── Overall Grade Pill ─── */}
-        <div
-          className="flex items-center gap-2 rounded-full px-4 py-1.5"
-          style={{ backgroundColor: `${overallTier.color}1A` }}
-        >
-          <span
-            className="text-lg font-bold"
-            style={{ color: overallTier.color }}
-          >
-            {overallTier.label}
-          </span>
-          <span className="text-sm font-semibold text-text-primary">
-            {overallAvg}% overall
-          </span>
+        <div className="flex items-center gap-1 text-xs text-gray-500">
+          <span className="w-3 h-3 rounded-full bg-blue-600"></span>
+          <span>Percentage</span>
         </div>
       </div>
 
-      {/* ─── Exam Filter ────────────────────────────────────────── */}
-      <div className="mt-4">
-        <ExamFilterBar
-          value={selectedTerm}
-          onChange={(term) => dispatch(setSelectedTerm(term))}
-        />
+      <div className="space-y-3 md:space-y-4">
+        {chartData.map((item) => (
+          <div key={item.subject} className="group">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs md:text-sm font-medium text-gray-700 truncate max-w-[120px] md:max-w-[200px]">
+                {item.subject}
+              </span>
+              <span className="text-xs md:text-sm font-semibold text-gray-800">
+                {item.percentage}%
+              </span>
+            </div>
+            <div className="relative w-full h-2 md:h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ease-out group-hover:opacity-80 ${
+                  item.percentage >= 80 ? 'bg-emerald-500' :
+                  item.percentage >= 60 ? 'bg-blue-500' :
+                  item.percentage >= 40 ? 'bg-amber-500' :
+                  'bg-red-500'
+                }`}
+                style={{ 
+                  width: `${(item.percentage / maxPercentage) * 100}%`,
+                  transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              />
+              {/* Gradient overlay for visual interest */}
+              <div 
+                className="absolute left-0 top-0 h-full w-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2))'
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-0.5">
+              <span className="text-[8px] md:text-[10px] text-gray-400">
+                {item.count} exam{item.count > 1 ? 's' : ''}
+              </span>
+              {item.percentage >= 80 && (
+                <span className="text-[8px] md:text-[10px] text-emerald-600 font-medium">Excellent</span>
+              )}
+              {item.percentage >= 60 && item.percentage < 80 && (
+                <span className="text-[8px] md:text-[10px] text-blue-600 font-medium">Good</span>
+              )}
+              {item.percentage >= 40 && item.percentage < 60 && (
+                <span className="text-[8px] md:text-[10px] text-amber-600 font-medium">Average</span>
+              )}
+              {item.percentage < 40 && (
+                <span className="text-[8px] md:text-[10px] text-red-600 font-medium">Needs Improvement</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {isEmpty ? (
-        // ─── Empty State ──────────────────────────────────────────
-        <div className="mt-6 rounded-xl bg-surface-muted p-10 text-center">
-          <BookOpen size={32} className="mx-auto text-text-secondary" />
-          <p className="mt-3 text-sm text-text-secondary">
-            {selectedTerm === "All"
-              ? "No grade records yet."
-              : `No ${selectedTerm} grade records yet.`}
-          </p>
+      <div className="mt-4 md:mt-6 flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-100">
+        <div className="flex items-center gap-3 text-[10px] md:text-xs">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="text-gray-600">Excellent (80%+)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span className="text-gray-600">Good (60-79%)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span className="text-gray-600">Average (40-59%)</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+            <span className="text-gray-600">Poor (&lt;40%)</span>
+          </span>
         </div>
-      ) : (
-        <div className="mt-6 grid gap-8 xl:grid-cols-5">
-          {/* ─── Radar Chart (60%) ──────────────────────────────── */}
-          <div className="xl:col-span-3">
-            <ResponsiveContainer width="100%" height={280}>
-              <RadarChart data={subjectData} outerRadius="75%">
-                <PolarGrid stroke="var(--border, #e5e7eb)" />
-                <PolarAngleAxis
-                  dataKey="subject"
-                  tick={{
-                    fontSize: 12,
-                    fill: "var(--text-secondary, #6b7280)",
-                  }}
-                />
-                <PolarRadiusAxis
-                  domain={[0, 100]}
-                  tick={{
-                    fontSize: 10,
-                    fill: "var(--text-secondary, #9ca3af)",
-                  }}
-                  tickCount={5}
-                />
-                <Tooltip content={<RadarTooltip />} />
-                <Radar
-                  name="Score"
-                  dataKey="score"
-                  stroke="var(--parent-primary, #6366f1)"
-                  strokeWidth={2}
-                  fill="var(--parent-primary, #6366f1)"
-                  fillOpacity={0.3}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* ─── Exam Type Bars (40%) ───────────────────────────── */}
-          <div className="flex flex-col justify-center gap-4 xl:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-              By Exam Type
-            </p>
-
-            {examTypeData.map((item) => (
-              <div key={item.type}>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-sm font-medium text-text-primary">
-                    {item.type}
-                  </span>
-                  <span
-                    className="text-sm font-bold"
-                    style={{ color: item.color }}
-                  >
-                    {item.avg}%
-                  </span>
-                </div>
-
-                <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${item.avg}%`,
-                      backgroundColor: item.color,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="text-[10px] md:text-xs text-gray-400">
+          {chartData.length} subjects
         </div>
-      )}
+      </div>
     </Card>
   );
 };

@@ -192,13 +192,11 @@ const BehaviorFilters = ({
         {/* ─── Reset Button ─── */}
         <div className="flex items-end">
           <Button
-            className="w-full"
             variant="outline"
             tone={role}
-            leftIcon={
-              <RotateCcw size={16} />
-            }
+            leftIcon={<RotateCcw size={16} />}
             onClick={onReset}
+            className="w-full"
           >
             Reset Filters
           </Button>

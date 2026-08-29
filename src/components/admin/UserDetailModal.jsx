@@ -52,10 +52,7 @@ const UserDetailModal = ({ user, role, onClose, onEdit }) => {
   const gradientColor = ROLE_COLORS[role] || "from-blue-500 to-purple-500";
 
   useEffect(() => {
-    // Trigger entrance animation
     setIsVisible(true);
-    
-    // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'unset';
@@ -80,7 +77,6 @@ const UserDetailModal = ({ user, role, onClose, onEdit }) => {
     });
   };
 
-  // Handle escape key
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') {
@@ -105,7 +101,6 @@ const UserDetailModal = ({ user, role, onClose, onEdit }) => {
     }, 300);
   };
 
-  // Get status color for gradient
   const getStatusColor = (status) => {
     switch(status) {
       case 'active': return 'emerald';
@@ -170,9 +165,9 @@ const UserDetailModal = ({ user, role, onClose, onEdit }) => {
                 </div>
                 <div className="text-white">
                   <h3 className="text-2xl font-bold">{user?.name || "Unknown User"}</h3>
-                  <div className="flex items-center gap-2 mt-1.5">
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm font-medium px-3 py-1">
-                      <RoleIcon className="w-3 h-3 mr-1.5" />
+                      <RoleIcon className="w-3 h-3 mr-1.5 inline" />
                       {role?.charAt(0).toUpperCase() + role?.slice(1) || "User"}
                     </Badge>
                     <Badge className={`bg-${statusColor}-100/20 text-white border-white/30 backdrop-blur-sm font-medium px-3 py-1`}>

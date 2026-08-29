@@ -62,11 +62,11 @@ export default function SubjectFilters({
   totalItems,
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col md:flex-row-wrap items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
       {/* Filter Label */}
-      <div className="flex items-center gap-2">
-        <Filter size={16} className="text-[var(--color-text-muted)]" />
-        <span className="text-xs font-medium text-[var(--color-text-muted)]">Filters:</span>
+      <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+        <Filter size={16} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+        <span className="text-xs font-medium text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">Filters:</span>
       </div>
 
       {/* Class Filter */}
@@ -80,7 +80,7 @@ export default function SubjectFilters({
         tone="admin"
         size="sm"
         placeholder="All Classes"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
 
       {/* Subject Name Filter */}
@@ -94,7 +94,7 @@ export default function SubjectFilters({
         tone="admin"
         size="sm"
         placeholder="All Subjects"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
 
       {/* Assignment Status Filter */}
@@ -109,7 +109,7 @@ export default function SubjectFilters({
         tone="admin"
         size="sm"
         placeholder="All"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
     </div>
   );

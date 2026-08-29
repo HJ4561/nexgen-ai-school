@@ -173,13 +173,11 @@ function AssignmentSubmissionModal({
                 py-3
                 pl-11
                 pr-12
-                text-sm
-                outline-none
+                text-sm outline-none
                 transition
                 focus:border-student-primary
                 focus:ring-2
-                focus:ring-student-primary/20
-              "
+                focus:ring-student-primary/20"
             />
 
             {/* Clear Button */}

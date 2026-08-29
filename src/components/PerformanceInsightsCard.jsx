@@ -98,9 +98,9 @@ const AttendanceTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border border-border bg-surface px-3 py-2 shadow-sm">
-      <p className="text-xs font-medium text-text-secondary">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-text-primary">
+    <div className="rounded-lg border border-border bg-surface px-3 py-2 shadow-sm px-4 sm:px-6 lg:px-8">
+      <p className="text-xs font-medium text-text-secondary px-4 sm:px-6 lg:px-8">{label}</p>
+      <p className="mt-1 text-sm md:text-base md:text-base font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
         {payload[0].value}% present
       </p>
     </div>
@@ -252,19 +252,19 @@ const PerformanceInsightsCard = () => {
   const hasData = attendanceTrend.length > 0 || subjectRadar.length > 0;
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-parent-primary/10 p-3">
-          <Sparkles size={22} className="text-parent-primary" />
+      <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+        <div className="rounded-lg bg-parent-primary/10 p-3 px-4 sm:px-6 lg:px-8">
+          <Sparkles size={22} className="text-parent-primary px-4 sm:px-6 lg:px-8" />
         </div>
 
         <div>
-          <h3 className="font-semibold text-text-primary">
+          <h3 className="font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
             Performance Insights
           </h3>
 
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
             Attendance trend and subject mastery
           </p>
         </div>
@@ -272,30 +272,30 @@ const PerformanceInsightsCard = () => {
 
       {!selectedStudent || !hasData ? (
         // ─── Empty State ──────────────────────────────────────────
-        <p className="mt-8 text-sm text-text-secondary">
+        <p className="mt-8 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           Not enough data yet to generate insights for this child.
         </p>
       ) : (
-        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-5">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-4 sm:gap-5 sm:p-6 sm:p-8 lg:grid-cols-5 px-4 sm:px-6 lg:px-8">
           {/* ============================================
               ATTENDANCE TREND — AREA CHART (60%)
               ============================================ */}
 
-          <div className="lg:col-span-3">
-            <div className="mb-4 flex items-baseline justify-between">
-              <p className="text-sm font-medium text-text-secondary">
+          <div className="lg:col-span-3 px-4 sm:px-6 lg:px-8">
+            <div className="mb-4 flex flex-col md:flex-row items-baseline justify-between px-4 sm:px-6 lg:px-8">
+              <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
                 Attendance trend
               </p>
 
               {latestRate !== null && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-2xl font-bold" style={{ color: INK }}>
+                <div className="flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8">
+                  <span className="text-2xl md:text-3xl font-bold px-4 sm:px-6 lg:px-8" style={{ color: INK }}>
                     {latestRate}%
                   </span>
 
                   {trendDelta !== 0 && (
                     <span
-                      className={`flex items-center gap-0.5 text-xs font-medium ${
+                      className={`flex flex-col md:flex-row items-center gap-0.5 text-xs font-medium ${
                         trendDelta > 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
@@ -310,7 +310,7 @@ const PerformanceInsightsCard = () => {
               )}
             </div>
 
-            <div className="h-56">
+            <div className="h-56 px-4 sm:px-6 lg:px-8">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={attendanceTrend}
@@ -365,15 +365,15 @@ const PerformanceInsightsCard = () => {
               SUBJECT MASTERY — RADAR "SEAL" (40%)
               ============================================ */}
 
-          <div className="relative lg:col-span-2">
-            <p className="mb-4 text-sm font-medium text-text-secondary">
+          <div className="relative lg:col-span-2 px-4 sm:px-6 lg:px-8">
+            <p className="mb-4 text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
               Subject mastery
             </p>
 
-            <div className="relative h-56">
+            <div className="relative h-56 px-4 sm:px-6 lg:px-8">
               {/* Radial glow behind the medallion, gold-seal accent */}
               <div
-                className="pointer-events-none absolute inset-0 m-auto h-32 w-32 rounded-full opacity-[0.14]"
+                className="pointer-events-none absolute inset-0 m-auto h-32 w-32 rounded-full opacity-[0.14] px-4 sm:px-6 lg:px-8"
                 style={{
                   background: `radial-gradient(circle, ${GOLD} 0%, transparent 70%)`,
                 }}
@@ -410,13 +410,13 @@ const PerformanceInsightsCard = () => {
 
             {/* ─── Strongest Subject Indicator ─── */}
             {topSubject && (
-              <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-text-secondary">
+              <div className="mt-2 flex flex-col md:flex-row items-center justify-center gap-1.5 text-xs text-text-secondary px-4 sm:px-6 lg:px-8">
                 <span
-                  className="h-1.5 w-1.5 rounded-full"
+                  className="h-1.5 w-1.5 rounded-full px-4 sm:px-6 lg:px-8"
                   style={{ backgroundColor: GOLD }}
                 />
                 Strongest in{" "}
-                <span className="font-medium text-text-primary">
+                <span className="font-medium text-text-primary px-4 sm:px-6 lg:px-8">
                   {topSubject.subject}
                 </span>{" "}
                 ({topSubject.score}%)

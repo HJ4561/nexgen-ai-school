@@ -200,12 +200,12 @@ const ComplaintList = ({ role }) => {
             Title and description
         ========================================== */}
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold">
+        <div className="mb-6 px-4 sm:px-6 lg:px-8">
+          <h2 className="text-xl md:text-2xl md:text-2xl font-semibold px-4 sm:px-6 lg:px-8">
             Complaint History
           </h2>
 
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
             View and track your submitted complaints.
           </p>
         </div>
@@ -227,15 +227,15 @@ const ComplaintList = ({ role }) => {
             Renders complaint cards or empty state
         ========================================== */}
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 sm:px-6 lg:px-8">
           {loading ? (
             // ─── Loading State ───
-            <div className="py-12 text-center">
+            <div className="py-12 text-center px-4 sm:px-6 lg:px-8">
               Loading complaints...
             </div>
           ) : filteredComplaints.length === 0 ? (
             // ─── Empty State ───
-            <div className="py-12 text-center">
+            <div className="py-12 text-center px-4 sm:px-6 lg:px-8">
               No complaints found. Try adjusting your filters or submit a new complaint.
             </div>
           ) : (

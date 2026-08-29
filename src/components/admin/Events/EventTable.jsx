@@ -25,12 +25,11 @@
  * ============================================
  */
 
-import { Edit, Trash2, Users, MapPin } from 'lucide-react';
+import { Edit, Trash2, Users, MapPin, Eye } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import Pagination from '@/components/ui/Pagination';
-import { formatDate, getStatus } from "@/utils/helpers";
-import { Edit, Trash2, Users, MapPin, Eye } from 'lucide-react';  // Add Eye for view
+
 /**
  * EventTable Component
  * 
@@ -44,8 +43,13 @@ import { Edit, Trash2, Users, MapPin, Eye } from 'lucide-react';  // Add Eye for
  * @param {Function} props.onPageChange - Called when page changes
  * @param {Function} props.onEdit - Called when Edit is clicked
  * @param {Function} props.onDelete - Called when Delete is clicked
- * @param {Function} props.getParticipantCount - Get participant count for an event
  * @param {Function} props.onViewParticipants - Called when View Participants is clicked
+ * @param {Function} props.getStatus - Function to get status from date
+ * @param {Function} props.formatDate - Function to format date
+ * @param {Function} props.getStatusColor - Function to get status color
+ * @param {Function} props.getStatusIcon - Function to get status icon
+ * @param {Function} props.getStatusLabel - Function to get status label
+ * @param {boolean} props.loading - Loading state
  * @returns {JSX.Element} Rendered table with pagination
  * 
  * @example
@@ -58,8 +62,9 @@ import { Edit, Trash2, Users, MapPin, Eye } from 'lucide-react';  // Add Eye for
  *   onPageChange={handlePageChange}
  *   onEdit={handleEdit}
  *   onDelete={handleDelete}
- *   getParticipantCount={getParticipantCount}
  *   onViewParticipants={handleViewParticipants}
+ *   getStatus={getStatus}
+ *   formatDate={formatDate}
  * />
  */
 export default function EventTable({
@@ -71,12 +76,10 @@ export default function EventTable({
   onPageChange,
   onEdit,
   onDelete,
-  onViewParticipants,  // Changed from getParticipantCount
-  getStatusColor,      // Add these
-  getStatusIcon,       // Add these
-  getStatusLabel,      // Add these
-  formatDate,          // Add these
-  loading,             // Add these
+  onViewParticipants,
+  getStatus,
+  formatDate,
+  loading = false,
 }) {
   // ─── Table Columns ────────────────────────────────────────────────────
   const columns = [
@@ -108,9 +111,9 @@ export default function EventTable({
       label: 'Date & Time',
       mobile: { role: 'detail', label: 'Date & Time' },
       render: (row) => (
-        <div className="flex flex-col">
+        <div>
           <span className="text-sm font-medium text-[var(--color-text-primary)]">{formatDate(row.event_date)}</span>
-          <span className="text-xs text-[var(--color-text-muted)]">
+          <span className="text-xs text-[var(--color-text-muted)] block">
             {new Date(row.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </span>
         </div>
@@ -128,7 +131,7 @@ export default function EventTable({
           Scheduled: 'bg-[var(--color-success-bg)] text-[var(--color-success)]',
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${colorMap[status.label]}`}>
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${colorMap[status.label] || 'bg-gray-100 text-gray-500'}`}>
             {status.label}
           </span>
         );
@@ -143,7 +146,7 @@ export default function EventTable({
           {/* Edit */}
           <button
             onClick={() => onEdit(row)}
-            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] hover:bg-[var(--color-admin-light)] transition-colors"
             title="Edit Event"
           >
             <Edit size={15} />
@@ -151,7 +154,7 @@ export default function EventTable({
           {/* Delete */}
           <button
             onClick={() => onDelete(row)}
-            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger-bg)] transition-colors"
             title="Delete Event"
           >
             <Trash2 size={15} />
@@ -159,7 +162,7 @@ export default function EventTable({
           {/* View Participants */}
           <button
             onClick={() => onViewParticipants(row)}
-            className="p-1.5 rounded-lg text-[var(--color-teacher-primary)] bg-[var(--color-teacher-light)] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--color-teacher-primary)] bg-[var(--color-teacher-light)] hover:bg-[var(--color-teacher-light)] transition-colors"
             title="Manage Participants"
           >
             <Users size={15} />
@@ -182,19 +185,19 @@ export default function EventTable({
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
             <button
               onClick={() => onEdit(row)}
-              className="text-sm font-medium text-[var(--color-admin-primary)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-admin-light)] rounded-lg flex-1 justify-center"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg flex-1 justify-center hover:bg-[var(--color-admin-light)] transition-colors"
             >
               <Edit size={14} /> Edit
             </button>
             <button
               onClick={() => onDelete(row)}
-              className="text-sm font-medium text-[var(--color-danger)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-danger-bg)] rounded-lg flex-1 justify-center"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg flex-1 justify-center hover:bg-[var(--color-danger-bg)] transition-colors"
             >
               <Trash2 size={14} /> Delete
             </button>
             <button
               onClick={() => onViewParticipants(row)}
-              className="text-sm font-medium text-[var(--color-teacher-primary)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-teacher-light)] rounded-lg flex-1 justify-center"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-teacher-primary)] bg-[var(--color-teacher-light)] rounded-lg flex-1 justify-center hover:bg-[var(--color-teacher-light)] transition-colors"
             >
               <Users size={14} /> View
             </button>
@@ -213,26 +216,3 @@ export default function EventTable({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

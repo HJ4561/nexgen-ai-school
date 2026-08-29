@@ -10,7 +10,7 @@
  * - Decorative dot grid texture
  * - Ambient glow effect
  * - Gradient background
- * - Responsive layout (flex column on mobile, row on desktop)
+ * - Responsive layout (flex flex-col md:flex-row column on mobile, row on desktop)
  * - Subtle backdrop blur on right panel
  * - Tracking-widest label with sparkle icon
  * 
@@ -84,13 +84,13 @@ const SettingsHeader = ({ role }) => {
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-border/60 bg-surface p-8 shadow-sm md:p-10"
+      className="relative overflow-hidden rounded-3xl border border-border/60 bg-surface p-4 shadow-sm md:p-10"
       style={{ background: `linear-gradient(135deg, ${wash}, transparent 60%)` }}
     >
       {/* ─── Decorative Texture ─── */}
       {/* Faint dot grid gives the panel some material without competing with content */}
       <svg
-        aria-hidden
+        aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.35]"
       >
         <defs>
@@ -103,12 +103,12 @@ const SettingsHeader = ({ role }) => {
 
       {/* ─── Ambient Glow ─── */}
       <div
-        aria-hidden
+        aria-hidden="true"
         className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full blur-3xl"
         style={{ background: orb }}
       />
 
-      <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* =====================================
             LEFT SECTION
             Icon + Title + Description
@@ -156,12 +156,10 @@ const SettingsHeader = ({ role }) => {
             Info panel with accent border
         ===================================== */}
 
-        <div
-          className="relative overflow-hidden rounded-xl border border-border/60 bg-surface/70 px-6 py-4 backdrop-blur-sm"
-        >
+        <div className="relative overflow-hidden rounded-xl border border-border/60 bg-surface/70 px-6 py-4 backdrop-blur-sm">
           {/* Accent border */}
           <span
-            aria-hidden
+            aria-hidden="true"
             className="absolute inset-y-0 left-0 w-1"
             style={{ background: primaryColor }}
           />

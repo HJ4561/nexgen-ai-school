@@ -1,4 +1,5 @@
-﻿import React from "react";
+// src/components/admin/Inventory/InventoryFilters.jsx
+import React from "react";
 import { Search, Filter, ChevronDown, X } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -14,7 +15,7 @@ const InventoryFilters = ({
   setShowFilters,
   hasActiveFilters,
   clearFilters,
-  categories = [] // Default to empty array
+  categories = []
 }) => {
   return (
     <Card className="p-4 border border-gray-100 shadow-sm">
@@ -53,16 +54,20 @@ const InventoryFilters = ({
           </select>
           <Button
             variant="outline"
-            className="border-gray-200 px-4"
+            className="border-gray-200"
             onClick={() => setShowFilters(!showFilters)}
+            leftIcon={<Filter className="w-4 h-4" />}
+            rightIcon={<ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showFilters ? "rotate-180" : ""}`} />}
           >
-            <Filter className="w-4 h-4 mr-2" />
             Filters
-            <ChevronDown className={"w-3 h-3 ml-1 transition-transform " + (showFilters ? "rotate-180" : "")} />
           </Button>
           {hasActiveFilters && (
-            <Button variant="outline" className="border-gray-200 px-3 text-gray-500" onClick={clearFilters}>
-              <X className="w-3.5 h-3.5 mr-1" />
+            <Button
+              variant="outline"
+              className="border-gray-200 px-3 text-gray-500"
+              onClick={clearFilters}
+              leftIcon={<X className="w-3.5 h-3.5" />}
+            >
               Clear
             </Button>
           )}

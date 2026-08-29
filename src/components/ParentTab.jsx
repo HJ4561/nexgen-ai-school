@@ -32,7 +32,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmDialog from "@/components/layout/ConfirmDialog";
 import SearchBar from "@/components/layout/SearchBar";
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 import Pagination from '@/components/ui/Pagination';
 import EditDrawer from "./EditDrawer";
 import Select from '@/components/ui/Select';
@@ -92,7 +92,7 @@ function ParentTab({ onRowClick }) {
   const dispatch = useDispatch();
   const { parents, loading, error } = useSelector((state) => state.admin);
 
-  // ─── State ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [search, setSearch] = useState("");
   const [selectedParent, setSelectedParent] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -145,7 +145,7 @@ function ParentTab({ onRowClick }) {
     resetPage();
   }, [search]);
 
-  // ─── Handlers ────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * ============================================
@@ -214,7 +214,7 @@ function ParentTab({ onRowClick }) {
     setDeleteTargetId(null);
   };
 
-  // ─── Table Columns ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Table Columns â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * ============================================
@@ -246,7 +246,7 @@ function ParentTab({ onRowClick }) {
               {row.full_name}
             </p>
             <p className="text-xs text-[var(--color-text-muted)]">
-              ID: {row.id} · User: {row.user}
+              ID: {row.id} Â· User: {row.user}
             </p>
           </div>
         </div>
@@ -309,7 +309,7 @@ function ParentTab({ onRowClick }) {
      * ============================================
      * 
      * Provides Edit and Delete buttons
-     * Hidden on mobile (handled by mobileActions)
+     * hidden on mobile (handled by mobileActions)
      */
     {
       key: "actions",
@@ -344,14 +344,14 @@ function ParentTab({ onRowClick }) {
     },
   ];
 
-  // ─── Loading & Error ─────────────────────────────────────────────────────
+  // â”€â”€â”€ Loading & Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (loading) return <LoadingSpinner size="lg" />;
   if (error) return <div className="text-center text-red-500 py-8">Error: {error}</div>;
 
   return (
     <>
-      {/* ─── Filters ──────────────────────────────────────────────────────── */}
-      <div className="flex gap-4 items-center">
+      {/* â”€â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="flex flex-col md:flex-row gap-4 items-center">
         <SearchBar
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -366,7 +366,7 @@ function ParentTab({ onRowClick }) {
         </div>
       </div>
 
-      {/* ─── Table ────────────────────────────────────────────────────────── */}
+      {/* â”€â”€â”€ Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
         <ResponsiveTable
           columns={columns}
@@ -381,7 +381,7 @@ function ParentTab({ onRowClick }) {
                   e.stopPropagation();
                   setSelectedParent(row);
                 }}
-                className="text-sm font-medium text-[var(--color-admin-primary)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-admin-light)] rounded-lg"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg"
               >
                 <Edit size={14} />
                 Edit Profile
@@ -391,7 +391,7 @@ function ParentTab({ onRowClick }) {
                   e.stopPropagation();
                   handleDeleteClick(row.id);
                 }}
-                className="text-sm font-medium text-[var(--color-danger)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-danger-bg)] rounded-lg"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg"
               >
                 <Trash2 size={14} />
                 Delete
@@ -409,7 +409,7 @@ function ParentTab({ onRowClick }) {
         />
       </div>
 
-      {/* ─── Confirm Dialog ──────────────────────────────────────────────── */}
+      {/* â”€â”€â”€ Confirm Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         title="Delete Parent?"
@@ -424,7 +424,7 @@ function ParentTab({ onRowClick }) {
         }}
       />
 
-      {/* ─── Edit Drawer ──────────────────────────────────────────────────── */}
+      {/* â”€â”€â”€ Edit Drawer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <EditDrawer
         isOpen={!!selectedParent}
         onClose={() => setSelectedParent(null)}

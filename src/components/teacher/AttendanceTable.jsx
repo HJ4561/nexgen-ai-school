@@ -17,7 +17,7 @@
  * - lucide-react for icons (CalendarDays, ClipboardList)
  * - @/components/ui/Card for container
  * - @/components/ui/Table for desktop view
- * - @/components/composite/StatusBadge for status display
+ * - @/components/common/StatusBadge for status display
  * - react-redux for state management
  * 
  * Usage:
@@ -32,7 +32,7 @@ import { CalendarDays, ClipboardList } from "lucide-react";
 
 import Card from "@/components/ui/Card";
 import Table from "@/components/ui/Table";
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
 /**
  * ============================================
@@ -49,7 +49,7 @@ import StatusBadge from "@/components/composite/StatusBadge";
  * ============================================
  */
 const AttendanceTable = () => {
-  // ─── Redux State ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Redux State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const {
     attendance = [],
     parentLinks = [],
@@ -137,7 +137,7 @@ const AttendanceTable = () => {
       key: "date",
       label: "Date",
       render: (row) => (
-        <span className="font-medium text-text-primary">
+        <span className="font-medium text-text-primary px-4 sm:px-6 lg:px-8">
           {row.formattedDate}
         </span>
       ),
@@ -146,7 +146,7 @@ const AttendanceTable = () => {
       key: "day",
       label: "Day",
       render: (row) => (
-        <span className="text-text-secondary">{row.day}</span>
+        <span className="text-text-secondary px-4 sm:px-6 lg:px-8">{row.day}</span>
       ),
     },
     {
@@ -157,58 +157,58 @@ const AttendanceTable = () => {
   ];
 
   return (
-    <Card className="h-[600px]">
-      {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <Card className="h-[600px] px-4 sm:px-6 lg:px-8">
+      {/* â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="mb-6 flex flex-col md:flex-row-wrap items-center justify-between gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">
+          <h2 className="text-lg md:text-xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
             Attendance Records
           </h2>
 
-          <p className="text-sm text-text-secondary">
+          <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
             Daily attendance for the selected child.
           </p>
         </div>
 
-        {/* ─── Summary Stat Chips ──────────────────────────────── */}
+        {/* â”€â”€â”€ Summary Stat Chips â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {rows.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
             <StatChip
               label="Present"
               value={stats.Present}
-              className="border-green-100 bg-green-50 text-green-700"
+              className="border-green-100 bg-green-50 text-green-700 px-4 sm:px-6 lg:px-8"
             />
             <StatChip
               label="Absent"
               value={stats.Absent}
-              className="border-red-100 bg-red-50 text-red-700"
+              className="border-red-100 bg-red-50 text-red-700 px-4 sm:px-6 lg:px-8"
             />
             <StatChip
               label="Leave"
               value={stats.Leave}
-              className="border-yellow-100 bg-yellow-50 text-yellow-700"
+              className="border-yellow-100 bg-yellow-50 text-yellow-700 px-4 sm:px-6 lg:px-8"
             />
           </div>
         )}
       </div>
 
-      {/* ─── Empty State ────────────────────────────────────────── */}
+      {/* â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {rows.length === 0 && (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-parent-border py-12 text-center">
-          <ClipboardList size={28} className="text-text-secondary/50" />
-          <p className="text-sm font-medium text-text-primary">
+        <div className="flex flex-col md:flex-row-col items-center justify-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 rounded-xl border border-dashed border-parent-border py-12 text-center px-4 sm:px-6 lg:px-8">
+          <ClipboardList size={28} className="text-text-secondary/50 px-4 sm:px-6 lg:px-8" />
+          <p className="text-sm md:text-base md:text-base font-medium text-text-primary px-4 sm:px-6 lg:px-8">
             No attendance records found
           </p>
-          <p className="text-xs text-text-secondary">
+          <p className="text-xs text-text-secondary px-4 sm:px-6 lg:px-8">
             Records will appear here once attendance is marked.
           </p>
         </div>
       )}
 
-      {/* ─── Desktop / Tablet Table (md and up) ───────────────── */}
+      {/* â”€â”€â”€ Desktop / Tablet Table (md and up) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {rows.length > 0 && (
-        <div className="hidden md:block max-h-[420px] overflow-y-auto rounded-lg [scrollbar-width:thin]">
-          <Table
+        <div className="hidden md:block md:hidden md:block md:hidden max-h-[420px] overflow-y-auto rounded-lg [scrollbar-width:thin] px-4 sm:px-6 lg:px-8">
+          <div class="overflow-x-auto -mx-4 sm:mx-6 lg:mx-8 sm:mx-6 lg:mx-8 sm:mx-0"><div class="inline-block md:hidden min-w-full align-middle"><table
             columns={columns}
             data={rows}
             emptyMessage="No attendance records found."
@@ -216,26 +216,26 @@ const AttendanceTable = () => {
         </div>
       )}
 
-      {/* ─── Mobile Card List (below md) ──────────────────────── */}
+      {/* â”€â”€â”€ Mobile Card List (below md) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {rows.length > 0 && (
-        <div className="md:hidden max-h-[420px] overflow-y-auto flex flex-col gap-2.5 pr-1 [scrollbar-width:thin]">
+        <div className="md:hidden md:block md:hidden max-h-[420px] overflow-y-auto flex flex-col md:flex-row-col gap-2.5 pr-1 [scrollbar-width:thin] px-4 sm:px-6 lg:px-8">
           {rows.map((row, index) => (
             <div
               key={row.id ?? `${row.date}-${index}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
+              className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 rounded-xl border border-slate-200 bg-white px-4 py-3 px-4 sm:px-6 lg:px-8"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
                 {/* Calendar icon */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-parent-light/40 text-parent-primary">
+                <div className="flex flex-col md:flex-row h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-parent-light/40 text-parent-primary px-4 sm:px-6 lg:px-8">
                   <CalendarDays size={18} />
                 </div>
 
                 {/* Date and day */}
-                <div className="leading-tight">
-                  <p className="text-sm font-semibold text-text-primary">
+                <div className="leading-tight px-4 sm:px-6 lg:px-8">
+                  <p className="text-sm md:text-base md:text-base font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
                     {row.formattedDate}
                   </p>
-                  <p className="text-xs text-text-secondary">{row.day}</p>
+                  <p className="text-xs text-text-secondary px-4 sm:px-6 lg:px-8">{row.day}</p>
                 </div>
               </div>
 
@@ -265,10 +265,10 @@ const AttendanceTable = () => {
 function StatChip({ label, value, className }) {
   return (
     <div
-      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
+      className={`flex flex-col md:flex-row items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${className}`}
     >
       <span>{value}</span>
-      <span className="font-medium opacity-80">{label}</span>
+      <span className="font-medium opacity-80 px-4 sm:px-6 lg:px-8">{label}</span>
     </div>
   );
 }

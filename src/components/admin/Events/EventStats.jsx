@@ -23,10 +23,10 @@
  * ============================================
  */
 
-import StatCard from "@/components/composite/StatCard";
+import StatCard from "@/components/common/StatCard";
 import { Calendar, CheckCircle, Clock, Users } from 'lucide-react';
-import { StaggerGroup, StaggerItem } from "@/components/admin/animations";
-import StatCard from "@/components/composite/StatCard";
+import { StaggerGroup, StaggerItem } from "@/components/admin/animations/index.jsx";
+import StatCard from "@/components/common/StatCard";
 import { Calendar, CheckCircle, Clock, Users, XCircle } from 'lucide-react';  // Add XCircle for cancelled
 
 /**
@@ -96,13 +96,12 @@ export default function EventStats({ stats }) {
   ];
 
   return (
-    <StaggerGroup className="grid grid-cols-2 md:grid-cols-5 gap-3 items-stretch">
+    <StaggerGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 items-stretch px-4 sm:px-6 lg:px-8">
       {cards.map((card, index) => (
-        <StaggerItem key={index} className="h-full">
+        <StaggerItem key={index} className="h-full px-4 sm:px-6 lg:px-8">
           <div
             className={`
-              h-full rounded-xl overflow-hidden
-              border-t-[3px] border-t-[var(--color-${card.tone}-primary)]
+              h-full rounded-xl overflow-hidden md:block md:hidden border-t-[3px] border-t-[var(--color-${card.tone}-primary)]
               bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] 
               transition-all duration-200 
               hover:shadow-md hover:-translate-y-0.5

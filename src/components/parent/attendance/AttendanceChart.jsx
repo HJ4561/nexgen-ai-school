@@ -304,7 +304,7 @@ const AttendanceChart = () => {
           </p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-8 lg:grid-cols-5">
+        <div className="mt-6 grid gap-4 lg:grid-cols-5">
           {/* ─── Trend Area Chart (60%) ────────────────────────── */}
           <div className="lg:col-span-3">
             <div className="mb-4 flex items-baseline gap-2">

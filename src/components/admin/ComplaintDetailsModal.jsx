@@ -16,7 +16,10 @@ const ComplaintDetailsModal = ({ complaint, onClose, onEdit }) => {
                 <h2 className="text-xl font-bold text-white">Complaint Details</h2>
                 <p className="text-sm text-white/80 mt-0.5">{complaint.subject}</p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all">
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -42,9 +45,9 @@ const ComplaintDetailsModal = ({ complaint, onClose, onEdit }) => {
                   complaint.status === 'in-progress' ? 'bg-blue-50 text-blue-700 border-blue-200 mt-1' :
                   'bg-amber-50 text-amber-700 border-amber-200 mt-1'
                 }>
-                  {complaint.status === 'resolved' && <CheckCircle className="w-3 h-3 mr-1" />}
-                  {complaint.status === 'in-progress' && <Clock className="w-3 h-3 mr-1" />}
-                  {complaint.status === 'pending' && <AlertCircle className="w-3 h-3 mr-1" />}
+                  {complaint.status === 'resolved' && <CheckCircle className="w-3 h-3 mr-1 inline" />}
+                  {complaint.status === 'in-progress' && <Clock className="w-3 h-3 mr-1 inline" />}
+                  {complaint.status === 'pending' && <AlertCircle className="w-3 h-3 mr-1 inline" />}
                   {complaint.status || 'Pending'}
                 </Badge>
               </div>
@@ -64,8 +67,18 @@ const ComplaintDetailsModal = ({ complaint, onClose, onEdit }) => {
               </div>
             </div>
             <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-              <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all">Close</button>
-              <button onClick={onEdit} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg shadow-amber-600/25">Edit</button>
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all"
+              >
+                Close
+              </button>
+              <button
+                onClick={onEdit}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-orange-600 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg shadow-amber-600/25"
+              >
+                Edit
+              </button>
             </div>
           </div>
         </div>

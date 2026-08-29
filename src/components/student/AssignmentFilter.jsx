@@ -72,21 +72,21 @@ function AssignmentFilters({
   subjects,
 }) {
   return (
-    <div className="grid gap-4 rounded-card border border-slate-200 bg-surface p-5 md:grid-cols-3">
+    <div className="grid gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 rounded-card border border-slate-200 bg-surface p-5 md:grid-cols-3 px-4 sm:px-6 lg:px-8">
       {/* ─── Search Input ─── */}
       <input
         type="text"
         placeholder="Search assignment..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="rounded-lg border border-slate-200 px-4 py-3 outline-none"
+        className="rounded-lg border border-slate-200 px-4 py-3 outline-none px-4 sm:px-6 lg:px-8"
       />
 
       {/* ─── Status Filter Dropdown ─── */}
       <select
         value={status}
         onChange={(e) => setStatus(e.target.value)}
-        className="rounded-lg border border-slate-200 px-4 py-3 outline-none"
+        className="rounded-lg border border-slate-200 px-4 py-3 outline-none px-4 sm:px-6 lg:px-8"
       >
         <option value="">All Status</option>
         <option value="Pending">Pending</option>
@@ -98,7 +98,7 @@ function AssignmentFilters({
       <select
         value={subject}
         onChange={(e) => setSubject(e.target.value)}
-        className="rounded-lg border border-slate-200 px-4 py-3 outline-none"
+        className="rounded-lg border border-slate-200 px-4 py-3 outline-none px-4 sm:px-6 lg:px-8"
       >
         <option value="">All Subjects</option>
         {subjects.map((item) => (

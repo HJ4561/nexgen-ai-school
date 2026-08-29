@@ -70,7 +70,7 @@ export default function NotificationList({ notifications, onMarkRead, filter }) 
    * - 'sent': Shows "No sent notifications"
    * - Other filters: Shows "No notifications"
    */
-  if (notifications?.length || 0 === 0) {
+  if (notifications?.length === 0) {
     return (
       <div className="py-16 text-center text-text-secondary">
         <Bell size={48} className="mx-auto mb-3 text-text-muted/50" />
@@ -164,7 +164,7 @@ export default function NotificationList({ notifications, onMarkRead, filter }) 
                         size="sm"
                         className="text-xs"
                         onClick={() => onMarkRead(notification.id)}
-                        leftIcon={<Check size={14} className="mr-1" />}
+                        leftIcon={<Check size={14} />}
                       >
                         Mark Read
                       </Button>

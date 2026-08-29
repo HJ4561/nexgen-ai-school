@@ -85,19 +85,25 @@ const InventoryTable = ({
    */
   if (!data || data.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-500">
+      <div className="p-6 text-center text-gray-500">
         No inventory items found
       </div>
     );
   }
 
   return (
-    <Table
-      data={data}
-      columns={columns}
-      keyExtractor={(row) => row.id}
-      emptyMessage="No inventory items found"
-    />
+    <div className="overflow-x-auto">
+      <div className="inline-block min-w-full align-middle">
+        <Table
+          data={data}
+          columns={columns}
+          keyExtractor={(row) => row.id}
+          emptyMessage="No inventory items found"
+          animateRows={animateRows}
+          mobileActions={mobileActions}
+        />
+      </div>
+    </div>
   );
 };
 

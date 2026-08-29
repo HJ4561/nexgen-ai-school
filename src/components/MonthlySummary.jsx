@@ -178,18 +178,18 @@ const MonthlySummary = () => {
   return (
     <Card hover={false}>
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
+      <div className="mb-6 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-lg md:text-xl md:text-2xl font-semibold text-text-primary sm:text-xl md:text-2xl md:text-2xl px-4 sm:px-6 lg:px-8">
           Monthly Summary
         </h2>
 
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           Overview of your child's attendance performance.
         </p>
       </div>
 
       {/* ─── Summary Cards ──────────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
         {stats.map((item) => {
           const Icon = item.icon;
 
@@ -197,18 +197,18 @@ const MonthlySummary = () => {
             <div
               key={item.title}
               className={`
-                flex items-center justify-between
+                flex flex-col md:flex-row items-center justify-between
                 rounded-xl border border-border
-                p-4 transition-all duration-200
+                p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 transition-all duration-200
                 hover:shadow-sm
                 ${item.bg}
               `}
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 min-w-0 px-4 sm:px-6 lg:px-8">
                 {/* ─── Icon Container ─── */}
                 <div
                   className={`
-                    flex h-12 w-12 shrink-0 items-center justify-center
+                    flex flex-col md:flex-row h-12 w-12 shrink-0 items-center justify-center
                     rounded-xl
                     ${item.iconBg}
                   `}
@@ -220,12 +220,12 @@ const MonthlySummary = () => {
                 </div>
 
                 {/* ─── Label and Value ─── */}
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-text-secondary sm:text-sm">
+                <div className="min-w-0 px-4 sm:px-6 lg:px-8">
+                  <p className="text-xs font-medium text-text-secondary sm:text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8">
                     {item.title}
                   </p>
 
-                  <h3 className="mt-1 text-lg font-bold text-text-primary sm:text-xl">
+                  <h3 className="mt-1 text-lg md:text-xl md:text-2xl font-bold text-text-primary sm:text-xl md:text-2xl md:text-2xl px-4 sm:px-6 lg:px-8">
                     {item.value}
                   </h3>
                 </div>

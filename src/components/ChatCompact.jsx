@@ -204,10 +204,10 @@ export default function ChatCompact() {
     <div
       ref={panelRef}
       className="
-        fixed z-50 flex flex-col overflow-hidden rounded-2xl border
+        fixed z-50 flex flex-col md:flex-row-col overflow-hidden md:block md:hidden rounded-2xl border
         inset-x-3 bottom-3 max-h-[85dvh]
         sm:inset-x-auto sm:right-12 sm:bottom-6 sm:w-80 sm:max-h-none
-      "
+       px-4 sm:px-6 lg:px-8"
       style={{
         background: PANEL,
         backdropFilter: 'blur(16px) saturate(140%)',
@@ -220,26 +220,26 @@ export default function ChatCompact() {
     >
       {/* ─── Header ────────────────────────────────────────────────── */}
       <div
-        className="relative overflow-hidden p-3 flex items-center justify-between shrink-0"
+        className="relative overflow-hidden md:block md:hidden p-3 flex flex-col md:flex-row items-center justify-between shrink-0 px-4 sm:px-6 lg:px-8"
         style={{
           background: `linear-gradient(110deg, ${INDIGO} 0%, ${BLUE} 55%, ${CYAN} 110%)`,
         }}
       >
-        <Sparkles size={56} className="absolute -right-3 -top-3 opacity-15 rotate-12 text-white" />
+        <Sparkles size={56} className="absolute -right-3 -top-3 opacity-15 rotate-12 text-white px-4 sm:px-6 lg:px-8" />
 
-        <div className="flex items-center gap-2 relative text-white min-w-0">
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 relative text-white min-w-0 px-4 sm:px-6 lg:px-8">
           <div
             ref={headerIconRef}
-            className="rounded-full p-1.5 shrink-0"
+            className="rounded-full p-1.5 shrink-0 px-4 sm:px-6 lg:px-8"
             style={{ background: 'rgba(255,255,255,0.22)' }}
           >
             <Bot size={18} />
           </div>
-          <div className="flex flex-col leading-tight min-w-0">
-            <span className="font-semibold text-sm tracking-wide truncate">Scholar AI Assistant</span>
-            <span className="flex items-center gap-1 text-[11px] text-white/85">
+          <div className="flex flex-col md:flex-row-col leading-tight min-w-0 px-4 sm:px-6 lg:px-8">
+            <span className="font-semibold text-sm md:text-base md:text-base tracking-wide truncate px-4 sm:px-6 lg:px-8">Scholar AI Assistant</span>
+            <span className="flex flex-col md:flex-row items-center gap-1 text-[11px] text-white/85 px-4 sm:px-6 lg:px-8">
               <span
-                className="w-1.5 h-1.5 rounded-full inline-block animate-pulse shrink-0"
+                className="w-1.5 h-1.5 rounded-full inline-block md:hidden animate-pulse shrink-0 px-4 sm:px-6 lg:px-8"
                 style={{ background: ACCENT }}
               />
               Online
@@ -247,28 +247,26 @@ export default function ChatCompact() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 relative text-white shrink-0">
-          <button
-            onClick={handleExpand}
-            className="p-2 sm:p-1.5 hover:bg-white/20 active:bg-white/25 rounded-lg transition-colors"
+        <div className="flex flex-col md:flex-row items-center gap-1 relative text-white shrink-0 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={handleExpand}
+            className="p-2 sm:p-1.5 hover:bg-white/20 active:bg-white/25 rounded-lg transition-colors px-4 sm:px-6 lg:px-8"
             aria-label="Expand chat"
           >
             <Maximize2 size={15} />
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-2 sm:p-1.5 hover:bg-white/20 active:bg-white/25 rounded-lg transition-colors"
+          </Button>
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={handleClose}
+            className="p-2 sm:p-1.5 hover:bg-white/20 active:bg-white/25 rounded-lg transition-colors px-4 sm:px-6 lg:px-8"
             aria-label="Close chat"
           >
             <X size={15} />
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* ─── Messages ──────────────────────────────────────────────── */}
       <div
         ref={listRef}
-        className="flex-1 min-h-0 p-3 space-y-3 overflow-y-auto overscroll-contain sm:max-h-80"
+        className="flex-1 min-h-0 p-3 space-y-3 overflow-y-auto overscroll-contain sm:max-h-80 px-4 sm:px-6 lg:px-8"
         style={{ background: '#f8fafc' }}
       >
         {messages.map((msg, i) => (
@@ -278,9 +276,9 @@ export default function ChatCompact() {
         ))}
         {loading && <TypingIndicator />}
         {messages.length === 0 && !loading && (
-          <div className="flex flex-col items-center justify-center mt-8 gap-2" style={{ color: MUTED }}>
+          <div className="flex flex-col md:flex-row-col items-center justify-center mt-8 gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8" style={{ color: MUTED }}>
             <div
-              className="rounded-full p-3"
+              className="rounded-full p-3 px-4 sm:px-6 lg:px-8"
               style={{
                 background: `linear-gradient(135deg, ${INDIGO}14, ${CYAN}14)`,
                 border: `1px solid ${BORDER}`,
@@ -290,22 +288,22 @@ export default function ChatCompact() {
                 src="/animations/Robot-Says-Hi.lottie"
                 autoplay
                 loop
-                className="relative z-10 h-24 w-24 sm:h-28 sm:w-28"
+                className="relative z-10 h-24 w-24 sm:h-28 sm:w-28 px-4 sm:px-6 lg:px-8"
               />
             </div>
-            <p className="text-center text-sm" style={{ color: MUTED }}>Ask me anything...</p>
+            <p className="text-center text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8" style={{ color: MUTED }}>Ask me anything...</p>
           </div>
         )}
       </div>
 
       {/* ─── Input ──────────────────────────────────────────────────── */}
       <div
-        className="p-3 border-t shrink-0"
+        className="p-3 border-t shrink-0 px-4 sm:px-6 lg:px-8"
         style={{ borderColor: BORDER, background: '#ffffff' }}
       >
         <div
           ref={inputWrapRef}
-          className="flex items-center gap-2 rounded-xl border px-1 transition-colors"
+          className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 rounded-xl border px-1 transition-colors px-4 sm:px-6 lg:px-8"
           style={{ background: '#f8fafc', borderColor: BORDER }}
         >
           <input
@@ -316,14 +314,13 @@ export default function ChatCompact() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder="Ask ScholarAI..."
-            className="flex-1 bg-transparent px-2 py-2.5 sm:py-2 text-base sm:text-sm focus:outline-none"
+            className="flex-1 bg-transparent px-2 py-2.5 sm:py-2 text-base sm:text-sm md:text-base md:text-base focus:outline-none px-4 sm:px-6 lg:px-8"
             style={{ color: INK }}
           />
-          <button
-            ref={sendBtnRef}
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" ref={sendBtnRef}
             onClick={handleSend}
             disabled={!input.trim() || loading}
-            className="p-2.5 sm:p-2 rounded-full disabled:opacity-30 transition-colors text-white shrink-0"
+            className="p-2.5 sm:p-2 rounded-full disabled:opacity-30 transition-colors text-white shrink-0 px-4 sm:px-6 lg:px-8"
             style={{
               background: !input.trim() || loading
                 ? '#e2e8f0'
@@ -332,7 +329,7 @@ export default function ChatCompact() {
             aria-label="Send message"
           >
             <Send size={16} />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

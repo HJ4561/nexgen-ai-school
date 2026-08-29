@@ -93,7 +93,7 @@ const BehaviorFilters = ({
         </div>
 
         {/* Desktop: All filters visible */}
-        <div className="hidden md:flex items-center gap-3 flex-wrap">
+        <div className="hidden md:flex md:flex-row items-center gap-3 flex-wrap">
           <div className="w-36">
             <Select
               options={FilterOptions.severity}
@@ -120,32 +120,29 @@ const BehaviorFilters = ({
           </div>
           <div className="flex gap-2">
             {hasActiveFilters() && (
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
                 onClick={handleReset}
                 disabled={loading}
               >
                 Clear
-              </Button>
+              </button>
             )}
-            <Button
-              size="sm"
+            <button
+              className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
               onClick={onExport}
               disabled={loading}
             >
               Export
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Mobile: Toggle filters */}
         <div className="flex md:hidden items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -155,14 +152,14 @@ const BehaviorFilters = ({
             {hasActiveFilters() && (
               <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
             )}
-          </Button>
-          <Button
-            size="sm"
+          </button>
+          <button
+            className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
             onClick={onExport}
             disabled={loading}
           >
             Export
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -188,15 +185,13 @@ const BehaviorFilters = ({
             className="w-full"
           />
           {hasActiveFilters() && (
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              className="w-full px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
               onClick={handleReset}
-              className="w-full"
               disabled={loading}
             >
               Clear All Filters
-            </Button>
+            </button>
           )}
         </div>
       )}

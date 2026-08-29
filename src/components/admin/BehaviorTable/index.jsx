@@ -1,168 +1,196 @@
-// src/components/admin/BehaviorTable/index.jsx
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-
-// UI Components
+import React from "react";
+import { Eye, User, Calendar, AlertCircle, CheckCircle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import Pagination from "@/components/admin/Pagination";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDate } from "@/utils/behaviorHelpers";
 
-// Utils
-import { formatDate, getSeverityBadgeClass, getStatusBadgeClass } from "@/modules/admin/pages/BehaviorLogs/utils/helpers";
-
-const BehaviorTable = ({
-  logs = [],
-  onLogClick,
-  onStatusUpdate,
-  pagination,
-  loading,
+const BehaviorTable = ({ 
+  data, 
+  currentPage, 
+  totalPages, 
+  totalItems, 
+  itemsPerPage,
+  onPageChange,
+  onView 
 }) => {
-  const [selectedRow, setSelectedRow] = useState(null);
+  const getInitials = (name) => {
+    if (!name) return "?";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
 
-  const columns = [
-    { key: "student_name", label: "Student" },
-    { key: "type", label: "Type" },
-    { key: "description", label: "Description" },
-    { key: "severity", label: "Severity" },
-    { key: "status", label: "Status" },
-    { key: "date", label: "Date" },
-    { key: "actions", label: "Actions" },
-  ];
+  const getTypeBadge = (type) => {
+    const types = {
+      positive: {
+        className: "bg-green-100 text-green-700 border-green-200",
+        icon: CheckCircle,
+        label: "Positive",
+      },
+      negative: {
+        className: "bg-red-100 text-red-700 border-red-200",
+        icon: AlertCircle,
+        label: "Negative",
+      },
+      neutral: {
+        className: "bg-gray-100 text-gray-700 border-gray-200",
+        icon: AlertCircle,
+        label: "Neutral",
+      },
+    };
+    return types[type || "neutral"];
+  };
 
-  if (loading) {
+  const getSeverityBadge = (severity) => {
+    const classes = {
+      low: "bg-blue-50 text-blue-700 border-blue-200",
+      medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      high: "bg-red-50 text-red-700 border-red-200",
+    };
+    return classes[severity] || classes.medium;
+  };
+
+  if (data.length === 0) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <LoadingSpinner size="md" />
-      </div>
-    );
-  }
-
-  if (!logs || logs.length === 0) {
-    return (
-      <EmptyState
-        icon="??"
-        title="No Behavior Logs Found"
-        description="Start tracking student behavior by adding a new log."
-        actionText="Add Log"
-        onAction={() => {}}
-      />
+      <Card className="p-12 text-center border border-gray-100 shadow-sm">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
+          </div>
+          <p className="text-gray-500 font-medium">No behavior logs found</p>
+          <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
+        </div>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {logs.map((log) => (
-            <motion.tr
-              key={log.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="hover:bg-gray-50 cursor-pointer"
-              onClick={() => onLogClick(log)}
-              onMouseEnter={() => setSelectedRow(log.id)}
-              onMouseLeave={() => setSelectedRow(null)}
-            >
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <span className="text-blue-600 font-medium">
-                        {log.student_name?.charAt(0).toUpperCase()}
-                      </span>
+    <Card className="overflow-hidden border border-gray-100 shadow-sm">
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full min-w-full">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Student</th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Description</th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Severity</th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Teacher</th>
+              <th className="text-right px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {data.map((log) => {
+              const typeInfo = getTypeBadge(log.type);
+              const TypeIcon = typeInfo.icon;
+              const severityClass = getSeverityBadge(log.severity);
+              return (
+                <tr key={log.id} className="hover:bg-blue-50/30 transition-colors group cursor-pointer" onClick={() => onView(log)}>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                        {getInitials(log.student_name)}
+                      </div>
+                      <span className="font-medium text-gray-800">{log.student_name}</span>
                     </div>
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {log.student_name}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <Badge className={"text-xs flex items-center gap-1.5 px-2.5 py-1 " + typeInfo.className}>
+                      <TypeIcon className="w-3 h-3" /> {typeInfo.label}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <p className="text-sm text-gray-600 truncate max-w-xs">{log.description || "N/A"}</p>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <Badge className={"text-xs px-2.5 py-1 capitalize " + severityClass}>
+                      {log.severity || "medium"}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-sm text-gray-600">{formatDate(log.created_at)}</span>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {log.student_class} � {log.student_section}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-sm text-gray-600">{log.reported_by_name || log.teacher_name || "Unknown"}</span>
                     </div>
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className="text-sm text-gray-900 capitalize">
-                  {log.type}
-                </span>
-              </td>
-              <td className="px-6 py-4">
-                <div className="text-sm text-gray-900 max-w-xs truncate">
-                  {log.description}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Badge className={getSeverityBadgeClass(log.severity)}>
-                  {log.severity}
-                </Badge>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <Badge className={getStatusBadgeClass(log.status)}>
-                  {log.status?.replace("_", " ")}
-                </Badge>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(log.date)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onLogClick(log);
-                    }}
-                  >
-                    View
-                  </Button>
-                  {log.status === "pending" && (
-                    <Button
-                      size="sm"
-                      className="text-xs bg-green-500 hover:bg-green-600"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusUpdate(log.id, "resolved");
-                      }}
+                  </td>
+                  <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onView(log); }}
+                      className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                      title="View details"
                     >
-                      Resolve
-                    </Button>
-                  )}
-                </div>
-              </td>
-            </motion.tr>
-          ))}
-        </tbody>
-      </table>
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Pagination */}
-      {pagination && (
+      <div className="block md:hidden divide-y divide-gray-100">
+        {data.map((log) => {
+          const typeInfo = getTypeBadge(log.type);
+          const TypeIcon = typeInfo.icon;
+          const severityClass = getSeverityBadge(log.severity);
+          return (
+            <div key={log.id} className="p-4 hover:bg-blue-50/30 transition-colors cursor-pointer" onClick={() => onView(log)}>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                    {getInitials(log.student_name)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{log.student_name}</p>
+                    <p className="text-xs text-gray-500 truncate">{log.reported_by_name || log.teacher_name || "Unknown"}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onView(log); }}
+                  className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors shrink-0"
+                  title="View details"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={"text-xs flex items-center gap-1.5 px-2.5 py-1 " + typeInfo.className}>
+                    <TypeIcon className="w-3 h-3" /> {typeInfo.label}
+                  </Badge>
+                  <Badge className={"text-xs px-2.5 py-1 capitalize " + severityClass}>
+                    {log.severity || "medium"}
+                  </Badge>
+                </div>
+                {log.description && <p className="text-sm text-gray-600 line-clamp-2">{log.description}</p>}
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {formatDate(log.created_at)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-gray-100 px-4 py-3">
         <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.totalItems}
-          onPageChange={pagination.onPageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          startIndex={(currentPage - 1) * itemsPerPage}
+          itemsShown={data.length}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
         />
-      )}
-    </div>
+      </div>
+    </Card>
   );
 };
 

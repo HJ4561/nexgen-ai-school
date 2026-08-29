@@ -72,7 +72,7 @@ export default function TimetableCards({ entries, onEdit, onAdd, selectedClass, 
    */
   if (!selectedClass) {
     return (
-      <div className="py-12 text-center text-[var(--color-text-muted)] text-sm">
+      <div className="py-12 text-center text-[var(--color-text-muted)] text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8">
         Please select a class to view timetable.
       </div>
     );
@@ -150,27 +150,27 @@ export default function TimetableCards({ entries, onEdit, onAdd, selectedClass, 
   const colorTones = ['admin', 'teacher', 'student', 'parent'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       {DAYS.map((day) => {
         const dayEntries = getEntriesByDay(day);
 
         return (
-          <div key={day} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+          <div key={day} className="bg-white rounded-xl border border-gray-100 overflow-hidden md:block md:hidden shadow-sm px-4 sm:px-6 lg:px-8">
             {/* ─── Day Header ─── */}
-            <div className="bg-[var(--color-surface-dim)] px-4 py-2.5 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <CalendarDays size={16} className="text-[var(--color-admin-primary)]" />
-                <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+            <div className="bg-[var(--color-surface-dim)] px-4 py-2.5 border-b border-gray-100 px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                <CalendarDays size={16} className="text-[var(--color-admin-primary)] px-4 sm:px-6 lg:px-8" />
+                <span className="text-sm md:text-base md:text-base font-semibold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                   {day}
                 </span>
-                <span className="text-xs text-[var(--color-text-muted)] ml-auto">
+                <span className="text-xs text-[var(--color-text-muted)] ml-auto px-4 sm:px-6 lg:px-8">
                   {dayEntries.length} classes
                 </span>
               </div>
             </div>
 
             {/* ─── Time Slots ─── */}
-            <div className="p-3 grid grid-cols-1 gap-2">
+            <div className="p-3 grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 lg:grid-cols-3 gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
               {TIME_SLOTS.map((time) => {
                 const entry = getEntry(day, time);
                 const isOccupied = !!entry;
@@ -184,33 +184,33 @@ export default function TimetableCards({ entries, onEdit, onAdd, selectedClass, 
                     <div
                       key={`${day}-${time}`}
                       onClick={() => onEdit(entry)}
-                      className="relative bg-white rounded-lg border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-all hover:shadow-md overflow-hidden"
+                      className="relative bg-white rounded-lg border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-all hover:shadow-md overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8"
                     >
                       {/* Accent border — flush to the left edge */}
                       <div 
-                        className="absolute left-0 top-0 bottom-0 w-1"
+                        className="absolute left-0 top-0 bottom-0 w-1 px-4 sm:px-6 lg:px-8"
                         style={{ backgroundColor: borderColor }}
                       />
                       
-                      <div className="pl-4 pr-3 py-2.5">
-                        <div className="flex items-start justify-between">
+                      <div className="pl-4 pr-3 py-2.5 px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col md:flex-row items-start justify-between px-4 sm:px-6 lg:px-8">
                           {/* Subject and Teacher */}
                           <div>
-                            <p className="text-xs font-semibold text-[var(--color-text-primary)]">
+                            <p className="text-xs font-semibold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                               {entry.subject_name || entry.subject}
                             </p>
-                            <p className="text-[11px] text-[var(--color-text-secondary)]">
+                            <p className="text-[11px] text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
                               {entry.teacher_name || entry.teacher || "Unassigned"}
                             </p>
                           </div>
                           {/* Time */}
-                          <div className="flex flex-col items-end text-[10px] text-[var(--color-text-muted)] shrink-0 ml-2">
+                          <div className="flex flex-col md:flex-row-col items-end text-[10px] text-[var(--color-text-muted)] shrink-0 ml-2 px-4 sm:px-6 lg:px-8">
                             <span>{time}</span>
                             <span>- {entry.end_time}</span>
                           </div>
                         </div>
                         {/* Room */}
-                        <div className="flex items-center gap-1 mt-1 text-[10px] text-[var(--color-text-muted)]">
+                        <div className="flex flex-col md:flex-row items-center gap-1 mt-1 text-[10px] text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                           <Building size={12} />
                           <span>{entry.room_name || entry.room || "—"}</span>
                         </div>
@@ -224,16 +224,16 @@ export default function TimetableCards({ entries, onEdit, onAdd, selectedClass, 
                   <div
                     key={`${day}-${time}-empty`}
                     onClick={() => handleEmptySlotClick(day, time)}
-                    className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 cursor-pointer hover:border-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)]/10 transition-all active:scale-[0.98] overflow-hidden"
+                    className="relative bg-white rounded-lg border-2 border-dashed border-gray-200 cursor-pointer hover:border-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)]/10 transition-all active:scale-[0.98] overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8"
                   >
-                    <div className="px-4 py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Plus size={14} className="text-[var(--color-text-muted)]" />
-                        <span className="text-xs text-[var(--color-text-muted)]">
+                    <div className="px-4 py-3 flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8">
+                      <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+                        <Plus size={14} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+                        <span className="text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
                           {time} - {getNextTimeSlot(time)}
                         </span>
                       </div>
-                      <span className="text-[10px] text-[var(--color-text-muted)]">Available</span>
+                      <span className="text-[10px] text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">Available</span>
                     </div>
                   </div>
                 );

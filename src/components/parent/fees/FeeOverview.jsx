@@ -1,190 +1,110 @@
-/**
- * ============================================
- * FEE OVERVIEW COMPONENT
- * ============================================
- * 
- * Purpose: Displays fee statistics summary for parent view
- * Features:
- * - Total fee amount
- * - Total paid amount
- * - Remaining due amount
- * - Number of invoices
- * - Color-coded stat cards with icons
- * - Dynamic footer color based on remaining amount
- * - Role-based theming (parent)
- * - Responsive grid layout (1/2/4 columns)
- * 
- * Dependencies:
- * - lucide-react for icons (Wallet, CircleDollarSign, AlertTriangle, Receipt)
- * - @/components/composite/StatCard for statistic display
- * - react-redux for state management
- * 
- * Usage:
- * <FeeOverview />
- * ============================================
- */
+// src/components/parent/fees/FeeOverview.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { DollarSign, Wallet, CreditCard, Clock, TrendingUp, TrendingDown } from 'lucide-react';
+import Card from '@/components/ui/Card';
+import { selectFees, selectSelectedChild } from '@/modules/parent/store/parentSlice';
 
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
+const formatCurrency = (amount) => {
+  if (!amount) return "PKR 0";
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
-import {
-  Wallet,
-  CircleDollarSign,
-  AlertTriangle,
-  Receipt,
-} from "lucide-react";
-
-import StatCard from "@/components/composite/StatCard";
-
-/**
- * ============================================
- * FEE OVERVIEW COMPONENT
- * ============================================
- * 
- * Renders fee statistics in a visual card grid
- * 
- * @returns {JSX.Element} Fee overview UI
- * 
- * @example
- * // In parent dashboard
- * <FeeOverview />
- * ============================================
- */
 const FeeOverview = () => {
-  // ─── Redux State ──────────────────────────────────────────────────────
-  const {
-    fees = [],
-    parentLinks = [],
-    selectedChild,
-  } = useSelector(
-    (state) => state.parent
-  );
+  const fees = useSelector(selectFees);
+  const selectedChild = useSelector(selectSelectedChild);
 
-  /**
-   * ============================================
-   * CURRENT CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Falls back to the first child if selectedChild is not found
-   */
-  const currentChild = useMemo(() => {
-    return (
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ) || parentLinks[0]
-    );
-  }, [parentLinks, selectedChild]);
-
-  /**
-   * ============================================
-   * SELECTED CHILD FEES
-   * ============================================
-   * 
-   * Filters fees for the selected child
-   */
-  const childFees = useMemo(() => {
-    if (!currentChild) return [];
-    return fees.filter(
-      (fee) => fee.student_name === currentChild.student_name
-    );
-  }, [fees, currentChild]);
-
-  /**
-   * ============================================
-   * FEE STATISTICS
-   * ============================================
-   * 
-   * Calculates fee statistics for the selected child:
-   * - totalFee: Sum of all original fee amounts
-   * - paidAmount: Sum of all paid amounts
-   * - remaining: Payable fee minus paid amount
-   * - invoices: Total number of fee invoices
-   */
   const stats = useMemo(() => {
-    // Total original fee
-    const totalFee = childFees.reduce(
-      (sum, fee) => sum + Number(fee.original_amount),
-      0
-    );
+    // Filter fees by selected child
+    let filteredFees = fees;
+    if (selectedChild) {
+      filteredFees = fees.filter(f => f.student === selectedChild || f.student_id === selectedChild);
+    }
 
-    // Total payable fee
-    const payableFee = childFees.reduce(
-      (sum, fee) => sum + Number(fee.amount),
-      0
-    );
-
-    // Total paid amount
-    const paidAmount = childFees.reduce(
-      (sum, fee) => sum + Number(fee.amount_paid || 0),
-      0
-    );
-
-    // Remaining balance
-    const remaining = payableFee - paidAmount;
+    const total = filteredFees.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+    const paid = filteredFees
+      .filter(f => f.status === 'paid')
+      .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+    const pending = filteredFees
+      .filter(f => f.status === 'pending')
+      .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+    const overdue = filteredFees
+      .filter(f => f.status === 'overdue')
+      .reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+    const totalInvoices = filteredFees.length;
+    const paidInvoices = filteredFees.filter(f => f.status === 'paid').length;
+    const pendingInvoices = filteredFees.filter(f => f.status === 'pending' || f.status === 'overdue').length;
 
     return {
-      totalFee,
-      paidAmount,
-      remaining,
-      invoices: childFees.length,
+      total,
+      paid,
+      pending,
+      overdue,
+      totalInvoices,
+      paidInvoices,
+      pendingInvoices,
+      percentage: total > 0 ? Math.round((paid / total) * 100) : 0,
     };
-  }, [childFees]);
-
-  /**
-   * ============================================
-   * CURRENCY FORMATTER
-   * ============================================
-   * 
-   * Formats a number as PKR currency with commas
-   * 
-   * @param {number} amount - Amount to format
-   * @returns {string} Formatted currency string
-   */
-  const formatCurrency = (amount) =>
-    `PKR ${amount.toLocaleString()}`;
+  }, [fees, selectedChild]);
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-      {/* ─── Total Fee ─── */}
-      <StatCard
-        label="Total Fee"
-        value={formatCurrency(stats.totalFee)}
-        icon={<Wallet size={22} />}
-        tone="parent"
-        footerText="Academic Year"
-        footerColor="primary"
-      />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <Card className="p-3 md:p-4 border-l-4 border-l-blue-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Total Fee</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-0.5 md:mt-1">{formatCurrency(stats.total)}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">{stats.totalInvoices} invoices</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── Total Paid ─── */}
-      <StatCard
-        label="Total Paid"
-        value={formatCurrency(stats.paidAmount)}
-        icon={<CircleDollarSign size={22} />}
-        tone="parent"
-        footerText="Amount Paid"
-        footerColor="success"
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-emerald-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Paid</p>
+            <p className="text-xl md:text-2xl font-bold text-emerald-600 mt-0.5 md:mt-1">{formatCurrency(stats.paid)}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">{stats.percentage}% paid</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── Remaining Due ─── */}
-      <StatCard
-        label="Remaining Due"
-        value={formatCurrency(stats.remaining)}
-        icon={<AlertTriangle size={22} />}
-        tone="parent"
-        footerText="Pending Payment"
-        footerColor={stats.remaining > 0 ? "warning" : "success"}
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-amber-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Pending</p>
+            <p className="text-xl md:text-2xl font-bold text-amber-600 mt-0.5 md:mt-1">{formatCurrency(stats.pending)}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">{stats.pendingInvoices} invoices</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+            <Clock className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── Invoices ─── */}
-      <StatCard
-        label="Invoices"
-        value={stats.invoices}
-        icon={<Receipt size={22} />}
-        tone="parent"
-        footerText="Monthly Bills"
-        footerColor="info"
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-red-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Overdue</p>
+            <p className="text-xl md:text-2xl font-bold text-red-600 mt-0.5 md:mt-1">{formatCurrency(stats.overdue)}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Needs attention</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-red-50 flex items-center justify-center">
+            <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

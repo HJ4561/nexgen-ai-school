@@ -1,5 +1,6 @@
-﻿// src/components/chat/FloatingChatButton.jsx
+// src/components/chat/FloatingChatButton.jsx
 import React, { useState } from 'react';
+import { MessageCircle, X } from 'lucide-react';
 
 const FloatingChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,8 +10,13 @@ const FloatingChatButton = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+        aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
-        <span className="text-2xl">💬</span>
+        {isOpen ? (
+          <X size={28} />
+        ) : (
+          <MessageCircle size={28} />
+        )}
       </button>
       {isOpen && (
         <div className="absolute bottom-16 right-0 w-80 bg-white rounded-xl shadow-xl border border-gray-200 p-4">

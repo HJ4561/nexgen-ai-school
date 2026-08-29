@@ -29,6 +29,7 @@
  * ============================================
  */
 
+import React, { useCallback } from 'react';
 import Modal from '@/components/ui/Modal';
 import StripeProvider from "./StripeProvider";
 import CheckoutForm from "./CheckoutForm";
@@ -45,6 +46,9 @@ import CheckoutForm from "./CheckoutForm";
  * @param {string} props.clientSecret - Stripe payment intent client secret
  * @param {Function} props.onClose - Callback function to close the modal
  * @param {Function} props.onSuccess - Callback function when payment succeeds
+ * @param {Function} props.onError - Callback function when payment fails
+ * @param {number|string} props.amount - Amount to be charged (optional)
+ * @param {Object} props.paymentIntent - Payment intent object (optional)
  * @returns {JSX.Element|null} Stripe payment modal or null if no clientSecret
  * 
  * @example
@@ -89,24 +93,82 @@ function StripePaymentModal({
   clientSecret,
   onClose,
   onSuccess,
+  onError,
+  amount,
+  paymentIntent,
 }) {
   // ─── Early return if no client secret ──────────────────────────────
   // Prevents rendering the modal without a valid payment intent
   if (!clientSecret) return null;
 
+  // ─── Handlers ──────────────────────────────────────────────────────────
+
+  /**
+   * ============================================
+   * HANDLE SUCCESS
+   * ============================================
+   * 
+   * Called when payment is successful
+   * Calls onSuccess callback and optionally closes the modal
+   * 
+   * @param {Object} intent - Payment intent object from Stripe
+   */
+  const handleSuccess = useCallback((intent) => {
+    if (onSuccess) {
+      onSuccess(intent);
+    }
+  }, [onSuccess]);
+
+  /**
+   * ============================================
+   * HANDLE ERROR
+   * ============================================
+   * 
+   * Called when payment fails
+   * Calls onError callback
+   * 
+   * @param {Object} error - Error object from Stripe
+   */
+  const handleError = useCallback((error) => {
+    if (onError) {
+      onError(error);
+    }
+  }, [onError]);
+
+  /**
+   * ============================================
+   * HANDLE CLOSE
+   * ============================================
+   * 
+   * Called when modal is closed
+   * Calls onClose callback
+   */
+  const handleClose = useCallback(() => {
+    if (onClose) {
+      onClose();
+    }
+  }, [onClose]);
+
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title="Secure Payment"
       size="md"
+      description="Complete your payment securely using Stripe"
     >
       {/* ─── Stripe Provider ──────────────────────────────────────────── */}
       {/* Provides Stripe context to the CheckoutForm */}
       <StripeProvider clientSecret={clientSecret}>
         {/* ─── Checkout Form ──────────────────────────────────────────── */}
         {/* Renders the payment form with PaymentElement */}
-        <CheckoutForm onSuccess={onSuccess} />
+        <CheckoutForm
+          amount={amount}
+          onSuccess={handleSuccess}
+          onError={handleError}
+          onClose={handleClose}
+          paymentIntent={paymentIntent}
+        />
       </StripeProvider>
     </Modal>
   );

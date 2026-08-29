@@ -59,8 +59,8 @@ import { X } from "lucide-react";
  *   title="Delete Student"
  *   footer={
  *     <>
- *       <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
- *       <Button variant="danger" onClick={handleDelete}>Delete</Button>
+ *       <button onClick={() => setOpen(false)}>Cancel</button>
+ *       <button onClick={handleDelete}>Delete</button>
  *     </>
  *   }
  * >
@@ -100,9 +100,7 @@ function Modal({
         fixed inset-0 z-50
         flex items-center justify-center
         bg-black/50
-        p-4
-        backdrop-blur-sm
-      "
+        p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       {/* Modal Container */}
@@ -127,8 +125,7 @@ function Modal({
           className="
             flex items-center justify-between
             border-b border-slate-200
-            px-6 py-4
-          "
+            px-6 py-4"
         >
           <h2 className="text-xl font-semibold text-text-primary">
             {title}
@@ -142,8 +139,7 @@ function Modal({
               text-text-secondary
               transition
               hover:bg-slate-100
-              hover:text-text-primary
-            "
+              hover:text-text-primary"
           >
             <X size={20} />
           </button>
@@ -160,8 +156,7 @@ function Modal({
             className="
               flex justify-end gap-3
               border-t border-slate-200
-              px-6 py-4
-            "
+              px-6 py-4"
           >
             {footer}
           </div>
@@ -172,14 +167,3 @@ function Modal({
 }
 
 export default Modal;
-
-
-
-
-
-
-
-
-
-
-

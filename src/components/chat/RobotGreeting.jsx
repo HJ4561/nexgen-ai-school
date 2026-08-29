@@ -1,93 +1,35 @@
-/**
- * ============================================
- * ROBOT GREETING COMPONENT
- * ============================================
- * 
- * Purpose: Animated robot avatar greeting for chat interface
- * Features:
- * - Lottie animation of live chatbot
- * - GSAP powered entrance animation (scale + fade)
- * - Gentle idle floating animation
- * - Ambient glow pulse effect
- * - Color palette synced with ChatArea/Sidebar/MessageBubble
- * - Cleanup on unmount
- * 
- * Dependencies:
- * - gsap for animations
- * - @lottiefiles/dotlottie-react for robot animation
- * 
- * Usage:
- * <RobotGreeting />
- * ============================================
- */
-
 import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
-/**
- * ============================================
- * COLOR PALETTE
- * ============================================
- * 
- * Same palette as ChatArea / Sidebar / MessageBubble — keep in sync.
- * 
- * @constant {string} VIOLET - Primary violet color
- * @constant {string} CYAN - Secondary cyan color
- */
+// Same palette as ChatArea / Sidebar / MessageBubble — keep in sync.
 const VIOLET = '#8b5cf6';
 const CYAN = '#22d3ee';
 
-/**
- * ============================================
- * ROBOT GREETING COMPONENT
- * ============================================
- * 
- * Renders an animated robot avatar with greeting animations
- * 
- * @returns {JSX.Element} Robot greeting UI
- * 
- * @example
- * // Place in chat header or empty state
- * <RobotGreeting />
- * ============================================
- */
 export default function RobotGreeting() {
-  // ─── Refs for GSAP animations ──────────────────────────────────────
   const wrapRef = useRef(null);
   const glowRef = useRef(null);
 
-  /**
-   * ============================================
-   * ANIMATION SETUP
-   * ============================================
-   * 
-   * Configures three GSAP animations:
-   * 1. Entrance: Fade in + slide up + scale from 0.9
-   * 2. Idle Float: Gentle up/down bobbing (yoyo)
-   * 3. Glow Pulse: Ambient glow scaling and opacity
-   * 
-   * All animations are cleaned up on unmount using gsap.context
-   */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // ─── Entrance Animation ───
+      // Entrance animation
       gsap.fromTo(
         wrapRef.current,
         { opacity: 0, y: 20, scale: 0.9 },
         { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'back.out(1.6)' }
       );
 
-      // ─── Idle Float Animation ───
+      // Gentle idle float - responsive amplitude
+      const floatAmount = window.innerWidth < 640 ? -4 : -8;
       gsap.to(wrapRef.current, {
-        y: -8,
+        y: floatAmount,
         duration: 2.4,
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
       });
 
-      // ─── Ambient Glow Pulse ───
+      // Ambient glow pulse behind the animation
       gsap.to(glowRef.current, {
         scale: 1.15,
         opacity: 0.5,
@@ -98,26 +40,45 @@ export default function RobotGreeting() {
       });
     }, wrapRef);
 
-    // Cleanup animations on unmount
     return () => ctx.revert();
   }, []);
 
+  // Responsive sizes
+  const containerSize = {
+    width: window.innerWidth < 480 ? 120 : window.innerWidth < 640 ? 150 : 200,
+    height: window.innerWidth < 480 ? 120 : window.innerWidth < 640 ? 150 : 200,
+  };
+
+  const glowSize = {
+    width: window.innerWidth < 480 ? 120 : window.innerWidth < 640 ? 150 : 180,
+    height: window.innerWidth < 480 ? 120 : window.innerWidth < 640 ? 150 : 180,
+  };
+
   return (
-    <div ref={wrapRef} className="relative flex flex-col items-center mb-2 select-none">
-      {/* ─── Ambient Glow ─── */}
+    <div 
+      ref={wrapRef} 
+      className="relative flex flex-col items-center mb-2 sm:mb-3 select-none px-2 sm:px-4"
+    >
+      {/* Glow effect - hidden on very small screens */}
       <div
         ref={glowRef}
-        className="absolute rounded-full pointer-events-none"
+        className="absolute rounded-full pointer-events-none hidden xs:block"
         style={{
-          width: 180,
-          height: 180,
+          width: glowSize.width,
+          height: glowSize.height,
           background: `radial-gradient(circle, ${VIOLET}40 0%, ${CYAN}20 60%, transparent 75%)`,
           filter: 'blur(10px)',
         }}
       />
-
-      {/* ─── Robot Animation ─── */}
-      <div className="relative" style={{ width: 200, height: 200 }}>
+      
+      {/* Robot animation container */}
+      <div 
+        className="relative"
+        style={{ 
+          width: containerSize.width, 
+          height: containerSize.height 
+        }}
+      >
         <DotLottieReact
           src="/animations/Live chatbot.lottie"
           loop

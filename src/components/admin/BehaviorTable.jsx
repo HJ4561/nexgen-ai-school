@@ -6,18 +6,22 @@
  * Purpose: Displays behavior logs in a responsive table format
  * Features:
  * - Responsive design with mobile-first approach
- * - Column-based data rendering with custom renderers
+ * - Desktop table view with all columns
+ * - Mobile card view with compact information
  * - Severity badges with color coding
+ * - Type badges with icons (Positive/Negative/Neutral)
  * - Pagination controls
  * - View details action with eye icon
- * - Mobile-friendly view with hidden columns
+ * - Avatar with student initials
+ * - Empty state with helpful message
+ * - Role-based theming (admin primary color)
  * 
  * Dependencies:
- * - lucide-react for icons (Eye)
+ * - lucide-react for icons (Eye, User, Calendar, AlertCircle, CheckCircle)
  * - @/components/ui/Badge for severity indicators
- * - @/components/admin/ResponsiveTable for table structure
- * - @/components/ui/Pagination for page controls
- * - @/utils/helpers for formatting utilities
+ * - @/components/ui/Card for container
+ * - @/components/admin/Pagination for page controls
+ * - @/utils/behaviorHelpers for formatting utilities
  * 
  * Usage:
  * <BehaviorTable
@@ -32,16 +36,12 @@
  * ============================================
  */
 
-import { Eye } from "lucide-react";
+import React from "react";
+import { Eye, User, Calendar, AlertCircle, CheckCircle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
-import ResponsiveTable from "@/components/admin/ResponsiveTable";
-import Pagination from "@/components/ui/Pagination";
-import {
-  getInitials,
-  formatDate,
-  getSeverityColor,
-  getSeverityBadgeClass,
-} from "@/utils/helpers";
+import Card from "@/components/ui/Card";
+import Pagination from "@/components/admin/Pagination";
+import { formatDate } from "@/utils/behaviorHelpers";
 
 /**
  * ============================================
@@ -74,208 +74,294 @@ import {
  * />
  * ============================================
  */
-export default function BehaviorTable({
-  data,
-  currentPage,
-  totalPages,
-  totalItems,
+const BehaviorTable = ({ 
+  data, 
+  currentPage, 
+  totalPages, 
+  totalItems, 
   itemsPerPage,
   onPageChange,
-  onView,
-}) {
+  onView 
+}) => {
+  // ─── Helper Functions ──────────────────────────────────────────────
+
   /**
    * ============================================
-   * TABLE COLUMNS CONFIGURATION
+   * GET STUDENT INITIALS
    * ============================================
    * 
-   * Defines the structure and rendering of each column
+   * Extracts initials from student name for avatar
    * 
-   * Column Properties:
-   * - key: Unique identifier for the column
-   * - label: Display name in table header
-   * - mobile: Mobile-specific configuration
-   *   - role: 'title' | 'badge' | 'detail' | 'hidden'
-   *   - label: Optional label for detail view
-   * - render: Function to render cell content
-   * 
-   * @constant {Array} columns
-   * ============================================
+   * @param {string} name - Student's full name
+   * @returns {string} Uppercase initials (max 2 characters)
    */
-  const columns = [
-    /**
-     * ============================================
-     * STUDENT COLUMN
-     * ============================================
-     * 
-     * Displays student name with avatar circle showing initials
-     * Acts as the title/mobile primary identifier
-     */
-    {
-      key: "student",
-      label: "Student",
-      mobile: { role: "title" },
-      render: (row) => (
-        <div className="flex items-center gap-3">
-          {/* Avatar circle with student initials */}
-          <div className="w-8 h-8 rounded-full bg-[var(--color-student-light)] flex items-center justify-center text-[var(--color-student-primary)] text-xs font-bold">
-            {getInitials(row.student_name)}
+  const getInitials = (name) => {
+    if (!name) return "?";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
+  /**
+   * ============================================
+   * GET TYPE BADGE
+   * ============================================
+   * 
+   * Returns the appropriate badge configuration for behavior type
+   * 
+   * @param {string} type - Behavior type (positive, negative, neutral)
+   * @returns {Object} { className: string, icon: Component, label: string }
+   */
+  const getTypeBadge = (type) => {
+    const types = {
+      positive: {
+        className: "bg-green-100 text-green-700 border-green-200",
+        icon: CheckCircle,
+        label: "Positive",
+      },
+      negative: {
+        className: "bg-red-100 text-red-700 border-red-200",
+        icon: AlertCircle,
+        label: "Negative",
+      },
+      neutral: {
+        className: "bg-gray-100 text-gray-700 border-gray-200",
+        icon: AlertCircle,
+        label: "Neutral",
+      },
+    };
+    const typeKey = type || "neutral";
+    return types[typeKey];
+  };
+
+  /**
+   * ============================================
+   * GET SEVERITY BADGE
+   * ============================================
+   * 
+   * Returns the appropriate badge styling for severity level
+   * 
+   * @param {string} severity - Severity level (low, medium, high)
+   * @returns {string} CSS class names
+   */
+  const getSeverityBadge = (severity) => {
+    const classes = {
+      low: "bg-green-100 text-green-700 border-green-200",
+      medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      high: "bg-red-100 text-red-700 border-red-200",
+    };
+    return classes[severity] || classes.low;
+  };
+
+  // ─── Empty State ────────────────────────────────────────────────────
+
+  if (data.length === 0) {
+    return (
+      <Card className="p-12 text-center border border-gray-100 shadow-sm">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
           </div>
-          <span className="text-sm font-medium text-[var(--color-text-primary)]">
-            {row.student_name}
-          </span>
+          <p className="text-gray-500 font-medium">No behavior logs found</p>
+          <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
         </div>
-      ),
-    },
+      </Card>
+    );
+  }
 
-    /**
-     * ============================================
-     * REPORTED BY COLUMN
-     * ============================================
-     * 
-     * Displays the name of the teacher/staff who reported the behavior
-     */
-    {
-      key: "teacher",
-      label: "Reported By",
-      render: (row) => (
-        <span className="text-sm text-[var(--color-text-secondary)]">
-          {row.reported_by_name}
-        </span>
-      ),
-    },
-
-    /**
-     * ============================================
-     * SEVERITY COLUMN
-     * ============================================
-     * 
-     * Displays severity badge with color coding
-     * - High: Red badge
-     * - Medium: Yellow badge
-     * - Low: Green badge
-     * Shows as badge on mobile
-     */
-    {
-      key: "severity",
-      label: "Severity",
-      mobile: { role: "badge" },
-      render: (row) => (
-        <Badge
-          className={`text-[10px] border ${getSeverityBadgeClass(row.severity)}`}
-        >
-          {row.severity}
-        </Badge>
-      ),
-    },
-
-    /**
-     * ============================================
-     * DESCRIPTION COLUMN
-     * ============================================
-     * 
-     * Shows the behavior description with truncation for long text
-     * Shows as detail on mobile view
-     */
-    {
-      key: "description",
-      label: "Description",
-      mobile: { role: "detail", label: "Description" },
-      render: (row) => (
-        <p className="text-sm text-[var(--color-text-secondary)] max-w-xs truncate">
-          {row.description}
-        </p>
-      ),
-    },
-
-    /**
-     * ============================================
-     * ACTION TAKEN COLUMN
-     * ============================================
-     * 
-     * Displays the disciplinary action taken
-     * Shows "—" if no action was taken
-     * Shows as detail on mobile view
-     */
-    {
-      key: "action_taken",
-      label: "Action Taken",
-      mobile: { role: "detail", label: "Action" },
-      render: (row) => (
-        <span className="text-sm text-[var(--color-text-secondary)]">
-          {row.action_taken || "—"}
-        </span>
-      ),
-    },
-
-    /**
-     * ============================================
-     * DATE COLUMN
-     * ============================================
-     * 
-     * Displays formatted creation date
-     * Shows as detail on mobile view
-     */
-    {
-      key: "date",
-      label: "Date",
-      mobile: { role: "detail", label: "Date" },
-      render: (row) => (
-        <span className="text-sm text-[var(--color-text-secondary)]">
-          {formatDate(row.created_at)}
-        </span>
-      ),
-    },
-
-    /**
-     * ============================================
-     * ACTIONS COLUMN
-     * ============================================
-     * 
-     * Provides "View Details" action with eye icon
-     * Hidden on mobile (access via mobileActions)
-     */
-    {
-      key: "actions",
-      label: "Actions",
-      mobile: { role: "hidden" },
-      render: (row) => (
-        <button
-          onClick={() => onView(row)}
-          className="p-1.5 rounded-lg text-gray-400 hover:text-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)] transition-colors"
-          title="View Details"
-        >
-          <Eye size={15} />
-        </button>
-      ),
-    },
-  ];
+  // ─── Render ─────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
-      {/* Responsive Table */}
-      <ResponsiveTable
-        columns={columns}
-        data={data}
-        keyField="id"
-        emptyMessage="No behavior logs found."
-        mobileActions={(row) => (
-          <button
-            onClick={() => onView(row)}
-            className="text-sm font-medium text-[var(--color-admin-primary)] hover:underline flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-admin-light)] rounded-lg"
-          >
-            <Eye size={14} /> View Details
-          </button>
-        )}
-      />
+    <Card className="overflow-hidden border border-gray-100 shadow-sm">
+      {/* ─── Desktop Table ────────────────────────────────────────────── */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full min-w-full">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Student
+              </th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Type
+              </th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Description
+              </th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Severity
+              </th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Teacher
+              </th>
+              <th className="text-right px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {data.map((log) => {
+              const typeInfo = getTypeBadge(log.type);
+              const TypeIcon = typeInfo.icon;
+              const severityClass = getSeverityBadge(log.severity);
+              
+              return (
+                <tr
+                  key={log.id}
+                  className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
+                  onClick={() => onView(log)}
+                >
+                  {/* Student Column */}
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                        {getInitials(log.student_name)}
+                      </div>
+                      <span className="font-medium text-gray-800">{log.student_name}</span>
+                    </div>
+                  </td>
 
-      {/* Pagination Controls */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-      />
-    </div>
+                  {/* Type Column */}
+                  <td className="px-4 py-3.5">
+                    <Badge className={`text-xs flex items-center gap-1.5 px-2.5 py-1 ${typeInfo.className}`}>
+                      <TypeIcon className="w-3 h-3" />
+                      {typeInfo.label}
+                    </Badge>
+                  </td>
+
+                  {/* Description Column */}
+                  <td className="px-4 py-3.5">
+                    <p className="text-sm text-gray-600 truncate max-w-xs">
+                      {log.description || "N/A"}
+                    </p>
+                  </td>
+
+                  {/* Severity Column */}
+                  <td className="px-4 py-3.5">
+                    <Badge className={`text-xs px-2.5 py-1 capitalize ${severityClass}`}>
+                      {log.severity || "low"}
+                    </Badge>
+                  </td>
+
+                  {/* Date Column */}
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-sm text-gray-600">{formatDate(log.created_at)}</span>
+                    </div>
+                  </td>
+
+                  {/* Teacher Column */}
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-sm text-gray-600">{log.reported_by_name || log.teacher_name || "Unknown"}</span>
+                    </div>
+                  </td>
+
+                  {/* Actions Column */}
+                  <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onView(log);
+                      }}
+                      className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors"
+                      title="View details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ─── Mobile Cards ────────────────────────────────────────────── */}
+      <div className="block md:hidden divide-y divide-gray-100">
+        {data.map((log) => {
+          const typeInfo = getTypeBadge(log.type);
+          const TypeIcon = typeInfo.icon;
+          const severityClass = getSeverityBadge(log.severity);
+          
+          return (
+            <div
+              key={log.id}
+              className="p-4 hover:bg-blue-50/30 transition-colors cursor-pointer"
+              onClick={() => onView(log)}
+            >
+              {/* Header: Student Name + Actions */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
+                    {getInitials(log.student_name)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{log.student_name}</p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {log.reported_by_name || log.teacher_name || "Unknown"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onView(log);
+                  }}
+                  className="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors shrink-0"
+                  title="View details"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body: Type, Severity, Description */}
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={`text-xs flex items-center gap-1.5 px-2.5 py-1 ${typeInfo.className}`}>
+                    <TypeIcon className="w-3 h-3" />
+                    {typeInfo.label}
+                  </Badge>
+                  <Badge className={`text-xs px-2.5 py-1 capitalize ${severityClass}`}>
+                    {log.severity || "low"}
+                  </Badge>
+                </div>
+                
+                {log.description && (
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {log.description}
+                  </p>
+                )}
+                
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {formatDate(log.created_at)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* ─── Pagination ────────────────────────────────────────────────── */}
+      <div className="border-t border-gray-100 px-4 py-3">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          startIndex={(currentPage - 1) * itemsPerPage}
+          itemsShown={data.length}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
+        />
+      </div>
+    </Card>
   );
-}
+};
+
+export default BehaviorTable;

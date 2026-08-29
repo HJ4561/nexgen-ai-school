@@ -1,187 +1,89 @@
-/**
- * ============================================
- * BEHAVIOR OVERVIEW COMPONENT
- * ============================================
- * 
- * Purpose: Displays behavior statistics summary for parent view
- * Features:
- * - Total behavior logs count
- * - Low severity count (Green)
- * - Medium severity count (Yellow)
- * - High severity count (Red)
- * - Color-coded icons and backgrounds
- * - Responsive grid layout (1/2/4 columns)
- * - Role-based theming (parent primary color)
- * 
- * Dependencies:
- * - lucide-react for icons (ClipboardList, ShieldCheck, AlertTriangle, ShieldAlert)
- * - @/components/ui/Card for container
- * - react-redux for state management
- * 
- * Usage:
- * <BehaviorOverview />
- * ============================================
- */
-
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-
-import {
-  ClipboardList,
-  ShieldCheck,
-  AlertTriangle,
-  ShieldAlert,
-} from "lucide-react";
-
+// src/components/parent/behavior/BehaviorOverview.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Shield, Clock } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import { selectBehaviorLogs, selectBehaviorStats } from '@/modules/parent/store/parentSlice';
 
-/**
- * ============================================
- * BEHAVIOR OVERVIEW COMPONENT
- * ============================================
- * 
- * Renders behavior statistics in a visual card grid
- * 
- * @returns {JSX.Element} Behavior overview UI
- * 
- * @example
- * // In parent dashboard
- * <BehaviorOverview />
- * ============================================
- */
 const BehaviorOverview = () => {
-  // ─── Redux State ──────────────────────────────────────────────────────
-  const {
-    behaviorLogs = [],
-    parentLinks = [],
-    selectedChild,
-  } = useSelector((state) => state.parent);
+  const behaviorLogs = useSelector(selectBehaviorLogs);
+  const behaviorStats = useSelector(selectBehaviorStats);
 
-  /**
-   * ============================================
-   * CURRENT CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Falls back to the first child if selectedChild is not found
-   */
-  const currentChild = useMemo(() => {
-    return (
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ) || parentLinks[0]
-    );
-  }, [parentLinks, selectedChild]);
-
-  /**
-   * ============================================
-   * CHILD LOGS
-   * ============================================
-   * 
-   * Filters behavior logs for the selected child
-   */
-  const childLogs = useMemo(() => {
-    if (!currentChild) return [];
-    return behaviorLogs.filter(
-      (log) => log.student_name === currentChild.student_name
-    );
-  }, [behaviorLogs, currentChild]);
-
-  /**
-   * ============================================
-   * STATISTICS
-   * ============================================
-   * 
-   * Calculates behavior statistics for the selected child:
-   * - total: Total number of behavior logs
-   * - low: Number of Low severity logs
-   * - medium: Number of Medium severity logs
-   * - high: Number of High severity logs
-   */
   const stats = useMemo(() => {
-    return {
-      total: childLogs.length,
-      low: childLogs.filter((log) => log.severity === "Low").length,
-      medium: childLogs.filter((log) => log.severity === "Medium").length,
-      high: childLogs.filter((log) => log.severity === "High").length,
-    };
-  }, [childLogs]);
+    const total = behaviorLogs.length;
+    const positive = behaviorLogs.filter(log => log.type === 'positive').length;
+    const negative = behaviorLogs.filter(log => log.type === 'negative').length;
+    const low = behaviorLogs.filter(log => log.severity === 'low').length;
+    const medium = behaviorLogs.filter(log => log.severity === 'medium').length;
+    const high = behaviorLogs.filter(log => log.severity === 'high').length;
 
-  /**
-   * ============================================
-   * STAT CARDS CONFIGURATION
-   * ============================================
-   * 
-   * Defines the configuration for each statistic card
-   * 
-   * @constant {Array} cards
-   * @property {string} title - Display label for the stat
-   * @property {number} value - The statistic value
-   * @property {Component} icon - Lucide icon component
-   * @property {string} color - Text color class for the icon
-   * @property {string} bg - Background color class for the icon container
-   */
-  const cards = [
-    {
-      title: "Total Logs",
-      value: stats.total,
-      icon: ClipboardList,
-      color: "text-parent-primary",
-      bg: "bg-parent-primary/10",
-    },
-    {
-      title: "Low Severity",
-      value: stats.low,
-      icon: ShieldCheck,
-      color: "text-green-600",
-      bg: "bg-green-100",
-    },
-    {
-      title: "Medium Severity",
-      value: stats.medium,
-      icon: AlertTriangle,
-      color: "text-yellow-600",
-      bg: "bg-yellow-100",
-    },
-    {
-      title: "High Severity",
-      value: stats.high,
-      icon: ShieldAlert,
-      color: "text-red-600",
-      bg: "bg-red-100",
-    },
-  ];
+    return {
+      total,
+      positive,
+      negative,
+      low,
+      medium,
+      high,
+    };
+  }, [behaviorLogs]);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {/* ─── Render each stat card ─── */}
-      {cards.map((card) => {
-        const Icon = card.icon;
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <Card className="p-3 md:p-4 border-l-4 border-l-blue-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Total</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-0.5 md:mt-1">{stats.total}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">All behaviors</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+          </div>
+        </div>
+      </Card>
 
-        return (
-          <Card key={card.title} hover={false}>
-            <div className="flex items-center justify-between">
-              {/* Stat label and value */}
-              <div>
-                <p className="text-sm text-text-secondary">
-                  {card.title}
-                </p>
+      <Card className="p-3 md:p-4 border-l-4 border-l-emerald-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Positive</p>
+            <p className="text-xl md:text-2xl font-bold text-emerald-600 mt-0.5 md:mt-1">{stats.positive}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">
+              {stats.total > 0 ? Math.round((stats.positive / stats.total) * 100) : 0}%
+            </p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+          </div>
+        </div>
+      </Card>
 
-                <h3 className="mt-2 text-3xl font-bold text-text-primary">
-                  {card.value}
-                </h3>
-              </div>
+      <Card className="p-3 md:p-4 border-l-4 border-l-red-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Negative</p>
+            <p className="text-xl md:text-2xl font-bold text-red-600 mt-0.5 md:mt-1">{stats.negative}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">
+              {stats.total > 0 ? Math.round((stats.negative / stats.total) * 100) : 0}%
+            </p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-red-50 flex items-center justify-center">
+            <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+          </div>
+        </div>
+      </Card>
 
-              {/* Icon container with color coding */}
-              <div
-                className={`flex h-14 w-14 items-center justify-center rounded-xl ${card.bg}`}
-              >
-                <Icon size={24} className={card.color} />
-              </div>
-            </div>
-          </Card>
-        );
-      })}
+      <Card className="p-3 md:p-4 border-l-4 border-l-amber-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">High Severity</p>
+            <p className="text-xl md:text-2xl font-bold text-amber-600 mt-0.5 md:mt-1">{stats.high}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Needs attention</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

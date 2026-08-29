@@ -135,36 +135,36 @@ const GradeSummary = () => {
   return (
     <Card hover={false}>
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-text-primary">
+      <div className="mb-6 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl md:text-2xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
           Academic Summary
         </h2>
 
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           Quick performance overview for the selected exam.
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 px-4 sm:px-6 lg:px-8">
         {/* ─── Strong Subjects ──────────────────────────────────── */}
         <div>
-          <div className="mb-3 flex items-center gap-2">
-            <CircleCheckBig size={18} className="text-green-600" />
-            <h3 className="font-semibold text-text-primary">
+          <div className="mb-3 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <CircleCheckBig size={18} className="text-green-600 px-4 sm:px-6 lg:px-8" />
+            <h3 className="font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
               Excellent Performance
             </h3>
           </div>
 
           {summary.strong.length === 0 ? (
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
               No subjects scored above 90%.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col md:flex-row-wrap gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
               {summary.strong.map((item) => (
                 <span
                   key={item.id}
-                  className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700"
+                  className="rounded-full bg-green-100 px-3 py-1 text-sm md:text-base md:text-base font-medium text-green-700 px-4 sm:px-6 lg:px-8"
                 >
                   {item.subject_name}
                 </span>
@@ -175,23 +175,23 @@ const GradeSummary = () => {
 
         {/* ─── Weak Subjects ────────────────────────────────────── */}
         <div>
-          <div className="mb-3 flex items-center gap-2">
-            <TriangleAlert size={18} className="text-orange-500" />
-            <h3 className="font-semibold text-text-primary">
+          <div className="mb-3 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <TriangleAlert size={18} className="text-orange-500 px-4 sm:px-6 lg:px-8" />
+            <h3 className="font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
               Needs Improvement
             </h3>
           </div>
 
           {summary.weak.length === 0 ? (
-            <p className="text-sm text-text-secondary">
+            <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
               Great! No weak subjects.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col md:flex-row-wrap gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
               {summary.weak.map((item) => (
                 <span
                   key={item.id}
-                  className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700"
+                  className="rounded-full bg-orange-100 px-3 py-1 text-sm md:text-base md:text-base font-medium text-orange-700 px-4 sm:px-6 lg:px-8"
                 >
                   {item.subject_name}
                 </span>
@@ -201,10 +201,10 @@ const GradeSummary = () => {
         </div>
 
         {/* ─── Footer: Educational Tip ──────────────────────────── */}
-        <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-          <div className="flex items-start gap-3">
-            <Info size={18} className="mt-0.5 text-blue-600" />
-            <p className="text-sm leading-6 text-blue-700">
+        <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-start gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <Info size={18} className="mt-0.5 text-blue-600 px-4 sm:px-6 lg:px-8" />
+            <p className="text-sm md:text-base md:text-base leading-6 text-blue-700 px-4 sm:px-6 lg:px-8">
               Grades are updated after each examination.
               Contact the class teacher if you believe any
               marks are incorrect.

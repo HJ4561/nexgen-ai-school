@@ -319,8 +319,7 @@ const GradeSummaryCard = () => {
                 flex h-28 w-28
                 items-center justify-center
                 rounded-full
-                bg-parent-primary/10
-              "
+                bg-parent-primary/10"
             >
               <Award size={42} className="text-parent-primary" />
             </div>

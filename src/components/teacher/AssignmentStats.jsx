@@ -22,9 +22,9 @@
  * ============================================
  */
 
-import StatCard from "@/components/composite/StatCard";
+import StatCard from "@/components/common/StatCard";
 import { BookOpen, CheckCircle, Clock, Users } from 'lucide-react';
-import { StaggerGroup, StaggerItem } from "@/components/admin/animations";
+import { StaggerGroup, StaggerItem } from "@/components/admin/animations/index.jsx";
 
 /**
  * AssignmentStats Component
@@ -55,9 +55,9 @@ export default function AssignmentStats({ stats }) {
   ];
 
   return (
-    <StaggerGroup className="grid grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+    <StaggerGroup className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 items-stretch px-4 sm:px-6 lg:px-8">
       {cards.map((card, index) => (
-        <StaggerItem key={index} className="h-full">
+        <StaggerItem key={index} className="h-full px-4 sm:px-6 lg:px-8">
           <div
             className={`
               h-full rounded-xl 
@@ -76,7 +76,7 @@ export default function AssignmentStats({ stats }) {
               footerColor={card.footerColor}
               footerIcon={card.icon}
               glow
-              className="h-full border-0"
+              className="h-full border-0 px-4 sm:px-6 lg:px-8"
             />
           </div>
         </StaggerItem>

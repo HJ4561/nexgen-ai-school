@@ -17,7 +17,7 @@
  * 
  * Usage:
  * <LoadingSpinner size="lg" />
- * <LoadingSpinner size="sm" className="mt-4" />
+ * <LoadingSpinner size="sm" className="mt-4 px-4 sm:px-6 lg:px-8" />
  * ============================================
  */
 
@@ -40,7 +40,7 @@ import React from 'react';
  * <LoadingSpinner size="lg" />
  * 
  * // Small spinner with custom class
- * <LoadingSpinner size="sm" className="mt-8" />
+ * <LoadingSpinner size="sm" className="mt-8 px-4 sm:px-6 lg:px-8" />
  * 
  * // Default medium spinner
  * <LoadingSpinner />
@@ -66,7 +66,7 @@ export const LoadingSpinner = ({ size = 'md', className }) => {
   };
 
   return (
-    <div className="flex justify-center items-center p-4">
+    <div className="flex flex-col md:flex-row justify-center items-center p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
       <div className={`
         animate-spin rounded-full border-b-2 border-blue-600
         ${sizeClasses[size] || sizeClasses.md}

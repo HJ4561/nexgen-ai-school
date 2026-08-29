@@ -99,7 +99,12 @@ export default function FeeStructureDrawer({
       width="max-w-[400px]"
       footer={
         // ─── Drawer Footer with Close Button ───
-        <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
+        <Button
+          variant="outline"
+          tone="admin"
+          fullWidth
+          onClick={onClose}
+        >
           Close
         </Button>
       }

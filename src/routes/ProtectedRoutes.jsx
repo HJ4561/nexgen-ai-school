@@ -25,7 +25,7 @@ function ProtectedRoute() {
   // ─── Loading ──────────────────────────────────────────────────────
   // Show loading while checking auth state
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex flex-col md:flex-row items-center justify-center h-screen px-4 sm:px-6 lg:px-8">Loading...</div>;
   }
 
   // ─── Not Authenticated ────────────────────────────────────────────

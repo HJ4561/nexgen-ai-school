@@ -289,7 +289,7 @@ const AttendanceCalendar = () => {
       </div>
 
       {/* ─── Week Days ────────────────────────────────────────── */}
-      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-7 gap-1.5">
         {weekDays.map((day) => (
           <div
             key={day}
@@ -301,21 +301,18 @@ const AttendanceCalendar = () => {
       </div>
 
       {/* ─── Calendar Grid ────────────────────────────────────── */}
-      <div className="mt-1.5 sm:mt-2 grid grid-cols-7 gap-1.5 sm:gap-2">
+      <div className="mt-1.5 grid grid-cols-7 gap-1.5">
         {cells.map((day, index) =>
           day ? (
             <div
               key={index}
               className={`
                 relative
-                flex
-                h-9
-                sm:h-12
+                flex h-9 sm:h-12
                 items-center
                 justify-center
                 rounded-lg
-                text-xs
-                sm:text-sm
+                text-xs sm:text-sm
                 font-semibold
                 transition-all
                 duration-150

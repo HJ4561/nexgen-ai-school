@@ -227,7 +227,7 @@ const FeeDetailsModal = ({
         </div>
 
         {/* ─── Body ────────────────────────────────────────────────── */}
-        <div className="grid gap-4 p-6 md:grid-cols-2">
+        <div className="grid gap-4 p-4 md:grid-cols-2">
           {/* Student */}
           <DetailRow
             icon={Wallet}

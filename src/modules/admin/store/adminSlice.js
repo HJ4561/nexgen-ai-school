@@ -1,4 +1,4 @@
-﻿// src/modules/admin/store/adminSlice.js
+// src/modules/admin/store/adminSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import * as thunks from "./adminThunks";
 

@@ -172,8 +172,7 @@ function FeeScheduleTable({
               pr-4
               outline-none
               transition
-              focus:border-student-primary
-            "
+              focus:border-student-primary"
           />
         </div>
       </div>
@@ -196,7 +195,7 @@ function FeeScheduleTable({
       {/* ============================================
           DESKTOP TABLE
           ============================================ */}
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-full">
           <thead className="bg-student-light">
             <tr className="text-left">
@@ -212,75 +211,83 @@ function FeeScheduleTable({
           </thead>
 
           <tbody>
-            {filteredFees.map((fee) => {
-              const remaining = Number(fee.amount) - Number(fee.amount_paid);
+            {filteredFees.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="px-4 py-8 text-center text-text-secondary">
+                  No fee records found.
+                </td>
+              </tr>
+            ) : (
+              filteredFees.map((fee) => {
+                const remaining = Number(fee.amount) - Number(fee.amount_paid);
 
-              return (
-                <tr key={fee.id} className="border-b transition hover:bg-student-light">
-                  {/* Month */}
-                  <td className="px-4 py-4">
-                    {new Date(fee.month).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </td>
+                return (
+                  <tr key={fee.id} className="border-b transition hover:bg-student-light">
+                    {/* Month */}
+                    <td className="px-4 py-4">
+                      {new Date(fee.month).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </td>
 
-                  {/* Original Fee */}
-                  <td className="px-4 py-4">Rs. {fee.original_amount}</td>
+                    {/* Original Fee */}
+                    <td className="px-4 py-4">Rs. {fee.original_amount}</td>
 
-                  {/* Payable Fee */}
-                  <td className="px-4 py-4">Rs. {fee.amount}</td>
+                    {/* Payable Fee */}
+                    <td className="px-4 py-4">Rs. {fee.amount}</td>
 
-                  {/* Amount Paid */}
-                  <td className="px-4 py-4">Rs. {fee.amount_paid}</td>
+                    {/* Amount Paid */}
+                    <td className="px-4 py-4">Rs. {fee.amount_paid}</td>
 
-                  {/* Remaining */}
-                  <td className="px-4 py-4 font-semibold text-red-600">
-                    Rs. {remaining}
-                  </td>
+                    {/* Remaining */}
+                    <td className="px-4 py-4 font-semibold text-red-600">
+                      Rs. {remaining}
+                    </td>
 
-                  {/* Due Date */}
-                  <td className="px-4 py-4">
-                    {new Date(fee.due_date).toLocaleDateString()}
-                  </td>
+                    {/* Due Date */}
+                    <td className="px-4 py-4">
+                      {new Date(fee.due_date).toLocaleDateString()}
+                    </td>
 
-                  {/* Status Badge */}
-                  <td className="px-4 py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(fee.status)}`}
-                    >
-                      {fee.status}
-                    </span>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-4 py-4">
-                    <div className="flex justify-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        tone="student"
-                        leftIcon={<Eye size={16} />}
-                        onClick={() => onView?.(fee)}
+                    {/* Status Badge */}
+                    <td className="px-4 py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(fee.status)}`}
                       >
-                        View
-                      </Button>
+                        {fee.status}
+                      </span>
+                    </td>
 
-                      {fee.status !== "Paid" && (
+                    {/* Actions */}
+                    <td className="px-4 py-4">
+                      <div className="flex justify-center gap-2">
                         <Button
                           size="sm"
+                          variant="outline"
                           tone="student"
-                          leftIcon={<CreditCard size={16} />}
-                          onClick={() => onPay?.(fee)}
+                          leftIcon={<Eye size={16} />}
+                          onClick={() => onView?.(fee)}
                         >
-                          Pay
+                          View
                         </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+
+                        {fee.status !== "Paid" && (
+                          <Button
+                            size="sm"
+                            tone="student"
+                            leftIcon={<CreditCard size={16} />}
+                            onClick={() => onPay?.(fee)}
+                          >
+                            Pay
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -291,7 +298,7 @@ function FeeScheduleTable({
       <div className="space-y-4 lg:hidden">
         {filteredFees.length === 0 ? (
           // ─── Empty State ──────────────────────────────────────────
-          <Card className="p-6 text-center text-text-secondary">
+          <Card className="p-4 text-center text-text-secondary">
             No fee records found.
           </Card>
         ) : (

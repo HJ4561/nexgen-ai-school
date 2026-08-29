@@ -15,21 +15,10 @@
  * - Data fetching on mount
  * - Responsive grid layout (1 column mobile, 12 columns desktop)
  * - Shared across all user roles
- * 
- * Dependencies:
- * - react-redux for state management
- * - @/modules/common/store/complaintThunks for data fetching
- * - Various complaint components
- * 
- * Usage:
- * <Complaint role="admin" />
- * <Complaint role="teacher" />
- * <Complaint role="student" />
- * <Complaint role="parent" />
  * ============================================
  */
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchComplaints } from "@/modules/common/store/complaintThunks";
@@ -80,7 +69,7 @@ const Complaint = ({ role }) => {
   }, [dispatch, role]);
 
   return (
-    <div className="mx-auto w-full max-w-full space-y-4 px-2">
+    <div className="mx-auto w-full max-w-full space-y-4 sm:space-y-5 px-3 sm:px-4 md:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────────────── */}
       {/* Displays page title, description, and role-based styling */}
       <ComplaintHeader role={role} />
@@ -90,16 +79,16 @@ const Complaint = ({ role }) => {
       <ComplaintStats role={role} />
 
       {/* ─── Main Content ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
-        {/* ─── Left Column (4/12) ─────────────────────────────────────── */}
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 sm:gap-5">
+        {/* ─── Left Column (4/12 on desktop, full width on mobile) ─── */}
         {/* Complaint form for submitting new complaints */}
-        <div className="xl:col-span-4">
+        <div className="xl:col-span-4 order-2 xl:order-1">
           <ComplaintForm role={role} />
         </div>
 
-        {/* ─── Right Column (8/12) ────────────────────────────────────── */}
+        {/* ─── Right Column (8/12 on desktop, full width on mobile) ── */}
         {/* Complaint list with filtering, sorting, and details modal */}
-        <div className="xl:col-span-8">
+        <div className="xl:col-span-8 order-1 xl:order-2">
           <ComplaintList role={role} />
         </div>
       </div>

@@ -86,7 +86,7 @@ export default function SendNotificationDrawer({
   setForm,
   onSend,
   loading,
-  users = [], // ← default to empty array
+  users = [],
 }) {
   // ─── State Management ──────────────────────────────────────────────
   const [searchUser, setSearchUser] = useState('');
@@ -164,7 +164,12 @@ export default function SendNotificationDrawer({
       footer={
         // ─── Drawer Footer with Action Buttons ───
         <div className="flex gap-3">
-          <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
+          <Button
+            variant="outline"
+            tone="admin"
+            fullWidth
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

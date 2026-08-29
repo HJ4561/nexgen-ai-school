@@ -285,8 +285,6 @@ function AssignmentCard({ assignment, onSubmit, onReplace, onView, onDelete }) {
             <p className="mt-2 text-sm text-text-secondary">
               {new Date(assigned_at).toLocaleDateString()}
             </p>
-            {/* Reserves the same vertical space as the days-remaining line
-                on the right so the two boxes stay bottom-aligned. */}
             {daysRemaining !== null && (
               <p className="invisible mt-2 text-xs font-semibold" aria-hidden="true">
                 spacer
@@ -342,8 +340,8 @@ function AssignmentCard({ assignment, onSubmit, onReplace, onView, onDelete }) {
           <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
             {/* ─── Decorative Glow ─── */}
             <div
-              aria-hidden
-              className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-20 blur-2xl"
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-6 -top-4 h-24 w-24 rounded-full opacity-20 blur-2xl"
               style={{ background: `linear-gradient(135deg, ${STATUS_META.Graded.colors[0]}, ${STATUS_META.Graded.colors[1]})` }}
             />
 

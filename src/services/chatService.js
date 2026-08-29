@@ -1,4 +1,4 @@
-﻿import api from './api';
+import api from './api';
 
 // Chat session management
 export const createSession = async (data) => {

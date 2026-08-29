@@ -1,4 +1,4 @@
-﻿// src/modules/admin/store/adminThunks.js
+// src/modules/admin/store/adminThunks.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import adminService from "../services/adminService";
 

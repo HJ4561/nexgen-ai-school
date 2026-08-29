@@ -1,4 +1,4 @@
-﻿// src/components/admin/FeeDetailDrawer/utils.js
+// src/components/admin/FeeDetailDrawer/utils.js
 export const formatCurrency = (amount) =>
   new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(amount || 0);
 

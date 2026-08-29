@@ -386,7 +386,6 @@ const GradeSummaryChart = () => {
                   animationDuration={800}
                   animationEasing="ease-out"
                 >
-                  {/* Color each bar based on performance tier */}
                   {chartData.map((entry, index) => (
                     <Cell key={index} fill={`url(#tier-${getTier(entry.percentage).label})`} />
                   ))}

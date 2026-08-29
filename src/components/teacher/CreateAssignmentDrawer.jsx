@@ -117,7 +117,12 @@ export default function CreateAssignmentDrawer({
       footer={
         // ─── Drawer Footer with Action Buttons ───
         <div className="flex gap-3">
-          <Button variant="outline" tone="teacher" fullWidth onClick={onClose}>
+          <Button
+            variant="outline"
+            tone="teacher"
+            fullWidth
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

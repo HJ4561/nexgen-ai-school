@@ -62,8 +62,7 @@ const ChildCard = ({
     <button
       onClick={() => onSelect(child.student)}
       className={`
-        w-full rounded-xl border-2 p-4
-        transition-all duration-200
+        w-full rounded-xl border-2 p-4 transition-all duration-200
         ${
           selected
             ? "border-parent-primary bg-parent-primary/5 shadow-md"
@@ -85,8 +84,7 @@ const ChildCard = ({
               items-center justify-center
               rounded-full
               bg-parent-primary
-              text-lg font-bold text-white
-            "
+              text-lg font-bold text-white"
           >
             {child.student_name.charAt(0)}
           </div>

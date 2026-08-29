@@ -121,23 +121,23 @@ function NotificationCard({
   return (
     <div
       onClick={onClick}
-      className={`flex items-start gap-3 rounded-card p-3 transition-colors duration-150 ${
+      className={`flex flex-col md:flex-row items-start gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 rounded-card p-3 transition-colors duration-150 ${
         onClick ? 'cursor-pointer hover:bg-surface-dim' : ''
       } ${!isRead ? UNREAD_BG_CLASSES[tone] || UNREAD_BG_CLASSES.brand : 'bg-transparent'} ${className}`}
     >
       {/* ─── Icon Container ─── */}
       {icon && (
-        <span className="flex h-icon-lg w-icon-lg flex-shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-secondary">
+        <span className="flex flex-col md:flex-row h-icon-lg w-icon-lg flex-shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-secondary px-4 sm:px-6 lg:px-8">
           {icon}
         </span>
       )}
 
       {/* ─── Message and Time ─── */}
-      <div className="min-w-0 flex-1">
-        <p className={`text-sm ${!isRead ? 'font-semibold text-text-primary' : 'font-normal text-text-secondary'}`}>
+      <div className="min-w-0 flex-1 px-4 sm:px-6 lg:px-8">
+        <p className={`text-sm md:text-base md:text-base ${!isRead ? 'font-semibold text-text-primary' : 'font-normal text-text-secondary'}`}>
           {message}
         </p>
-        {time && <p className="mt-0.5 text-xs text-text-muted">{time}</p>}
+        {time && <p className="mt-0.5 text-xs text-text-muted px-4 sm:px-6 lg:px-8">{time}</p>}
       </div>
 
       {/* ─── Unread Indicator Dot ─── */}

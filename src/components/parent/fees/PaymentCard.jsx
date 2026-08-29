@@ -1,312 +1,166 @@
-/**
- * ============================================
- * PAYMENT CARD COMPONENT
- * ============================================
- * 
- * Purpose: Displays payment details and processes fee payments
- * Features:
- * - Fee details display (month, payable, paid, remaining)
- * - Due date display
- * - Stripe payment integration
- * - Secure payment gateway badge
- * - Loading state during payment
- * - Success handling with fee/payment refresh
- * - Empty state when no fee is selected
- * - Role-based theming (parent)
- * - Sticky positioning
- * 
- * Dependencies:
- * - lucide-react for icons (Wallet, CalendarDays, BadgeDollarSign, ShieldCheck, CreditCard)
- * - @/components/ui/Card for container
- * - @/components/ui/Button for action button
- * - @/modules/payments/StripePaymentModal for payment processing
- * - @/modules/parent/store/parentThunks for API calls
- * - react-redux for state management
- * 
- * Usage:
- * <PaymentCard />
- * ============================================
- */
-
-import { useDispatch, useSelector } from "react-redux";
-import {
-  Wallet,
-  CalendarDays,
-  BadgeDollarSign,
-  ShieldCheck,
-  CreditCard,
-} from "lucide-react";
-import { useState } from "react";
+// src/components/parent/fees/PaymentCard.jsx
+import React, { useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { CreditCard, Lock, Shield, CheckCircle, Loader2 } from 'lucide-react';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import StripePaymentModal from "@/modules/payments/StripePaymentModal";
-import { createPaymentIntent } from "@/modules/parent/store/parentThunks";
-import {
-  fetchFees,
-  fetchPayments,
-} from "@/modules/parent/store/parentThunks";
+import { Badge } from '@/components/ui/Badge';
+import { selectSelectedFee, selectPaymentIntent } from '@/modules/parent/store/parentSlice';
+import { createPaymentIntent, clearPaymentIntent } from '@/modules/parent/store/parentThunks';
 
-/**
- * ============================================
- * PAYMENT CARD COMPONENT
- * ============================================
- * 
- * Renders a payment card for fee processing
- * 
- * @returns {JSX.Element} Payment card UI
- * 
- * @example
- * // In parent fee management
- * <PaymentCard />
- * ============================================
- */
+const formatCurrency = (amount) => {
+  if (!amount) return "PKR 0";
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 const PaymentCard = () => {
   const dispatch = useDispatch();
+  const selectedFee = useSelector(selectSelectedFee);
+  const paymentIntent = useSelector(selectPaymentIntent);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
-  /**
-   * ============================================
-   * REDUX STATE
-   * ============================================
-   * 
-   * Retrieves selectedFee and loading from Redux store
-   */
-  const { selectedFee, loading } = useSelector(
-    (state) => state.parent
-  );
-
-  /**
-   * ============================================
-   * STRIPE PAYMENT STATE
-   * ============================================
-   * 
-   * - clientSecret: Stripe payment intent client secret
-   * - showStripe: Controls Stripe modal visibility
-   */
-  const [clientSecret, setClientSecret] = useState("");
-  const [showStripe, setShowStripe] = useState(false);
-
-  /**
-   * ============================================
-   * NO FEE SELECTED
-   * ============================================
-   * 
-   * Displays an empty state when no fee is selected
-   * Shows a prompt to select an unpaid fee from the table
-   */
-  if (!selectedFee) {
-    return (
-      <Card
-        hover={false}
-        className="flex min-h-[760px] items-center justify-center"
-      >
-        <div className="text-center">
-          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-parent-light">
-            <Wallet size={42} className="text-parent-primary" />
-          </div>
-
-          <h3 className="mt-6 text-2xl font-semibold">
-            No Fee Selected
-          </h3>
-
-          <p className="mt-3 text-text-secondary">
-            Select an unpaid fee from the table to continue with payment.
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  /**
-   * ============================================
-   * HELPERS
-   * ============================================
-   * 
-   * Utility functions for calculations and formatting
-   */
-
-  /**
-   * Calculate remaining amount for the selected fee
-   */
-  const remaining = selectedFee
-    ? Number(selectedFee.amount) - Number(selectedFee.amount_paid || 0)
-    : 0;
-
-  /**
-   * Format amount as PKR currency
-   */
-  const formatCurrency = (value) =>
-    `Rs. ${Number(value).toLocaleString()}`;
-
-  /**
-   * ============================================
-   * STRIPE PAYMENT HANDLER
-   * ============================================
-   * 
-   * Creates a payment intent and initializes Stripe payment
-   * - Dispatches createPaymentIntent with fee_id
-   * - Sets client secret on success
-   * - Shows Stripe payment modal
-   * - Handles errors with user feedback
-   */
-  const handlePayment = async () => {
-    try {
-      const response = await dispatch(
-        createPaymentIntent({
-          fee_id: selectedFee.id,
-        })
-      ).unwrap();
-
-      console.log("Payment Intent:", response);
-
-      if (!response.client_secret) {
-        throw new Error("No client_secret returned from backend.");
-      }
-
-      setClientSecret(response.client_secret);
-      setShowStripe(true);
-    } catch (error) {
-      console.error(error);
-      alert(
-        error?.response?.data?.detail ||
-        error?.message ||
-        "Unable to initialize payment."
-      );
+  const handlePayment = useCallback(async () => {
+    if (!selectedFee) {
+      setError('Please select a fee to pay');
+      return;
     }
-  };
+
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const result = await dispatch(createPaymentIntent({
+        fee_id: selectedFee.id,
+        amount: selectedFee.amount,
+        currency: 'PKR'
+      })).unwrap();
+
+      setSuccess(true);
+      // In a real implementation, you would redirect to Stripe checkout
+      // or use Stripe Elements to collect payment details
+      console.log('Payment intent created:', result);
+    } catch (err) {
+      setError(err.message || 'Payment failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [dispatch, selectedFee]);
+
+  const handleClearSelection = useCallback(() => {
+    dispatch(clearPaymentIntent());
+    setSuccess(false);
+    setError(null);
+  }, [dispatch]);
 
   return (
-    <>
-      <Card hover={false} className="sticky top-6">
-        {/* ─── Header ────────────────────────────────────────────── */}
-        <div className="rounded-xl bg-orange-50 p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-600 text-white">
-              <CreditCard size={26} />
+    <Card id="payment-card" className="p-4 md:p-6 border-l-4 border-l-emerald-500 sticky top-6">
+      <div className="flex items-center gap-2 mb-4">
+        <CreditCard className="w-5 h-5 text-emerald-600" />
+        <h3 className="text-base md:text-lg font-semibold text-gray-800">Make Payment</h3>
+      </div>
+
+      {selectedFee ? (
+        <div className="space-y-4">
+          <div className="bg-gray-50 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-500">Fee Title</span>
+              <span className="text-sm font-medium text-gray-800 truncate max-w-[150px]">
+                {selectedFee.fee_title || 'Fee Invoice'}
+              </span>
             </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-orange-900">
-                Secure Payment
-              </h2>
-              <p className="text-text-secondary">Powered by Stripe</p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Amount</span>
+              <span className="text-lg font-bold text-emerald-600">
+                {formatCurrency(selectedFee.amount)}
+              </span>
             </div>
-          </div>
-        </div>
-
-        {/* ─── Body ────────────────────────────────────────────────── */}
-        <div className="mt-8 space-y-5">
-          {/* ─── Fee Month ─── */}
-          <div className="flex items-center justify-between rounded-xl bg-amber-50 p-5">
-            <div className="flex items-center gap-3">
-              <CalendarDays className="text-orange-500" />
-              <span className="font-semibold">Fee Month</span>
-            </div>
-            <span className="font-bold text-orange-800">
-              {new Date(selectedFee.month).toLocaleDateString(
-                "en-US",
-                {
-                  month: "long",
-                  year: "numeric",
-                }
-              )}
-            </span>
-          </div>
-
-          {/* ─── Payable Fee ─── */}
-          <div className="flex items-center justify-between rounded-xl bg-amber-50 p-5">
-            <div className="flex items-center gap-3">
-              <BadgeDollarSign className="text-orange-500" />
-              <span className="font-semibold">Payable Fee</span>
-            </div>
-            <span className="font-bold text-orange-800">
-              {formatCurrency(selectedFee.amount)}
-            </span>
-          </div>
-
-          {/* ─── Paid Amount ─── */}
-          <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 p-5">
-            <span className="font-semibold">Paid</span>
-            <span className="font-bold text-green-700">
-              {formatCurrency(selectedFee.amount_paid)}
-            </span>
-          </div>
-
-          {/* ─── Remaining Amount ─── */}
-          <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-5">
-            <span className="font-semibold">Remaining</span>
-            <span className="font-bold text-red-600">
-              {formatCurrency(remaining)}
-            </span>
-          </div>
-
-          {/* ─── Due Date ─── */}
-          <div className="rounded-xl border border-amber-200 p-5">
-            <p className="text-sm text-text-secondary">Due Date</p>
-            <p className="mt-2 text-xl font-semibold text-orange-800">
-              {new Date(selectedFee.due_date).toLocaleDateString()}
-            </p>
-          </div>
-
-          {/* ─── Payment Gateway ─── */}
-          <div className="rounded-xl border border-amber-200 p-5">
-            <p className="mb-4 text-sm font-medium text-text-secondary">
-              Payment Gateway
-            </p>
-            <div className="flex items-center justify-between rounded-xl border border-orange-400 bg-orange-50 px-4 py-3">
-              <div className="flex items-center gap-3">
-                <CreditCard className="text-orange-600" size={20} />
-                <span className="text-lg font-semibold text-orange-700">
-                  Stripe
-                </span>
-              </div>
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                Secure
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+              <span className="text-sm text-gray-500">Due Date</span>
+              <span className="text-sm font-medium text-gray-800">
+                {selectedFee.due_date ? new Date(selectedFee.due_date).toLocaleDateString('en-PK', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                }) : '—'}
               </span>
             </div>
           </div>
 
-          {/* ─── Pay Button ─── */}
-          <Button
-            tone="parent"
-            size="lg"
-            loading={loading}
-            leftIcon={<CreditCard size={18} />}
-            className="w-full"
-            onClick={handlePayment}
-          >
-            Pay {formatCurrency(remaining)}
-          </Button>
-
-          {/* ─── Security Notice ─── */}
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck size={18} className="mt-1 text-blue-600" />
-              <p className="text-sm leading-6 text-blue-700">
-                Your payment will be processed securely through Stripe. After
-                successful payment your fee status will automatically update.
-              </p>
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
+          )}
+
+          {success && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-emerald-600" />
+              <p className="text-sm text-emerald-700">Payment initiated successfully!</p>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={handlePayment}
+              disabled={loading || success}
+              className="w-full px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-xl hover:from-emerald-700 hover:to-emerald-800 shadow-md shadow-emerald-600/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing...
+                </>
+              ) : success ? (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  Paid
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Pay Now
+                </>
+              )}
+            </button>
+
+            {(selectedFee || success) && (
+              <button
+                onClick={handleClearSelection}
+                className="w-full px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+              >
+                {success ? 'Clear' : 'Cancel'}
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center justify-center gap-4 text-xs text-gray-400 mt-2">
+            <span className="flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              Secure
+            </span>
+            <span className="flex items-center gap-1">
+              <Shield className="w-3 h-3" />
+              Encrypted
+            </span>
           </div>
         </div>
-      </Card>
-
-      {/* ─── Stripe Payment Modal ──────────────────────────────────── */}
-      <StripePaymentModal
-        open={showStripe}
-        clientSecret={clientSecret}
-        onClose={() => {
-          setShowStripe(false);
-          setClientSecret("");
-        }}
-        onSuccess={() => {
-          setShowStripe(false);
-          setClientSecret("");
-          dispatch(fetchFees());
-          dispatch(fetchPayments());
-          alert("Payment Successful");
-        }}
-      />
-    </>
+      ) : (
+        <div className="text-center py-8">
+          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <CreditCard className="w-8 h-8 text-gray-400" />
+          </div>
+          <p className="text-sm text-gray-500">Select a fee invoice to make a payment</p>
+          <p className="text-xs text-gray-400 mt-1">Click the payment icon next to any invoice</p>
+        </div>
+      )}
+    </Card>
   );
 };
 

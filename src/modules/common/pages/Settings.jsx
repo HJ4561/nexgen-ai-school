@@ -15,21 +15,10 @@
  * - Data fetching on mount
  * - Responsive grid layout (1 column mobile, 2 columns desktop)
  * - Shared across all user roles
- * 
- * Dependencies:
- * - react-redux for state management
- * - @/modules/common/store/settingThunks for data fetching
- * - Various settings components
- * 
- * Usage:
- * <Settings role="admin" />
- * <Settings role="teacher" />
- * <Settings role="student" />
- * <Settings role="parent" />
  * ============================================
  */
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchProfile } from "@/modules/common/store/settingThunks";
@@ -80,7 +69,7 @@ const Settings = ({ role }) => {
   }, [dispatch, role]);
 
   return (
-    <div className="mx-auto max-w-full space-y-8">
+    <div className="mx-auto max-w-full space-y-6 sm:space-y-8 px-3 sm:px-4 md:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────────────── */}
       {/* Displays page title, description, and role-based styling */}
       <SettingsHeader role={role} />
@@ -90,14 +79,18 @@ const Settings = ({ role }) => {
       <ProfileForm role={role} />
 
       {/* ─── Security & Danger Zone ──────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-5">
         {/* ─── Change Password Form ──────────────────────────────────── */}
         {/* Form for changing user password with validation */}
-        <ChangePasswordForm role={role} />
+        <div className="order-1">
+          <ChangePasswordForm role={role} />
+        </div>
 
         {/* ─── Danger Zone ───────────────────────────────────────────── */}
         {/* Account actions: logout, delete account (coming soon) */}
-        <DangerZone role={role} />
+        <div className="order-2">
+          <DangerZone role={role} />
+        </div>
       </div>
     </div>
   );

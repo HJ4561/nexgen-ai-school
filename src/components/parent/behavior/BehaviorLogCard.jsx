@@ -133,7 +133,7 @@ const BehaviorLogCard = ({
       hover={false}
       className={`border-l-4 ${config.border}`}
     >
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         {/* ============================================
             LEFT SECTION
             Icon, details, and metadata
@@ -142,7 +142,7 @@ const BehaviorLogCard = ({
         <div className="flex flex-1 gap-4">
           {/* ─── Severity Icon ─── */}
           <div
-            className={`flex h-14 w-14 items-center justify-center rounded-xl ${config.bg}`}
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${config.bg}`}
           >
             <Icon size={24} className={config.color} />
           </div>
@@ -185,7 +185,7 @@ const BehaviorLogCard = ({
             Action button
             ============================================ */}
 
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex items-end">
           <Button
             size="sm"
             tone="parent"

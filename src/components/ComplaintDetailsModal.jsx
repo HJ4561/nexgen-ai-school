@@ -17,7 +17,7 @@
  * Dependencies:
  * - @/components/ui/Modal for modal container
  * - @/components/ui/Button for close action
- * - @/components/composite/StatusBadge for status indicator
+ * - @/components/common/StatusBadge for status indicator
  * 
  * Usage:
  * <ComplaintDetailsModal
@@ -31,7 +31,7 @@
 
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
 /**
  * ============================================
@@ -80,47 +80,47 @@ const ComplaintDetailsModal = ({
       title="Complaint Details"
       size="lg"
     >
-      <div className="space-y-6">
-        {/* ─── Complaint Type ─── */}
+      <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+        {/* â”€â”€â”€ Complaint Type â”€â”€â”€ */}
         <div>
-          <p className="text-sm font-medium text-text-secondary">
+          <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
             Complaint Type
           </p>
 
-          <p className="mt-1 text-base font-semibold text-text-primary">
+          <p className="mt-1 text-base font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
             {complaint.complaint_type}
           </p>
         </div>
 
-        {/* ─── Status ─── */}
+        {/* â”€â”€â”€ Status â”€â”€â”€ */}
         <div>
-          <p className="text-sm font-medium text-text-secondary">
+          <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
             Status
           </p>
 
-          <div className="mt-2">
+          <div className="mt-2 px-4 sm:px-6 lg:px-8">
             <StatusBadge status={complaint.status} />
           </div>
         </div>
 
-        {/* ─── Description ─── */}
+        {/* â”€â”€â”€ Description â”€â”€â”€ */}
         <div>
-          <p className="text-sm font-medium text-text-secondary">
+          <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
             Description
           </p>
 
           {/* Description container with preserved whitespace */}
-          <div className="mt-2 rounded-lg bg-surface-muted p-4">
-            <p className="whitespace-pre-line text-text-primary">
+          <div className="mt-2 rounded-lg bg-surface-muted p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+            <p className="whitespace-pre-line text-text-primary px-4 sm:px-6 lg:px-8">
               {complaint.description}
             </p>
           </div>
         </div>
 
-        {/* ─── Attachment (Conditional) ─── */}
+        {/* â”€â”€â”€ Attachment (Conditional) â”€â”€â”€ */}
         {complaint.attachment_url && (
           <div>
-            <p className="text-sm font-medium text-text-secondary">
+            <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
               Attachment
             </p>
 
@@ -128,28 +128,27 @@ const ComplaintDetailsModal = ({
               href={complaint.attachment_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-block text-brand-primary hover:underline"
+              className="mt-2 inline-block md:hidden text-brand-primary hover:underline px-4 sm:px-6 lg:px-8"
             >
               View Attachment
             </a>
           </div>
         )}
 
-        {/* ─── Submitted Date ─── */}
+        {/* â”€â”€â”€ Submitted Date â”€â”€â”€ */}
         <div>
-          <p className="text-sm font-medium text-text-secondary">
+          <p className="text-sm md:text-base md:text-base font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
             Submitted On
           </p>
 
-          <p className="mt-1 text-text-primary">
+          <p className="mt-1 text-text-primary px-4 sm:px-6 lg:px-8">
             {new Date(complaint.created_at).toLocaleString()}
           </p>
         </div>
 
-        {/* ─── Footer with Close Button ─── */}
-        <div className="flex justify-end pt-2">
-          <Button
-            variant="primary"
+        {/* â”€â”€â”€ Footer with Close Button â”€â”€â”€ */}
+        <div className="flex flex-col md:flex-row justify-end pt-2 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary"
             tone={role}
             onClick={onClose}
           >

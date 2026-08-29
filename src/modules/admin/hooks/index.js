@@ -1,2 +1,2 @@
-﻿// src/modules/admin/hooks/index.js
+// src/modules/admin/hooks/index.js
 export { useRoleProfiles } from "./useRoleProfiles";

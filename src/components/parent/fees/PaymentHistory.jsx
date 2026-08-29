@@ -1,221 +1,130 @@
-/**
- * ============================================
- * PAYMENT HISTORY COMPONENT
- * ============================================
- * 
- * Purpose: Displays recent payment history for a child
- * Features:
- * - Payment amount, date, method, and transaction ID
- * - Status badges (Completed, Pending, Failed)
- * - Sorted by payment date (newest first)
- * - Limited to 5 most recent payments
- * - Empty state with icon
- * - View All button
- * - Role-based theming (parent)
- * - Responsive layout
- * 
- * Dependencies:
- * - lucide-react for icons (Receipt, ArrowRight)
- * - @/components/ui/Card for container
- * - @/components/ui/Button for action button
- * - @/components/ui/Badge for status indicator
- * - react-redux for state management
- * 
- * Usage:
- * <PaymentHistory />
- * ============================================
- */
-
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-
-import {
-  Receipt,
-  ArrowRight,
-} from "lucide-react";
-
+// src/components/parent/fees/PaymentHistory.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { History, Download, Eye, CheckCircle, XCircle } from 'lucide-react';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Badge from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/Badge';
+import { selectPayments, selectSelectedChild } from '@/modules/parent/store/parentSlice';
 
-/**
- * ============================================
- * PAYMENT HISTORY COMPONENT
- * ============================================
- * 
- * Renders a list of recent payments for the selected child
- * 
- * @returns {JSX.Element} Payment history UI
- * 
- * @example
- * // In parent fee management
- * <PaymentHistory />
- * ============================================
- */
+const formatCurrency = (amount) => {
+  if (!amount) return "PKR 0";
+  return new Intl.NumberFormat("en-PK", {
+    style: "currency",
+    currency: "PKR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
 const PaymentHistory = () => {
-  /**
-   * ============================================
-   * REDUX STATE
-   * ============================================
-   * 
-   * Retrieves payments, parentLinks, and selectedChild from Redux store
-   */
-  const {
-    payments = [],
-    parentLinks = [],
-    selectedChild,
-  } = useSelector(
-    (state) => state.parent
-  );
+  const payments = useSelector(selectPayments);
+  const selectedChild = useSelector(selectSelectedChild);
 
-  /**
-   * ============================================
-   * CURRENT CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Falls back to the first child if selectedChild is not found
-   */
-  const currentChild = useMemo(() => {
-    return (
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ) || parentLinks[0]
-    );
-  }, [parentLinks, selectedChild]);
+  // Filter payments by selected child
+  const filteredPayments = useMemo(() => {
+    let filtered = payments;
+    if (selectedChild) {
+      filtered = payments.filter(p => p.student === selectedChild || p.student_id === selectedChild);
+    }
+    return filtered.slice(0, 5); // Show last 5 payments
+  }, [payments, selectedChild]);
 
-  /**
-   * ============================================
-   * CHILD PAYMENTS
-   * ============================================
-   * 
-   * Filters payments for the selected child
-   * Sorts by payment date (newest first)
-   * Limits to 5 most recent payments
-   */
-  const childPayments = useMemo(() => {
-    if (!currentChild) return [];
-
-    return payments
-      .filter(
-        (payment) => payment.student_name === currentChild.student_name
-      )
-      .sort(
-        (a, b) => new Date(b.payment_date) - new Date(a.payment_date)
-      )
-      .slice(0, 5);
-  }, [payments, currentChild]);
-
-  /**
-   * ============================================
-   * BADGE VARIANT MAPPING
-   * ============================================
-   * 
-   * Maps payment status to Badge component variants
-   * - Completed: success (green)
-   * - Pending: warning (yellow)
-   * - Failed: danger (red)
-   * - Unknown: neutral (gray)
-   */
-  const getVariant = (status) => {
-    switch (status) {
-      case "Completed":
-        return "success";
-      case "Pending":
-        return "warning";
-      case "Failed":
-        return "danger";
-      default:
-        return "neutral";
+  const getStatusBadge = (status) => {
+    switch(status) {
+      case 'completed': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'failed': return 'bg-red-50 text-red-700 border-red-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
-  /**
-   * ============================================
-   * CURRENCY FORMATTER
-   * ============================================
-   * 
-   * Formats a number as PKR currency with commas
-   * 
-   * @param {number} amount - Amount to format
-   * @returns {string} Formatted currency string
-   */
-  const formatCurrency = (amount) =>
-    `PKR ${Number(amount).toLocaleString()}`;
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'completed': return <CheckCircle className="w-3 h-3" />;
+      case 'failed': return <XCircle className="w-3 h-3" />;
+      default: return null;
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '—';
+    try {
+      return new Date(dateString).toLocaleDateString('en-PK', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return '—';
+    }
+  };
+
+  if (filteredPayments.length === 0) {
+    return (
+      <Card className="p-4 md:p-6 text-center border border-gray-100">
+        <div className="flex flex-col items-center gap-2">
+          <History className="w-8 h-8 text-gray-300" />
+          <p className="text-sm text-gray-500">No payment history found</p>
+          <p className="text-xs text-gray-400">Payments will appear here once made</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <Card hover={false}>
-      {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6 flex items-center justify-between z-0">
-        <div>
-          <h2 className="text-xl font-semibold text-text-primary">
-            Payment History
-          </h2>
-
-          <p className="mt-1 text-sm text-text-secondary">
-            Recent fee payments.
-          </p>
+    <Card className="p-4 md:p-6 border border-gray-100 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <History className="w-5 h-5 text-gray-600" />
+          <h3 className="text-base md:text-lg font-semibold text-gray-800">Recent Payments</h3>
         </div>
-
-        {/* View All Button */}
-        <Button
-          variant="ghost"
-          tone="parent"
-          size="sm"
-          rightIcon={<ArrowRight size={16} />}
-        >
+        <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
           View All
-        </Button>
+        </button>
       </div>
 
-      {/* ─── Empty State ────────────────────────────────────────── */}
-      {childPayments.length === 0 ? (
-        <div className="flex h-64 flex-col items-center justify-center">
-          <Receipt size={40} className="text-slate-400" />
-          <p className="mt-4 font-medium">No Payments Found</p>
-          <p className="mt-1 text-sm text-text-secondary">
-            Payment history will appear here.
-          </p>
-        </div>
-      ) : (
-        // ─── Payment List ──────────────────────────────────────────
-        <div className="space-y-4">
-          {childPayments.map((payment) => (
-            <div
-              key={payment.id}
-              className="flex flex-col gap-4 rounded-xl border border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between"
-            >
-              {/* ─── Payment Details ─── */}
-              <div>
-                {/* Amount */}
-                <h4 className="font-semibold text-text-primary">
-                  {formatCurrency(payment.amount)}
-                </h4>
-
-                {/* Payment Date */}
-                <p className="mt-1 text-sm text-text-secondary">
-                  {new Date(payment.payment_date).toLocaleDateString()}
-                </p>
-
-                {/* Payment Method */}
-                <p className="mt-1 text-sm text-text-secondary">
-                  {payment.payment_method}
-                </p>
-
-                {/* Transaction ID */}
-                <p className="mt-1 text-xs text-slate-500">
-                  Transaction ID: {payment.transaction_id}
-                </p>
+      <div className="space-y-3">
+        {filteredPayments.map((payment) => (
+          <div
+            key={payment.id}
+            className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors gap-2"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+                <History className="w-4 h-4 text-emerald-600" />
               </div>
-
-              {/* ─── Status Badge ─── */}
-              <Badge variant={getVariant(payment.status)}>
-                {payment.status}
-              </Badge>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate">
+                  {payment.payment_method || 'Online Payment'}
+                </p>
+                <p className="text-xs text-gray-500">{formatDate(payment.payment_date)}</p>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
+
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="text-right">
+                <p className="text-sm font-semibold text-gray-800">
+                  {formatCurrency(payment.amount_paid)}
+                </p>
+                <Badge className={`${getStatusBadge(payment.status)} text-[10px] flex items-center gap-1`}>
+                  {getStatusIcon(payment.status)}
+                  {payment.status || 'Completed'}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-1">
+                {payment.receipt_url && (
+                  <button className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors" title="Download receipt">
+                    <Download className="w-4 h-4" />
+                  </button>
+                )}
+                <button className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors" title="View details">
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </Card>
   );
 };

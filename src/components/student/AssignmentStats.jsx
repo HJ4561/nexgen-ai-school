@@ -41,37 +41,36 @@ import { ClipboardList, Clock3, Send, Award } from "lucide-react";
  * @returns {JSX.Element} Metric card UI
  */
 const MetricCard = ({ label, value, footer, icon: Icon, colors, share }) => (
-  <div className="group relative overflow-hidden rounded-2xl border border-student-border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60">
+  <div className="group relative overflow-hidden md:block md:hidden rounded-2xl border border-student-border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 px-4 sm:px-6 lg:px-8">
     {/* ─── Ambient Glow ─── */}
     <div
-      aria-hidden
-      className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20"
+      aria-hidden="true" className="pointer-events-none absolute -right-8 -top-4 sm:p-6 sm:p-8 h-28 w-28 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20 px-4 sm:px-6 lg:px-8"
       style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
     />
 
-    <div className="relative flex items-start justify-between">
+    <div className="relative flex flex-col md:flex-row items-start justify-between px-4 sm:px-6 lg:px-8">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-        <p className="mt-1.5 text-3xl font-semibold text-slate-800">{value}</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 px-4 sm:px-6 lg:px-8">{label}</p>
+        <p className="mt-1.5 text-3xl font-semibold text-slate-800 px-4 sm:px-6 lg:px-8">{value}</p>
       </div>
       {/* ─── Icon Container ─── */}
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-105"
+        className="flex flex-col md:flex-row h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-105 px-4 sm:px-6 lg:px-8"
         style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
       >
         <Icon size={20} strokeWidth={2.25} />
       </div>
     </div>
 
-    <div className="relative mt-4 space-y-1.5">
+    <div className="relative mt-4 space-y-1.5 px-4 sm:px-6 lg:px-8">
       {/* ─── Progress Bar ─── */}
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+      <div className="h-1.5 w-full overflow-hidden md:block md:hidden rounded-full bg-slate-100 px-4 sm:px-6 lg:px-8">
         <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
+          className="h-full rounded-full transition-all duration-700 ease-out px-4 sm:px-6 lg:px-8"
           style={{ width: `${share}%`, background: `linear-gradient(90deg, ${colors[0]}, ${colors[1]})` }}
         />
       </div>
-      <p className="text-sm font-medium text-slate-500">{footer}</p>
+      <p className="text-sm md:text-base md:text-base font-medium text-slate-500 px-4 sm:px-6 lg:px-8">{footer}</p>
     </div>
   </div>
 );
@@ -165,7 +164,7 @@ function AssignmentStats({ assignments = [] }) {
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 md:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 px-4 sm:px-6 lg:px-8">
       {cards.map((card) => (
         <MetricCard key={card.label} {...card} />
       ))}

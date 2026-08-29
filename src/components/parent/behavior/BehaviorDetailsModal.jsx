@@ -16,7 +16,10 @@ const BehaviorDetailsModal = ({ log, onClose, onEdit }) => {
                 <h2 className="text-xl font-bold text-white">Behavior Log Details</h2>
                 <p className="text-sm text-white/80 mt-0.5">{log.student || 'Student'}</p>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all">
+              <button
+                onClick={onClose}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -30,7 +33,7 @@ const BehaviorDetailsModal = ({ log, onClose, onEdit }) => {
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Type</p>
                 <Badge className={log.type === 'positive' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 mt-1' : 'bg-rose-50 text-rose-700 border-rose-200 mt-1'}>
-                  {log.type === 'positive' ? <ThumbsUp className="w-3 h-3 mr-1" /> : <ThumbsDown className="w-3 h-3 mr-1" />}
+                  {log.type === 'positive' ? <ThumbsUp className="w-3 h-3 mr-1 inline" /> : <ThumbsDown className="w-3 h-3 mr-1 inline" />}
                   {log.type}
                 </Badge>
               </div>
@@ -48,8 +51,18 @@ const BehaviorDetailsModal = ({ log, onClose, onEdit }) => {
               </div>
             </div>
             <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-              <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all">Close</button>
-              <button onClick={onEdit} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-600/25">Edit Log</button>
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all"
+              >
+                Close
+              </button>
+              <button
+                onClick={onEdit}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-600/25"
+              >
+                Edit Log
+              </button>
             </div>
           </div>
         </div>

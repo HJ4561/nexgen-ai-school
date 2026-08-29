@@ -37,20 +37,21 @@
  * ============================================
  */
 
+// ✅ CORRECT: No .jsx extension for package imports
 import {
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
 
-import DashboardLayout from "@/layouts/DashboardLayout";
-import ProtectedRoute from "./ProtectedRoutes";
-import AiWorkspacePage from "@/modules/chat/pages/AiWorkspacePage/AiWorkspacePage";
-import PublicRoutes from "./PublicRoutes";
-import AdminRoutes from "./AdminRoutes";
-import TeacherRoutes from "./TeacherRoutes";
-import StudentRoutes from "./StudentRoutes";
-import ParentRoutes from "./ParentRoutes";
+import DashboardLayout from "@/layouts/DashboardLayout.jsx";
+import ProtectedRoute from "./ProtectedRoutes.jsx";
+import AiWorkspacePage from "@/modules/chat/pages/AiWorkspacePage/AiWorkspacePage.jsx";
+import PublicRoutes from "./PublicRoutes.jsx";
+import AdminRoutesComponent from "./AdminRoutes.jsx";
+import TeacherRoutes from "./TeacherRoutes.jsx";
+import StudentRoutes from "./StudentRoutes.jsx";
+import ParentRoutes from "./ParentRoutes.jsx";
 
 /**
  * AppRoutes Component
@@ -75,7 +76,7 @@ function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           {/* Role-based routes */}
-          {AdminRoutes}
+          {AdminRoutesComponent}
           {TeacherRoutes}
           {StudentRoutes}
           {ParentRoutes}
@@ -100,13 +101,3 @@ function AppRoutes() {
 }
 
 export default AppRoutes;
-
-
-
-
-
-
-
-
-
-

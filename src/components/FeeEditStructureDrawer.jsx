@@ -106,7 +106,12 @@ export default function FeeEditStructureDrawer({
       footer={
         // ─── Drawer Footer with Action Buttons ───
         <div className="flex gap-3">
-          <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
+          <Button
+            variant="outline"
+            tone="admin"
+            fullWidth
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

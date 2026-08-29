@@ -30,12 +30,12 @@
  * - React
  * 
  * Usage:
- * <Table
+ * <div class="overflow-x-auto -mx-4 sm:mx-6 lg:mx-8 sm:mx-6 lg:mx-8 sm:mx-0"><div class="inline-block md:hidden min-w-full align-middle"><table
  *   columns={columns}
  *   data={students}
  *   loading={isLoading}
  *   emptyMessage="No students found"
- *   className="mt-4"
+ *   className="mt-4 px-4 sm:px-6 lg:px-8"
  *   bgColor="bg-white"
  * />
  * ============================================
@@ -67,7 +67,7 @@
  *   { key: "status", label: "Status", render: (row) => <Badge>{row.status}</Badge> }
  * ];
  * 
- * <Table
+ * <div class="overflow-x-auto -mx-4 sm:mx-6 lg:mx-8 sm:mx-6 lg:mx-8 sm:mx-0"><div class="inline-block md:hidden min-w-full align-middle"><table
  *   columns={columns}
  *   data={students}
  *   loading={isLoading}
@@ -92,8 +92,8 @@ function Table({
    */
   if (loading) {
     return (
-      <div className="rounded-card border border-slate-200 bg-surface p-8 text-center">
-        <p className="text-text-secondary">Loading...</p>
+      <div className="rounded-card border border-slate-200 bg-surface p-4 sm:p-6 sm:p-8 text-center px-4 sm:px-6 lg:px-8">
+        <p className="text-text-secondary px-4 sm:px-6 lg:px-8">Loading...</p>
       </div>
     );
   }
@@ -109,8 +109,7 @@ function Table({
      */
     <div
       className={`
-        overflow-hidden
-        rounded-card
+        overflow-hidden md:block md:hidden rounded-card
         border
         border-slate-200
         ${bgColor}
@@ -119,12 +118,12 @@ function Table({
       `}
     >
       {/* ─── Horizontal scrolling on small screens ─── */}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-max">
+      <div className="overflow-x-auto px-4 sm:px-6 lg:px-8">
+        <div class="overflow-x-auto -mx-4 sm:mx-6 lg:mx-8 sm:mx-6 lg:mx-8 sm:mx-0"><div class="inline-block md:hidden min-w-full align-middle"><table className="w-full min-w-max px-4 sm:px-6 lg:px-8">
           {/* ============================================
               TABLE HEADER
               ============================================ */}
-          <thead className="bg-slate-50">
+          <thead className="bg-slate-50 px-4 sm:px-6 lg:px-8">
             <tr>
               {columns.map((column) => (
                 <th
@@ -135,10 +134,9 @@ function Table({
                     px-5
                     py-4
                     text-left
-                    text-sm
-                    font-semibold
+                    text-sm md:text-base md:text-base font-semibold
                     text-text-primary
-                  "
+                   px-4 sm:px-6 lg:px-8"
                 >
                   {column.label}
                 </th>
@@ -160,7 +158,7 @@ function Table({
                     py-10
                     text-center
                     text-text-secondary
-                  "
+                   px-4 sm:px-6 lg:px-8"
                 >
                   {emptyMessage}
                 </td>
@@ -173,7 +171,7 @@ function Table({
                   className="
                     transition-colors
                     hover:bg-slate-50
-                  "
+                   px-4 sm:px-6 lg:px-8"
                 >
                   {/* ─── Render Table Cells ─── */}
                   {columns.map((column) => (
@@ -184,9 +182,8 @@ function Table({
                         border-slate-100
                         px-5
                         py-4
-                        text-sm
-                        text-text-secondary
-                      "
+                        text-sm md:text-base md:text-base text-text-secondary
+                       px-4 sm:px-6 lg:px-8"
                     >
                       {/* Use custom renderer if available,
                           otherwise display field value */}
@@ -199,7 +196,7 @@ function Table({
               ))
             )}
           </tbody>
-        </table>
+        </table></div></div>
       </div>
     </div>
   );

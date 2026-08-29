@@ -129,18 +129,19 @@ export default function EventDrawer({
       width="max-w-[350px]"
       footer={
         <div className="flex gap-3">
-          <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            tone="admin"
-            fullWidth
-            onClick={onSave}
-            disabled={loading || !formData.event_name || !formData.event_date || !formData.venue}
+          <button
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+            onClick={onClose}
           >
-            {mode === 'add' ? 'Create' : 'Save'}
-          </Button>
+            Cancel
+          </button>
+          <button
+            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[var(--color-admin-primary)] rounded-lg hover:bg-[var(--color-admin-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onSave}
+            disabled={loading || !formData.name || !formData.event_date || !formData.venue}
+          >
+            {loading ? 'Saving...' : mode === 'add' ? 'Create' : 'Save'}
+          </button>
         </div>
       }
     >
@@ -151,12 +152,12 @@ export default function EventDrawer({
             Event Name <span className="text-[var(--color-danger)]">*</span>
           </label>
           <input
-  type="text"
-  value={formData.name || ''}  // Changed from event_name
-  onChange={(e) => setFormData({ ...formData, name: e.target.value })}  // Changed from event_name
-  placeholder="e.g., Annual Science Symposium"
-  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-transparent text-sm"
-/>
+            type="text"
+            value={formData.name || ''}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="e.g., Annual Science Symposium"
+            className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-transparent text-sm"
+          />
         </div>
 
         {/* ─── Date & Time ────────────────────────────────────────────────── */}
@@ -202,17 +203,3 @@ export default function EventDrawer({
     </Drawer>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

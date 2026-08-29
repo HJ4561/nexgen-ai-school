@@ -31,14 +31,14 @@
 import { Route } from "react-router-dom";
 
 // ─── Public Pages ──────────────────────────────────────────────────────
-import HomePage from "@/modules/public/HomePage";
+import HomePage from "@/modules/public/HomePage.jsx";
 
 // ─── Auth Pages ────────────────────────────────────────────────────────
-import AuthLayout from "@/layouts/AuthLayout";
-import Login from "@/modules/auth/pages/Login";
-import Register from "@/modules/auth/pages/Register";
-import ForgotPassword from "@/modules/auth/pages/ForgotPassword";
-import PendingApproval from "@/modules/auth/pages/PendingApproval";
+import AuthLayout from "@/layouts/AuthLayout.jsx";
+import Login from "@/modules/auth/pages/Login.jsx";
+import Register from "@/modules/auth/pages/Register.jsx";
+import ForgotPassword from "@/modules/auth/pages/ForgotPassword.jsx";
+import PendingApproval from "@/modules/auth/pages/PendingApproval.jsx";
 
 const PublicRoutes = (
   <>

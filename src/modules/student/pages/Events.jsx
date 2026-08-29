@@ -1,56 +1,30 @@
+// src/modules/student/pages/Events.jsx
+
 /**
  * ============================================
- * STUDENT EVENTS & PARTICIPATIONS COMPONENT
+ * STUDENT EVENTS & PARTICIPATIONS - MODERN UI/UX
  * ============================================
  * 
- * Purpose: Displays student's event participation history and certificates
- * Used by: Student module routes
+ * Design Philosophy:
+ * - Clean, minimal, professional
+ * - Card-based layout with depth
+ * - Smooth micro-interactions
+ * - Clear visual hierarchy
+ * - Responsive and accessible
  * 
- * Features:
- * - Participation history with numbered ticket stub design
- * - Certificate display with seal design
- * - Statistics tiles (Events joined, Certificates, Podium finishes)
- * - Event details modal with full information
- * - Certificate verification details
- * - Loading state with spinner
- * - Empty states for no data
- * - Role-based theming (student primary color)
- * - Responsive design
+ * API Endpoints:
+ * - GET /api/events/events/ - List events
+ * - GET /api/events/event-participation/ - List participations
+ * - GET /api/events/certificates/ - List certificates
  * 
- * Design Notes:
- * This page is a personal record of a student's history —
- * part timeline, part awards case. The visual language leans
- * into that: participation entries read like numbered ticket
- * stubs (they ARE chronological, so numbering earns its keep),
- * and certificates read like small sealed credentials, with a
- * circular seal mark and a formal, ledger-like frame. Headings
- * use a serif for a slightly ceremonial tone; everything else
- * stays quiet so the two signature card types can carry the
- * page.
- * 
- * Dependencies:
- * - lucide-react for icons
- * - @/components/ui/Card for containers
- * - @/components/ui/Badge for status indicators
- * - @/components/ui/Button for action buttons
- * - @/modules/student/store/studentThunks for data fetching
- * - react-redux for state management
- * 
- * Usage:
- * <Route path="/student/events" element={<Events />} />
+ * USAGE OF NEW API FIELDS:
+ * - organizer_name, event_name, student_name (READ-ONLY)
  * ============================================
  */
 
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
-
+import { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays,
   Users,
@@ -60,289 +34,395 @@ import {
   Trophy,
   ScrollText,
   Hash,
+  MapPin,
+  Clock,
+  Calendar,
+  CheckCircle,
+  RefreshCw,
+  Search,
+  Filter,
+  ChevronDown,
+  Loader2,
+  Medal,
+  Star,
+  ExternalLink,
+  User,
+  Sparkles,
+  TrendingUp,
+  Clock as ClockIcon,
+  Layers,
+  Zap,
+  Crown,
+  Gift,
+  Heart,
+  Target,
 } from "lucide-react";
+
+import PageHeader from "@/components/layout/PageHeader";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 import {
   fetchParticipations,
   fetchCertificates,
+  fetchEvents,
 } from "@/modules/student/store/studentThunks";
+import {
+  selectStudentParticipations,
+  selectStudentCertificates,
+  selectStudentEvents,
+  selectStudentLoading,
+  selectStudentError,
+} from "@/modules/student/store/studentSlice";
 
-import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
+// ─── Smart Name Resolution ────────────────────────────────────────────
 
-/**
- * ============================================
- * TONE STYLES
- * ============================================
- * 
- * Color schemes for different stat tiles
- * - indigo: Primary student color
- * - amber: Warm/gold color for events
- * - emerald: Green for certificates
- * - rose: Pink/red for achievements
- */
-const TONE_STYLES = {
-  indigo: { bg: "bg-indigo-500", text: "text-indigo-600", ring: "ring-indigo-500/15" },
-  amber: { bg: "bg-amber-500", text: "text-amber-600", ring: "ring-amber-500/15" },
-  emerald: { bg: "bg-emerald-500", text: "text-emerald-600", ring: "ring-emerald-500/15" },
-  rose: { bg: "bg-rose-500", text: "text-rose-600", ring: "ring-rose-500/15" },
+const getEventName = (item) => {
+  if (item.event_name && item.event_name !== 'null') return item.event_name;
+  if (item.event) {
+    if (typeof item.event === 'string') return item.event;
+    if (item.event.name) return item.event.name;
+    if (item.event.event_name) return item.event.event_name;
+  }
+  return "Event";
 };
 
-/**
- * ============================================
- * STAT TILE COMPONENT
- * ============================================
- * 
- * Ledger-strip style: a quiet top rule, a large serif numeral,
- * and a small icon mark rather than a heavy icon block.
- * 
- * @param {Object} props - Component props
- * @param {string} props.label - Stat label
- * @param {number|string} props.value - Stat value
- * @param {string} props.subtext - Additional text below value
- * @param {Component} props.icon - Lucide icon component
- * @param {string} props.tone - Color tone (indigo, amber, emerald, rose)
- * @returns {JSX.Element} Stat tile UI
- */
-function StatTile({ label, value, subtext, icon: Icon, tone = "indigo" }) {
-  const t = TONE_STYLES[tone];
+const getOrganizerName = (item) => {
+  if (item.organizer_name && item.organizer_name !== 'null') return item.organizer_name;
+  if (item.organizer) {
+    if (typeof item.organizer === 'string') return item.organizer;
+    if (item.organizer.name) return item.organizer.name;
+    if (item.organizer.user_name) return item.organizer.user_name;
+  }
+  return null;
+};
+
+const getStudentName = (item) => {
+  if (item.student_name && item.student_name !== 'null') return item.student_name;
+  if (item.student) {
+    if (typeof item.student === 'string') return item.student;
+    if (item.student.name) return item.student.name;
+    if (item.student.user_name) return item.student.user_name;
+  }
+  return null;
+};
+
+// ─── Toast Component ──────────────────────────────────────────────────
+
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const config = {
+    success: { icon: CheckCircle, bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-600" },
+    error: { icon: X, bg: "bg-red-50", border: "border-red-200", text: "text-red-600" },
+    info: { icon: Sparkles, bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-600" },
+  };
+
+  const { icon: Icon, bg, border, text } = config[type] || config.info;
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-student-border/60 bg-surface px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-      {/* Top accent bar */}
-      <div className={`absolute inset-x-0 top-0 h-0.75 ${t.bg}`} />
-
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          {label}
-        </p>
-        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${t.ring} ring-4 ${t.text} transition-transform duration-300 group-hover:scale-110`}>
-          <Icon size={14} strokeWidth={2.5} />
-        </div>
-      </div>
-
-      <p className="mt-3 font-serif text-4xl font-semibold tracking-tight text-text-primary">
-        {value}
-      </p>
-
-      {subtext && (
-        <p className="mt-1.5 text-xs font-medium text-text-secondary">
-          {subtext}
-        </p>
-      )}
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border ${border} ${bg} px-5 py-3.5 shadow-xl backdrop-blur-sm`}
+    >
+      <Icon className={`h-5 w-5 ${text}`} />
+      <span className="text-sm font-medium text-gray-800">{message}</span>
+    </motion.div>
   );
-}
+};
 
-/**
- * ============================================
- * DETAIL ROW COMPONENT
- * ============================================
- * 
- * Used in the modal to display detail items with icons
- * 
- * @param {Object} props - Component props
- * @param {Component} props.icon - Lucide icon component
- * @param {string} props.label - Detail label
- * @param {string} props.value - Detail value
- * @returns {JSX.Element} Detail row UI
- */
-function DetailRow({ icon: Icon, label, value }) {
-  if (!value) return null;
+// ─── Stat Card ─────────────────────────────────────────────────────────
+
+const StatCard = ({ label, value, subtext, icon: Icon, color, delay }) => {
+  const colors = {
+    purple: { bg: "from-purple-50 to-purple-100/50", text: "text-purple-600", ring: "ring-purple-400/20" },
+    emerald: { bg: "from-emerald-50 to-emerald-100/50", text: "text-emerald-600", ring: "ring-emerald-400/20" },
+    amber: { bg: "from-amber-50 to-amber-100/50", text: "text-amber-600", ring: "ring-amber-400/20" },
+    blue: { bg: "from-blue-50 to-blue-100/50", text: "text-blue-600", ring: "ring-blue-400/20" },
+    rose: { bg: "from-rose-50 to-rose-100/50", text: "text-rose-600", ring: "ring-rose-400/20" },
+    indigo: { bg: "from-indigo-50 to-indigo-100/50", text: "text-indigo-600", ring: "ring-indigo-400/20" },
+  };
+
+  const c = colors[color] || colors.purple;
 
   return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-student-primary/10 text-student-primary">
-        <Icon size={16} strokeWidth={2.25} />
-      </div>
-      <div className="pt-0.5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
-          {label}
-        </p>
-        <p className="mt-0.5 text-sm font-medium text-text-primary">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: delay || 0, duration: 0.4 }}
+      whileHover={{ y: -4 }}
+      className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-lg"
+    >
+      <div className={`absolute inset-0 bg-gradient-to-br ${c.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+      <div className="relative">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">
+            {label}
+          </p>
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-white ring-4 ${c.ring} ${c.text} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+            <Icon size={18} strokeWidth={2} className={c.text} />
+          </div>
+        </div>
+        <p className="mt-3 text-3xl font-bold tracking-tight text-gray-900">
           {value}
         </p>
+        {subtext && (
+          <p className="mt-0.5 text-xs font-medium text-gray-500">
+            {subtext}
+          </p>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
 
-/**
- * ============================================
- * PARTICIPATION CARD COMPONENT
- * ============================================
- * 
- * A numbered ticket stub. The dashed divider + notches nod to
- * a real stub without overdoing it; the number is genuine
- * information (position in the history), not decoration.
- * 
- * @param {Object} props - Component props
- * @param {Object} props.participation - Participation data
- * @param {number} props.index - Index in the list (for numbering)
- * @param {Function} props.onViewDetails - Callback to view details
- * @returns {JSX.Element} Participation card UI
- */
-function ParticipationCard({ participation, index, onViewDetails }) {
-  const isWinner = Boolean(participation.position);
+// ─── Participation Card ───────────────────────────────────────────────
+
+const ParticipationCard = ({ participation, index, onViewDetails }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const isWinner = Boolean(participation.position || participation.rank);
+  const position = participation.position || participation.rank;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return "N/A";
+    }
+  };
+
+  const eventName = getEventName(participation);
+  const organizerName = getOrganizerName(participation.event || participation);
+  const studentName = getStudentName(participation);
+  const eventDate = participation.event?.event_date || participation.event_date || participation.created_at;
+  const eventLocation = participation.event?.location || participation.location;
+
+  // Get position badge color
+  const getPositionColor = (pos) => {
+    const lower = String(pos).toLowerCase();
+    if (lower.includes('1') || lower.includes('first') || lower.includes('gold')) return 'bg-amber-100 text-amber-700 border-amber-200';
+    if (lower.includes('2') || lower.includes('second') || lower.includes('silver')) return 'bg-gray-200 text-gray-700 border-gray-300';
+    if (lower.includes('3') || lower.includes('third') || lower.includes('bronze')) return 'bg-orange-100 text-orange-700 border-orange-200';
+    return 'bg-purple-100 text-purple-700 border-purple-200';
+  };
 
   return (
-    <Card className="group relative overflow-visible border-student-border/60 transition-all duration-300 hover:border-student-primary/30 hover:shadow-md hover:shadow-student-primary/5">
-      <div className="flex items-stretch gap-0">
-        {/* Stub number panel */}
-        <div className="relative flex w-16 shrink-0 flex-col items-center justify-center border-r border-dashed border-student-border/70 pr-4">
-          <span className="font-serif text-2xl font-semibold text-student-primary/70">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-widest text-text-muted">
-            Entry
-          </span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="group relative overflow-hidden rounded-xl border border-gray-100 bg-white transition-all duration-300 hover:border-purple-200 hover:shadow-lg"
+    >
+      {/* Status bar */}
+      <div className={`absolute left-0 top-0 h-full w-1 transition-colors duration-300 ${
+        isWinner ? 'bg-amber-400' : 'bg-purple-400'
+      }`} />
 
-          {/* notch cutouts, top and bottom */}
-          <span className="absolute -top-2 -right-2.25 h-4 w-4 rounded-full bg-page" />
-          <span className="absolute -bottom-2 -right-2.25 h-4 w-4 rounded-full bg-page" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 pl-6">
+        {/* Entry number */}
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="font-mono text-sm font-medium text-gray-400">
+            #{String(index + 1).padStart(2, "0")}
+          </span>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 pl-5 py-1 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h3 className="text-lg font-bold tracking-tight text-text-primary">
-              {participation.event_name}
-            </h3>
-
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
-              <span className="flex items-center gap-1.5">
-                <CalendarDays size={14} className="text-text-muted" />
-                {new Date(participation.event_date).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Users size={14} className="text-text-muted" />
-                {participation.role}
-              </span>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="text-base font-semibold text-gray-900 truncate">
+                {eventName}
+              </h3>
+              <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
+                <span className="flex items-center gap-1.5">
+                  <Calendar size={12} className="text-gray-400" />
+                  {formatDate(eventDate)}
+                </span>
+                {eventLocation && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={12} className="text-gray-400" />
+                    {eventLocation}
+                  </span>
+                )}
+                {organizerName && (
+                  <span className="flex items-center gap-1.5">
+                    <User size={12} className="text-gray-400" />
+                    {organizerName}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {isWinner && (
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPositionColor(position)}`}>
+                  <Trophy size={11} />
+                  {position}
+                </span>
+              )}
+              {participation.certificate && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+                  <Award size={11} />
+                  Certificate
+                </span>
+              )}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            {isWinner && (
-              <Badge variant="success" className="gap-1">
-                <Trophy size={12} />
-                {participation.position}
-              </Badge>
-            )}
-
-            {participation.certificate && (
-              <Badge variant="info" className="gap-1">
-                <Award size={12} />
-                Certificate earned
-              </Badge>
-            )}
-
-            <Button
-              variant="outline"
-              tone="student"
-              size="sm"
-              onClick={() => onViewDetails(participation)}
-              className="group/btn text-xs py-1.5 px-3 transition-all duration-200 hover:bg-student-primary hover:text-white"
-            >
-              <span className="flex items-center gap-1.5">
-                Details
-                <ArrowUpRight size={13} className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-              </span>
-            </Button>
-          </div>
         </div>
+
+        {/* Action */}
+        <button
+          onClick={() => onViewDetails(participation)}
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all shrink-0"
+        >
+          Details
+          <ArrowUpRight size={14} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </button>
       </div>
-    </Card>
+    </motion.div>
   );
-}
+};
 
-/**
- * ============================================
- * CERTIFICATE CARD COMPONENT
- * ============================================
- * 
- * A small sealed credential: a circular "seal" mark instead of
- * a plain icon tile, a hairline inset frame, and the citation
- * set in serif italics like an actual certificate would print it.
- * 
- * @param {Object} props - Component props
- * @param {Object} props.certificate - Certificate data
- * @param {Function} props.onViewDetails - Callback to view details
- * @returns {JSX.Element} Certificate card UI
- */
-function CertificateCard({ certificate, onViewDetails }) {
+// ─── Certificate Card ─────────────────────────────────────────────────
+
+const CertificateCard = ({ certificate, onViewDetails }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "N/A";
+    }
+  };
+
+  const eventName = getEventName(certificate.event || certificate);
+  const certType = certificate.cert_type || certificate.type || "Merit";
+  const certName = certificate.name || eventName || `Certificate ${certificate.id}`;
+  const issuedDate = certificate.issued_at || certificate.created_at;
+
+  const typeColors = {
+    merit: "border-amber-200 bg-amber-50 text-amber-700",
+    participation: "border-blue-200 bg-blue-50 text-blue-700",
+    achievement: "border-purple-200 bg-purple-50 text-purple-700",
+    excellence: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  };
+
+  const typeColor = typeColors[certType.toLowerCase()] || typeColors.merit;
+
   return (
-    <Card className="group relative overflow-hidden border-student-border/60 transition-all duration-300 hover:-translate-y-1 hover:border-student-primary/30 hover:shadow-lg hover:shadow-student-primary/6">
-      <div className="pointer-events-none absolute inset-2 rounded-xl border border-dashed border-student-primary/15" />
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -4 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="group relative overflow-hidden rounded-xl border border-gray-100 bg-white transition-all duration-300 hover:border-purple-200 hover:shadow-lg"
+    >
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/0 via-purple-50/0 to-purple-50/0 group-hover:from-purple-50/30 group-hover:to-purple-50/10 transition-all duration-500" />
 
-      <div className="relative flex flex-col gap-4 p-1">
-        <div className="flex items-start justify-between">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-student-primary/25 bg-student-primary/5 text-student-primary transition-transform duration-300 group-hover:rotate-12">
-            <Award size={20} strokeWidth={2} />
+      {/* Decorative corner */}
+      <div className="absolute -top-8 -right-8 h-16 w-16 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      <div className="relative p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${typeColor} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+            <Award size={20} strokeWidth={2} className={typeColor.split(' ')[2]} />
           </div>
-
-          <Badge variant="secondary" className="capitalize text-[10px] py-0.5 px-2">
-            {certificate.cert_type || "Merit"}
-          </Badge>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${typeColor}`}>
+            {certType}
+          </span>
         </div>
 
         <div>
-          <h3 className="font-serif text-lg font-semibold tracking-tight text-text-primary">
-            Certificate of Recognition
+          <h3 className="text-base font-semibold text-gray-900 truncate">
+            {certName}
           </h3>
-          <p className="mt-1.5 line-clamp-2 font-serif text-sm italic leading-6 text-text-secondary">
-            "{certificate.generated_text}"
-          </p>
+          {certificate.description && (
+            <p className="mt-1 text-xs text-gray-500 line-clamp-2">
+              {certificate.description}
+            </p>
+          )}
+          {certificate.generated_text && (
+            <p className="mt-1 text-xs italic text-gray-400 line-clamp-2">
+              "{certificate.generated_text}"
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center justify-between border-t border-student-border/50 pt-3">
-          <span className="flex items-center gap-1 text-[11px] font-mono tracking-wide text-text-muted">
-            <Hash size={11} />
-            {certificate.id}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3 mt-3">
+          <span className="flex items-center gap-1.5 text-[10px] font-mono text-gray-400">
+            <Hash size={10} />
+            #CER-{String(certificate.id).padStart(4, "0")}
           </span>
-
-          <Button
-            variant="outline"
-            tone="student"
-            size="sm"
+          <span className="flex items-center gap-1 text-[10px] text-gray-400">
+            <Calendar size={10} />
+            {formatDate(issuedDate)}
+          </span>
+          <button
             onClick={() => onViewDetails(certificate)}
-            className="group/btn text-xs py-1.5 px-3 transition-all duration-200 hover:bg-student-primary hover:text-white"
+            className="flex items-center gap-1 text-xs font-medium text-purple-600 hover:text-purple-700 transition-colors"
           >
-            <span className="flex items-center gap-1">
-              View
-              <ArrowUpRight size={13} className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-            </span>
-          </Button>
+            View
+            <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
         </div>
       </div>
-    </Card>
+    </motion.div>
   );
-}
+};
 
-/**
- * ============================================
- * EVENT DETAILS MODAL COMPONENT
- * ============================================
- * 
- * Modal displaying detailed information about a participation or certificate
- * 
- * @param {Object} props - Component props
- * @param {Object} props.item - Selected item (participation or certificate)
- * @param {Function} props.onClose - Close modal callback
- * @returns {JSX.Element|null} Modal UI or null
- */
-function EventDetailsModal({ item, onClose }) {
+// ─── Empty State ───────────────────────────────────────────────────────
+
+const EmptyState = ({ icon: Icon, title, description, action }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white rounded-xl border border-gray-100 p-12 text-center"
+  >
+    <div className="flex flex-col items-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 border border-gray-200">
+        <Icon size={28} className="text-gray-300" />
+      </div>
+      <h3 className="mt-4 text-lg font-semibold text-gray-800">{title}</h3>
+      <p className="mt-1.5 text-sm text-gray-500 max-w-sm">{description}</p>
+      {action && (
+        <button
+          onClick={action.onClick}
+          className="mt-4 px-5 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+        >
+          {action.label}
+        </button>
+      )}
+    </div>
+  </motion.div>
+);
+
+// ─── Detail Modal ─────────────────────────────────────────────────────
+
+const DetailModal = ({ item, onClose }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose();
     };
-
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", handleKeyDown);
@@ -351,296 +431,460 @@ function EventDetailsModal({ item, onClose }) {
 
   if (!item) return null;
 
-  const isCertificateType = Object.prototype.hasOwnProperty.call(item, "generated_text");
+  const isCertificate = Boolean(item.cert_type || item.type || item.generated_text);
+  const eventName = getEventName(item);
+  const organizerName = getOrganizerName(item.event || item);
+  const studentName = getStudentName(item);
+  const eventDate = item.event?.event_date || item.event_date || item.created_at;
+  const eventLocation = item.event?.location || item.location;
+  const position = item.position || item.rank;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return "N/A";
+    }
+  };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fadeIn"
-      role="dialog"
-      aria-modal="true"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
     >
-      <div className="absolute inset-0" onClick={onClose} />
-
-      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl animate-scaleUp">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: "spring", damping: 25 }}
+        className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="flex items-start justify-between bg-student-primary px-6 py-5 text-white">
-          <div>
-            <div className="mb-2 flex flex-wrap gap-2">
-              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium uppercase tracking-wide">
-                {isCertificateType ? `${item.cert_type || "Merit"} award` : `Role: ${item.role || "Participant"}`}
-              </span>
-              {!isCertificateType && item.position && (
-                <span className="flex items-center gap-1 rounded-full bg-amber-400/30 px-3 py-1 text-xs font-semibold text-amber-100">
-                  <Trophy size={12} />
-                  {item.position}
+        <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5 text-white">
+          <div className="flex items-start justify-between">
+            <div className="min-w-0 pr-3">
+              <div className="mb-2 flex flex-wrap gap-2">
+                <span className="rounded-full bg-white/20 px-3 py-0.5 text-xs font-medium uppercase tracking-wide">
+                  {isCertificate ? `${item.cert_type || item.type || "Merit"} Award` : "Participation"}
                 </span>
-              )}
+                {!isCertificate && position && (
+                  <span className="flex items-center gap-1 rounded-full bg-amber-400/30 px-3 py-0.5 text-xs font-semibold text-amber-100">
+                    <Trophy size={12} />
+                    {position}
+                  </span>
+                )}
+              </div>
+              <h2 className="text-xl font-bold truncate">
+                {isCertificate ? item.name || eventName || "Certificate" : eventName}
+              </h2>
             </div>
-
-            <h2 className="font-serif text-2xl font-semibold">
-              {isCertificateType ? "Certificate Verification" : item.event_name}
-            </h2>
+            <button
+              onClick={onClose}
+              className="shrink-0 rounded-lg p-2 transition-colors hover:bg-white/20"
+            >
+              <X size={20} />
+            </button>
           </div>
-
-          <button
-            onClick={onClose}
-            aria-label="Close details"
-            className="rounded-lg p-2 transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <X size={18} />
-          </button>
         </div>
 
-        {/* Body */}
-        <div className="space-y-6 p-6">
-          <div>
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-text-secondary">
-              {isCertificateType ? "Citation" : "Summary"}
-            </h3>
-            <p className={`leading-7 text-text-secondary bg-slate-50 p-4 rounded-xl border border-dashed border-student-border/60 ${isCertificateType ? "font-serif italic" : ""}`}>
-              {isCertificateType
-                ? item.generated_text
-                : "You registered for this event and your participation was confirmed and recorded."}
-            </p>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <DetailRow
-              icon={ScrollText}
-              label="Record ID"
-              value={`#${item.id}`}
-            />
-
-            <DetailRow
-              icon={CalendarDays}
-              label={isCertificateType ? "Issued" : "Event date"}
-              value={new Date(item.created_at || item.event_date).toLocaleDateString(undefined, {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            />
-
-            {!isCertificateType && (
-              <DetailRow
-                icon={Users}
-                label="Role"
-                value={item.role}
-              />
-            )}
-          </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          {isCertificate ? (
+            <>
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-sm text-gray-600 italic">
+                  "{item.generated_text || item.description || "Certificate of achievement awarded for outstanding performance."}"
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Certificate ID</p>
+                  <p className="text-sm font-medium text-gray-800 mt-0.5">#CER-{String(item.id).padStart(4, "0")}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Issued Date</p>
+                  <p className="text-sm font-medium text-gray-800 mt-0.5">{formatDate(item.issued_at || item.created_at)}</p>
+                </div>
+                {item.cert_type && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Type</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5 capitalize">{item.cert_type}</p>
+                  </div>
+                )}
+                {studentName && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Recipient</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{studentName}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-sm text-gray-600">
+                  You participated in this event and your involvement was recorded.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Participation ID</p>
+                  <p className="text-sm font-medium text-gray-800 mt-0.5">#PART-{String(item.id).padStart(4, "0")}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 text-center">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider">Event Date</p>
+                  <p className="text-sm font-medium text-gray-800 mt-0.5">{formatDate(eventDate)}</p>
+                </div>
+                {eventLocation && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Location</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{eventLocation}</p>
+                  </div>
+                )}
+                {organizerName && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Organizer</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{organizerName}</p>
+                  </div>
+                )}
+                {item.role && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider">Role</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5 capitalize">{item.role}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 border-t border-student-border/60 px-6 py-4">
-          <Button variant="outline" tone="student" onClick={onClose} className="transition-all hover:bg-slate-100">
+        <div className="flex-shrink-0 flex justify-end gap-3 border-t border-gray-100 px-6 py-4 bg-gray-50/50">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             Close
-          </Button>
+          </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
-}
+};
 
-/**
- * ============================================
- * EMPTY STATE COMPONENT
- * ============================================
- * 
- * Shared empty state with copy tuned to which section it's representing
- * 
- * @param {Object} props - Component props
- * @param {Component} props.icon - Lucide icon component
- * @param {string} props.title - Empty state title
- * @param {string} props.description - Empty state description
- * @returns {JSX.Element} Empty state UI
- */
-function EmptyState({ icon: Icon, title, description }) {
-  return (
-    <Card className="transition-all hover:shadow-md">
-      <div className="py-16 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-student-primary/30 text-student-primary">
-          <Icon size={26} strokeWidth={1.75} />
-        </div>
-        <h3 className="mt-5 text-lg font-semibold text-text-primary">
-          {title}
-        </h3>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-text-secondary">
-          {description}
-        </p>
-      </div>
-    </Card>
-  );
-}
+// ─── Main Component ────────────────────────────────────────────────────
 
-/**
- * ============================================
- * EVENTS COMPONENT
- * ============================================
- * 
- * Main component for student events and participations
- * 
- * @returns {JSX.Element} Events page
- * 
- * @example
- * // In student routes
- * <Route path="/student/events" element={<Events />} />
- * ============================================
- */
 function Events() {
   const dispatch = useDispatch();
+  const participations = useSelector(selectStudentParticipations);
+  const certificates = useSelector(selectStudentCertificates);
+  const events = useSelector(selectStudentEvents);
+  const loading = useSelector(selectStudentLoading);
+  const error = useSelector(selectStudentError);
 
-  // ─── Redux State ──────────────────────────────────────────────────────
-  const {
-    participations = [],
-    certificates = [],
-    loading,
-  } = useSelector((state) => state.student);
-
-  // ─── Local State ─────────────────────────────────────────────────────
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filterType, setFilterType] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [toast, setToast] = useState(null);
 
-  // ─── Data Fetching ───────────────────────────────────────────────────
+  // ─── Load Data ──────────────────────────────────────────────────────
   useEffect(() => {
-    dispatch(fetchParticipations());
-    dispatch(fetchCertificates());
+    loadData();
   }, [dispatch]);
 
-  // ─── Computed Values ─────────────────────────────────────────────────
-  const totalRegistered = participations.length;
-  const certificatesList = certificates || [];
-  const achievementsCount = participations.filter((item) => item.position).length;
+  const loadData = async () => {
+    try {
+      await Promise.all([
+        dispatch(fetchParticipations()).unwrap(),
+        dispatch(fetchCertificates()).unwrap(),
+        dispatch(fetchEvents()).unwrap(),
+      ]);
+    } catch (err) {
+      console.error("Error loading events data:", err);
+      setToast({ message: "Failed to load events data", type: "error" });
+    }
+  };
 
-  // ─── Loading State ──────────────────────────────────────────────────
-  if (loading) {
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await loadData();
+    setIsRefreshing(false);
+    setToast({ message: "Events refreshed", type: "info" });
+  };
+
+  // ─── Stats ──────────────────────────────────────────────────────────
+  const stats = useMemo(() => {
+    const total = participations?.length || 0;
+    const certified = certificates?.length || 0;
+    const winners = participations?.filter((p) => p.position || p.rank).length || 0;
+    const upcoming = events?.filter((e) => new Date(e.event_date) > new Date()).length || 0;
+    return { total, certified, winners, upcoming };
+  }, [participations, certificates, events]);
+
+  // ─── Filters ────────────────────────────────────────────────────────
+  const filteredParticipations = useMemo(() => {
+    if (!participations) return [];
+    let filtered = participations;
+
+    if (filterType === "certificates") {
+      filtered = filtered.filter((p) => p.certificate);
+    } else if (filterType === "winners") {
+      filtered = filtered.filter((p) => p.position || p.rank);
+    }
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter((p) =>
+        getEventName(p).toLowerCase().includes(term) ||
+        getOrganizerName(p.event || p)?.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
+  }, [participations, filterType, searchTerm]);
+
+  // ─── Loading ────────────────────────────────────────────────────────
+  if (loading && !participations?.length) {
     return (
-      <div className="flex h-[70vh] items-center justify-center">
-        <div className="relative h-14 w-14">
-          <div className="absolute inset-0 animate-spin rounded-full border-4 border-student-border border-t-student-primary" />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-purple-600 border-t-transparent mx-auto" />
+          <p className="mt-3 text-sm text-gray-500">Loading events...</p>
         </div>
       </div>
     );
   }
 
+  // ─── Render ──────────────────────────────────────────────────────────
   return (
-    <div className="space-y-10 animate-fadeIn">
-      {/* ─── Header ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 border-b border-student-border/60 pb-8 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-student-primary">
-            <ScrollText size={13} />
-            Your record
-          </span>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AnimatePresence>
+          {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+        </AnimatePresence>
 
-          <h1 className="font-serif text-4xl font-semibold tracking-tight text-text-primary">
-            Participations &amp; Credentials
-          </h1>
+        {/* ─── Page Header ────────────────────────────────────────────── */}
+        <PageHeader
+          title="Events & Participations"
+          subtitle="Every event you've taken part in, and every certificate you've earned along the way"
+          breadcrumbs={["Student", "Events"]}
+          bgColor="bg-purple-50"
+          actions={
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-white/80 rounded-lg hover:bg-white transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </button>
+          }
+        />
 
-          <p className="max-w-xl text-sm text-text-secondary">
-            Every event you've taken part in, and every certificate you've earned along the way.
+        <div className="mt-6" />
+
+        {/* ─── Stats ──────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <StatCard
+            label="Events Joined"
+            value={stats.total}
+            subtext="Total registrations"
+            icon={Users}
+            color="purple"
+            delay={0.05}
+          />
+          <StatCard
+            label="Certificates"
+            value={stats.certified}
+            subtext="Earned so far"
+            icon={Award}
+            color="emerald"
+            delay={0.1}
+          />
+          <StatCard
+            label="Podium Finishes"
+            value={stats.winners}
+            subtext="Ranked results"
+            icon={Trophy}
+            color="amber"
+            delay={0.15}
+          />
+          <StatCard
+            label="Upcoming Events"
+            value={stats.upcoming}
+            subtext="Coming soon"
+            icon={Calendar}
+            color="blue"
+            delay={0.2}
+          />
+        </div>
+
+        {/* ─── Filters ────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                showFilters || filterType !== "all"
+                  ? "bg-purple-50 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              <Filter size={16} />
+              Filter
+              {filterType !== "all" && (
+                <span className="h-5 w-5 rounded-full bg-purple-600 text-white text-xs flex items-center justify-center">
+                  1
+                </span>
+              )}
+              <ChevronDown size={16} className={`transition-transform ${showFilters ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+
+          {/* Filter Chips */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="pt-4 mt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                  {["all", "certificates", "winners"].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => { setFilterType(filter); setShowFilters(false); }}
+                      className={`px-3 py-1.5 text-xs rounded-lg capitalize transition-all ${
+                        filterType === filter
+                          ? "bg-purple-50 text-purple-700 font-medium border border-purple-200"
+                          : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {filter === "all" ? "All" : filter}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ─── Results Count ──────────────────────────────────────────── */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-gray-500">
+            {filteredParticipations.length} participation{filteredParticipations.length !== 1 ? 's' : ''}
+            {searchTerm && ` matching "${searchTerm}"`}
           </p>
         </div>
-      </div>
 
-      {/* ─── Stats ────────────────────────────────────────────────────────── */}
-      <div className="grid gap-5 sm:grid-cols-3">
-        <StatTile
-          label="Events joined"
-          value={totalRegistered}
-          subtext="Total registrations"
-          icon={Users}
-          tone="amber"
-        />
-
-        <StatTile
-          label="Certificates"
-          value={certificatesList.length}
-          subtext="Earned so far"
-          icon={Award}
-          tone="emerald"
-        />
-
-        <StatTile
-          label="Podium finishes"
-          value={achievementsCount}
-          subtext="Ranked results"
-          icon={Trophy}
-          tone="rose"
-        />
-      </div>
-
-      {/* ─── Participations ──────────────────────────────────────────────── */}
-      <div className="space-y-5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-semibold tracking-tight text-text-primary">
-            Participation History
-          </h2>
-          {participations.length > 0 && (
-            <span className="text-sm font-medium text-text-muted bg-slate-100 px-2.5 py-0.5 rounded-full">
-              {participations.length} {participations.length === 1 ? "entry" : "entries"}
-            </span>
-          )}
-        </div>
-
-        {participations.length === 0 ? (
+        {/* ─── Participation List ────────────────────────────────────── */}
+        {filteredParticipations.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No events yet"
-            description="Once you register for an event, it will show up here as a numbered entry in your history."
+            title="No participations yet"
+            description={
+              filterType !== "all" || searchTerm
+                ? "No participations match your filters. Try adjusting your search."
+                : "Once you register for an event, it will show up here."
+            }
+            action={(filterType !== "all" || searchTerm) ? { 
+              label: "Clear Filters", 
+              onClick: () => { setFilterType("all"); setSearchTerm(""); } 
+            } : undefined}
           />
         ) : (
-          <div className="space-y-3">
-            {participations.map((item, i) => (
+          <div className="space-y-3 mb-8">
+            {filteredParticipations.map((item, index) => (
               <ParticipationCard
-                key={`participation-${item.id}`}
+                key={item.id}
                 participation={item}
-                index={i}
+                index={index}
                 onViewDetails={setSelectedItem}
               />
             ))}
           </div>
         )}
-      </div>
 
-      {/* ─── Certificates ─────────────────────────────────────────────────── */}
-      <div className="space-y-5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-2xl font-semibold tracking-tight text-text-primary">
-            Earned Certificates
-          </h2>
-          {certificatesList.length > 0 && (
-            <span className="text-sm font-medium text-text-muted bg-slate-100 px-2.5 py-0.5 rounded-full">
-              {certificatesList.length} {certificatesList.length === 1 ? "certificate" : "certificates"}
-            </span>
+        {/* ─── Certificates Section ───────────────────────────────────── */}
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-gray-900">Certificates</h2>
+              {certificates?.length > 0 && (
+                <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
+                  {certificates.length}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {certificates.length === 0 ? (
+            <EmptyState
+              icon={Award}
+              title="No certificates yet"
+              description="Certificates appear here as soon as one is issued for an event you've completed."
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {certificates.map((cert) => (
+                <CertificateCard
+                  key={cert.id}
+                  certificate={cert}
+                  onViewDetails={setSelectedItem}
+                />
+              ))}
+            </div>
           )}
         </div>
 
-        {certificatesList.length === 0 ? (
-          <EmptyState
-            icon={Award}
-            title="No certificates yet"
-            description="Certificates appear here as soon as one is issued for an event you've completed."
-          />
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {certificatesList.map((cert) => (
-              <CertificateCard
-                key={`cert-${cert.id}`}
-                certificate={cert}
-                onViewDetails={setSelectedItem}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+        {/* ─── Footer ────────────────────────────────────────────────── */}
+        <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
+          <p>© 2024 Smart School Management System • Events Module</p>
+        </div>
 
-      {/* ─── Details Modal ────────────────────────────────────────────────── */}
-      {selectedItem && (
-        <EventDetailsModal
-          item={selectedItem}
-          onClose={() => setSelectedItem(null)}
-        />
-      )}
+        {/* ─── Detail Modal ───────────────────────────────────────────── */}
+        <AnimatePresence>
+          {selectedItem && (
+            <DetailModal
+              item={selectedItem}
+              onClose={() => setSelectedItem(null)}
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

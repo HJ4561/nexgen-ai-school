@@ -116,48 +116,23 @@ export default function ParticipantManagement({
 
       {/* ─── Action Buttons ────────────────────────────────────────────── */}
       <div className="flex gap-2 mt-3">
-        <Button
-          variant="outline"
-          tone="admin"
-          size="sm"
-          fullWidth
-          leftIcon={<Users size={14} />}
+        <button
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-[var(--color-admin-primary)] bg-white border border-[var(--color-admin-primary)] rounded-lg hover:bg-[var(--color-admin-light)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onViewParticipants}
           disabled={!selectedEvent}
         >
+          <Users size={14} />
           View Participants
-        </Button>
-        <Button
-          variant="primary"
-          tone="admin"
-          size="sm"
-          fullWidth
-          leftIcon={<UserPlus size={14} />}
+        </button>
+        <button
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[var(--color-admin-primary)] rounded-lg hover:bg-[var(--color-admin-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={onAddParticipant}
           disabled={!selectedEvent}
         >
+          <UserPlus size={14} />
           Add Participant
-        </Button>
+        </button>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

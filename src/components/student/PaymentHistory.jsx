@@ -142,8 +142,7 @@ function PaymentHistory({
               pr-4
               outline-none
               transition
-              focus:border-student-primary
-            "
+              focus:border-student-primary"
           />
         </div>
       </div>

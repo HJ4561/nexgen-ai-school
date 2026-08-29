@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import api from "@/services/api";
 
 export function useBehaviorActions({ refetch, showToast }) {
@@ -6,7 +6,7 @@ export function useBehaviorActions({ refetch, showToast }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // ─── View Detail ──────────────────────────────────────────────────
+  // --- View Detail --------------------------------------------------
   const handleView = async (log) => {
     setLoadingDetail(true);
     try {
@@ -23,7 +23,7 @@ export function useBehaviorActions({ refetch, showToast }) {
     }
   };
 
-  // ─── Export CSV ──────────────────────────────────────────────────
+  // --- Export CSV --------------------------------------------------
   const exportCSV = (logs) => {
     if (!logs || logs.length === 0) {
       showToast("No data to export.", "error");

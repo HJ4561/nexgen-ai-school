@@ -1,180 +1,81 @@
-/**
- * ============================================
- * EVENT OVERVIEW COMPONENT
- * ============================================
- * 
- * Purpose: Displays event participation statistics for parent view
- * Features:
- * - Total participations count
- * - Certificates earned count
- * - First positions count
- * - Unique events participated in
- * - Color-coded stat cards with icons
- * - Role-based theming (parent)
- * - Responsive grid layout (1/2/4 columns)
- * 
- * Dependencies:
- * - lucide-react for icons (Trophy, Award, Medal, CalendarDays)
- * - @/components/composite/StatCard for statistic display
- * - react-redux for state management
- * 
- * Usage:
- * <EventOverview />
- * ============================================
- */
+// src/components/parent/events/EventOverview.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { Trophy, Award, Calendar, Star, TrendingUp } from 'lucide-react';
+import Card from '@/components/ui/Card';
+import { selectEvents, selectCertificates } from '@/modules/parent/store/parentSlice';
 
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-
-import {
-  Trophy,
-  Award,
-  Medal,
-  CalendarDays,
-} from "lucide-react";
-
-import StatCard from "@/components/composite/StatCard";
-
-/**
- * ============================================
- * EVENT OVERVIEW COMPONENT
- * ============================================
- * 
- * Renders event participation statistics in a visual card grid
- * 
- * @returns {JSX.Element} Event overview UI
- * 
- * @example
- * // In parent dashboard
- * <EventOverview />
- * ============================================
- */
 const EventOverview = () => {
-  // ─── Redux State ──────────────────────────────────────────────────────
-  const {
-    events = [],
-    certificates = [],
-    parentLinks = [],
-    selectedChild,
-  } = useSelector(
-    (state) => state.parent
-  );
+  const events = useSelector(selectEvents);
+  const certificates = useSelector(selectCertificates);
 
-  /**
-   * ============================================
-   * CURRENT CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Falls back to the first child if selectedChild is not found
-   */
-  const currentChild = useMemo(() => {
-    return (
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ) || parentLinks[0]
-    );
-  }, [parentLinks, selectedChild]);
-
-  /**
-   * ============================================
-   * CHILD EVENTS
-   * ============================================
-   * 
-   * Filters events for the selected child
-   */
-  const childEvents = useMemo(() => {
-    if (!currentChild) return [];
-    return events.filter(
-      (event) => event.student_name === currentChild.student_name
-    );
-  }, [events, currentChild]);
-
-  /**
-   * ============================================
-   * CHILD CERTIFICATES
-   * ============================================
-   * 
-   * Filters certificates for the selected child
-   */
-  const childCertificates = useMemo(() => {
-    if (!currentChild) return [];
-    return certificates.filter(
-      (certificate) => certificate.student_name === currentChild.student_name
-    );
-  }, [certificates, currentChild]);
-
-  /**
-   * ============================================
-   * STATISTICS
-   * ============================================
-   * 
-   * Calculates event statistics for the selected child:
-   * - total: Total number of event participations
-   * - certificates: Number of certificates earned
-   * - firstPositions: Number of first place wins
-   * - participatedEvents: Number of unique events participated in
-   */
   const stats = useMemo(() => {
-    // Count first place positions
-    const firstPositions = childEvents.filter(
-      (event) => event.position === "1st Place"
-    ).length;
-
-    // Count unique event names (using Set)
-    const participatedEvents = new Set(
-      childEvents.map((event) => event.event_name)
-    ).size;
-
+    const totalParticipations = events.length;
+    const totalCertificates = certificates.length;
+    const upcoming = events.filter(e => e.is_upcoming).length;
+    const completed = events.filter(e => !e.is_upcoming).length;
+    
     return {
-      total: childEvents.length,
-      certificates: childCertificates.length,
-      firstPositions,
-      participatedEvents,
+      totalParticipations,
+      totalCertificates,
+      upcoming,
+      completed,
     };
-  }, [childEvents, childCertificates]);
+  }, [events, certificates]);
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-      {/* ─── Participations ─── */}
-      <StatCard
-        label="Participations"
-        value={stats.total}
-        icon={<CalendarDays size={22} />}
-        tone="parent"
-        footerText="Total Events"
-        footerColor="primary"
-      />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <Card className="p-3 md:p-4 border-l-4 border-l-purple-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Participations</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-0.5 md:mt-1">{stats.totalParticipations}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Total events</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+            <Trophy className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── Certificates ─── */}
-      <StatCard
-        label="Certificates"
-        value={stats.certificates}
-        icon={<Award size={22} />}
-        tone="parent"
-        footerText="Certificates Earned"
-        footerColor="success"
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-emerald-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Upcoming</p>
+            <p className="text-xl md:text-2xl font-bold text-emerald-600 mt-0.5 md:mt-1">{stats.upcoming}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Registered events</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <Calendar className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── First Positions ─── */}
-      <StatCard
-        label="First Positions"
-        value={stats.firstPositions}
-        icon={<Medal size={22} />}
-        tone="parent"
-        footerText="Gold Finishes"
-        footerColor="warning"
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-blue-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</p>
+            <p className="text-xl md:text-2xl font-bold text-blue-600 mt-0.5 md:mt-1">{stats.completed}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Past events</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <Star className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+          </div>
+        </div>
+      </Card>
 
-      {/* ─── Unique Events ─── */}
-      <StatCard
-        label="Unique Events"
-        value={stats.participatedEvents}
-        icon={<Trophy size={22} />}
-        tone="parent"
-        footerText="Different Events"
-        footerColor="info"
-      />
+      <Card className="p-3 md:p-4 border-l-4 border-l-amber-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Certificates</p>
+            <p className="text-xl md:text-2xl font-bold text-amber-600 mt-0.5 md:mt-1">{stats.totalCertificates}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Awards earned</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+            <Award className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

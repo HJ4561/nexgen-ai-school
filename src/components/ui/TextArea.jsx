@@ -106,12 +106,12 @@ function Textarea({
   ...props
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col md:flex-row-col gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
       {/* ─── Label ────────────────────────────────────────────────── */}
       {label && (
-        <label className="text-sm font-medium text-text-primary">
+        <label className="text-sm md:text-base md:text-base font-medium text-text-primary px-4 sm:px-6 lg:px-8">
           {label}
-          {required && <span className="ml-1 text-danger">*</span>}
+          {required && <span className="ml-1 text-danger px-4 sm:px-6 lg:px-8">*</span>}
         </label>
       )}
 
@@ -138,8 +138,8 @@ function Textarea({
       />
 
       {/* ─── Error / Helper Text ────────────────────────────────────── */}
-      {error && <p className="text-sm text-danger">{error}</p>}
-      {!error && helperText && <p className="text-sm text-text-secondary">{helperText}</p>}
+      {error && <p className="text-sm md:text-base md:text-base text-danger px-4 sm:px-6 lg:px-8">{error}</p>}
+      {!error && helperText && <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">{helperText}</p>}
     </div>
   );
 }

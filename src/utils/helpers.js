@@ -97,6 +97,27 @@ export const getSubjectColor = (subject) => {
   return colorMap[subject] || colorMap['General'];
 };
 
+// ─── Timetable ──────────────────────────────────────────────────
+
+export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+export const TIME_SLOTS = [
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+  '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00'
+];
+
+export const getNextTimeSlot = (time) => {
+  if (!time) return '09:00';
+  const hours = parseInt(time.split(':')[0]);
+  const nextHour = hours + 1;
+  return `${String(nextHour).padStart(2, '0')}:00`;
+};
+
+export const timesOverlap = (start1, end1, start2, end2) => {
+  return start1 < end2 && start2 < end1;
+};
+
 // ─── Severity ────────────────────────────────────────────────────
 
 export const getSeverityColor = (severity) => {
@@ -245,11 +266,6 @@ export const statusDisplayMap = {
   closed: { label: 'Closed', color: 'bg-gray-100 text-gray-700 border-gray-300' }
 };
 
-// ─── Timetable ──────────────────────────────────────────────────
-
-export const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-export const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-
 // ─── Assignment ──────────────────────────────────────────────────
 
 export const getAssignmentStatus = (status) => {
@@ -301,30 +317,49 @@ export const getPriorityColor = (priority) => {
   };
   return priorityMap[priority?.toLowerCase()] || priorityMap['medium'];
 };
+
 export const CATEGORIES = [
-    'Electronics',
-    'Furniture',
-    'Stationery', 
-    'Equipment',
-    'Books',
-    'Supplies',
-    'Sports',
-    'Uniform',
-    'Other'
+  'Electronics',
+  'Furniture',
+  'Stationery', 
+  'Equipment',
+  'Books',
+  'Supplies',
+  'Sports',
+  'Uniform',
+  'Other'
 ];
 
 export const ITEMS_PER_PAGE = 10;
 
-// --- Timetable Helpers --------------------------------------------------
-
-export const getNextTimeSlot = (time) => {
-    if (!time) return '09:00';
-    const hours = parseInt(time.split(':')[0]);
-    const nextHour = hours + 1;
-    return `${String(nextHour).padStart(2, '0')}:00`;
+export default {
+  formatDate,
+  formatDateTime,
+  formatTimeAgo,
+  getInitials,
+  getSubjectColor,
+  DAYS,
+  TIME_SLOTS,
+  getNextTimeSlot,
+  timesOverlap,
+  getSeverityColor,
+  getSeverityBadgeClass,
+  SEVERITY_OPTIONS,
+  getStatus,
+  getStatusBadge,
+  getStatusLabel,
+  getStatusColor,
+  STATUS_OPTIONS,
+  getCategoryStyle,
+  formatCurrency,
+  LOW_STOCK_THRESHOLD,
+  COMPLAINT_STATUS_OPTIONS,
+  COMPLAINT_TYPE_OPTIONS,
+  statusDisplayMap,
+  getAssignmentStatus,
+  getAssignmentStatusColor,
+  getPriorityLabel,
+  getPriorityColor,
+  CATEGORIES,
+  ITEMS_PER_PAGE,
 };
-
-export const timesOverlap = (start1, end1, start2, end2) => {
-    return start1 < end2 && start2 < end1;
-};
-

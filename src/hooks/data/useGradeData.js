@@ -1,137 +1,68 @@
-// // src/modules/teacher/pages/GradeManagement/hooks/useGradeData.js
-
-// import { useState, useEffect, useMemo, useCallback } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { fetchGrades } from @/store/teacher/teacherThunks';
-// import {
-//   getClassName,
-//   getSubjectName,
-//   getClassIdFromSubject,
-// } from "@/utils/classSubjectMapping';
-
-// const DEFAULT_TOTAL_MARKS = {
-//   Quiz: 10,
-//   Assignment: 10,
-//   'Mid-Term': 50,
-//   Final: 50,
-// };
-
-// export function useGradeData() {
-//   const dispatch = useDispatch();
-//   const { grades = [], gradesLoading: loading, gradesError: error } = useSelector(state => state.teacher || {});
-
-//   // ─── Only one filter: subject (combined with class) ──────────────
-//   const [filterSubject, setFilterSubject] = useState('');
-//   const [filterExamType, setFilterExamType] = useState('');
-
-//   // ─── Fetch on mount ──────────────────────────────────────────────
-//   useEffect(() => {
-//     dispatch(fetchGrades());
-//   }, [dispatch]);
-
-//   // ─── Combined Subject + Class options ──────────────────────────
-//   const subjectOptions = useMemo(() => {
-//     // Get unique subject IDs from grades
-//     const uniqueSubjects = [...new Set(grades.map(g => g.subject).filter(Boolean))];
-    
-//     // Build options with combined label
-//     return [
-//       { value: '', label: 'All Subjects & Classes' },
-//       ...uniqueSubjects.map(id => {
-//         const subjectName = getSubjectName(id);
-//         const classId = getClassIdFromSubject(id);
-//         const className = classId ? getClassName(classId) : 'Unknown Class';
-//         return {
-//           value: id,
-//           label: `${subjectName} – ${className}`,
-//         };
-//       }),
-//     ];
-//   }, [grades]);
-
-//   // ─── Exam type options ──────────────────────────────────────────
-//   const examTypeOptions = useMemo(() => {
-//     const unique = [...new Set(grades.map(g => g.exam_type).filter(Boolean))];
-//     return [
-//       { value: '', label: 'All Exams' },
-//       ...unique.map(type => ({ value: type, label: type })),
-//     ];
-//   }, [grades]);
-
-//   // ─── Filtered grades ─────────────────────────────────────────────
-//   const filtered = useMemo(() => {
-//     let list = grades;
-//     if (filterSubject) {
-//       list = list.filter(g => g.subject === parseInt(filterSubject));
-//     }
-//     if (filterExamType) {
-//       list = list.filter(g => g.exam_type === filterExamType);
-//     }
-//     return list;
-//   }, [grades, filterSubject, filterExamType]);
-
-//   // ─── Stats ────────────────────────────────────────────────────────
-//   const stats = useMemo(() => {
-//     const marks = filtered.map(g => parseFloat(g.obtained_marks) || 0);
-//     const avg = marks.length ? (marks.reduce((a, b) => a + b, 0) / marks.length) : 0;
-//     const highest = marks.length ? Math.max(...marks) : 0;
-//     const lowest = marks.length ? Math.min(...marks) : 0;
-//     return {
-//       avg: parseFloat(avg.toFixed(1)),
-//       highest,
-//       lowest,
-//     };
-//   }, [filtered]);
-
-//   const refetch = useCallback(() => {
-//     dispatch(fetchGrades());
-//   }, [dispatch]);
-
-//   return {
-//     grades,
-//     filtered,
-//     loading,
-//     error,
-//     filterSubject,
-//     setFilterSubject,
-//     filterExamType,
-//     setFilterExamType,
-//     subjectOptions,      
-//     examTypeOptions,
-//     stats,
-//     refetch,
-//   };
-// }
 // src/modules/teacher/pages/GradeManagement/hooks/useGradeData.js
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchGrades } from "@/modules/teacher/store/teacherThunks";
+import { 
+  fetchTeacherGrades,
+  fetchStudents,
+  fetchTeacherClasses,
+  fetchSubjects,
+} from "@/modules/teacher/store/teacherThunks";
+import {
+  selectTeacherGrades,
+  selectTeacherStudents,
+  selectTeacherClasses,
+  selectTeacherSubjects,
+  selectTeacherLoading,
+  selectTeacherError,
+} from "@/modules/teacher/store/teacherSlice";
 import { getClassName, getSubjectName, getClassIdFromSubject } from "@/utils/SubjectMapping";
 
 export function useGradeData() {
   const dispatch = useDispatch();
-  const { grades = [], gradesLoading: loading, gradesError: error } = useSelector(state => state.teacher || {});
-  const { students = [] } = useSelector(state => state.admin || {}); // ← get students
+  
+  // Use selectors to get data from Redux store
+  const grades = useSelector(selectTeacherGrades) || [];
+  const students = useSelector(selectTeacherStudents) || [];
+  const classes = useSelector(selectTeacherClasses) || [];
+  const subjects = useSelector(selectTeacherSubjects) || [];
+  const loading = useSelector(selectTeacherLoading);
+  const error = useSelector(selectTeacherError);
 
   const [filterClass, setFilterClass] = useState('');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterExamType, setFilterExamType] = useState('');
 
+  // ─── Fetch on mount ──────────────────────────────────────────────
   useEffect(() => {
-    dispatch(fetchGrades());
+    dispatch(fetchTeacherGrades());
+    if (!students?.length) {
+      dispatch(fetchStudents());
+    }
+    if (!classes?.length) {
+      dispatch(fetchTeacherClasses());
+    }
+    if (!subjects?.length) {
+      dispatch(fetchSubjects());
+    }
   }, [dispatch]);
 
   // ─── Enrich grades with student_name ──────────────────────────────
   const enrichedGrades = useMemo(() => {
+    if (!grades || !Array.isArray(grades)) return [];
+    
     return grades.map((g) => {
-      const student = students.find(s => s.id === g.student);
+      const student = students?.find(s => s.id === g.student || s.id === g.student_id);
+      const subject = subjects?.find(s => s.id === g.subject);
+      
       return {
         ...g,
-        student_name: student?.full_name || `Student ${g.student}`,
+        student_name: student?.name || student?.full_name || `Student ${g.student || g.student_id}`,
+        subject_name: subject?.name || getSubjectName(g.subject) || `Subject ${g.subject}`,
+        class_name: getClassName(getClassIdFromSubject(g.subject)),
       };
     });
-  }, [grades, students]);
+  }, [grades, students, subjects]);
 
   // ─── Options and filters use enrichedGrades ──────────────────────
   const classOptions = useMemo(() => {
@@ -142,7 +73,7 @@ export function useGradeData() {
     });
     return [
       { value: '', label: 'All Classes' },
-      ...Array.from(classSet).map(id => ({ value: id, label: getClassName(id) })),
+      ...Array.from(classSet).map(id => ({ value: String(id), label: getClassName(id) })),
     ];
   }, [enrichedGrades]);
 
@@ -150,7 +81,10 @@ export function useGradeData() {
     const unique = [...new Set(enrichedGrades.map(g => g.subject).filter(Boolean))];
     return [
       { value: '', label: 'All Subjects' },
-      ...unique.map(id => ({ value: id, label: getSubjectName(id) })),
+      ...unique.map(id => ({ 
+        value: String(id), 
+        label: getSubjectName(id) || `Subject ${id}` 
+      })),
     ];
   }, [enrichedGrades]);
 
@@ -179,23 +113,30 @@ export function useGradeData() {
 
   // ─── Stats ──────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const marks = filtered.map(g => parseFloat(g.obtained_marks) || 0);
+    const marks = filtered.map(g => parseFloat(g.marks_obtained || g.obtained_marks || 0));
     const avg = marks.length ? (marks.reduce((a, b) => a + b, 0) / marks.length) : 0;
     const highest = marks.length ? Math.max(...marks) : 0;
     const lowest = marks.length ? Math.min(...marks) : 0;
+    const totalStudents = new Set(filtered.map(g => g.student || g.student_id)).size;
+    
     return {
       avg: parseFloat(avg.toFixed(1)),
       highest,
       lowest,
+      totalStudents,
+      totalGrades: filtered.length,
     };
   }, [filtered]);
 
   const refetch = useCallback(() => {
-    dispatch(fetchGrades());
+    dispatch(fetchTeacherGrades());
+    dispatch(fetchStudents());
+    dispatch(fetchTeacherClasses());
+    dispatch(fetchSubjects());
   }, [dispatch]);
 
   return {
-    grades: enrichedGrades,   // ← use enrichedGrades
+    grades: enrichedGrades,
     filtered,
     loading,
     error,
@@ -212,8 +153,5 @@ export function useGradeData() {
     refetch,
   };
 }
-
-
-
 
 export default useGradeData;

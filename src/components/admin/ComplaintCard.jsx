@@ -17,7 +17,7 @@
  * - lucide-react for icons (CalendarDays, ArrowRight, FileText)
  * - @/components/ui/Card for container
  * - @/components/ui/Button for action button
- * - @/components/composite/StatusBadge for status indicator
+ * - @/components/common/StatusBadge for status indicator
  * 
  * Usage:
  * <ComplaintCard
@@ -36,7 +36,7 @@ import {
 
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 
 /**
  * ============================================
@@ -94,13 +94,7 @@ const ComplaintCard = ({
     <Card
       tone={role}
       hover={false}
-      className="
-        border
-        transition-all
-        duration-200
-        hover:border-student-primary/30
-        hover:shadow-md
-      "
+      className="border transition-all duration-200 hover:border-student-primary/30 hover:shadow-md"
     >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         {/* =====================================
@@ -109,25 +103,12 @@ const ComplaintCard = ({
         ===================================== */}
 
         <div className="flex flex-1 gap-4">
-          {/* ─── Complaint Type Icon ─── */}
-          <div
-            className="
-              flex
-              h-12
-              w-12
-              items-center
-              justify-center
-              rounded-xl
-              bg-student-primary/10
-            "
-          >
-            <FileText
-              size={22}
-              className="text-student-primary"
-            />
+          {/* â”€â”€â”€ Complaint Type Icon â”€â”€â”€ */}
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-student-primary/10">
+            <FileText size={22} className="text-student-primary" />
           </div>
 
-          {/* ─── Complaint Details ─── */}
+          {/* â”€â”€â”€ Complaint Details â”€â”€â”€ */}
           <div className="flex-1">
             {/* Header: Type + Status Badge */}
             <div className="flex flex-wrap items-center gap-3">

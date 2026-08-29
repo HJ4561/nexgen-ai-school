@@ -15,8 +15,8 @@ const STATUS_OPTIONS = [
 const ROLE_ICONS = {
   teacher: User,
   student: GraduationCap,
-  parent: User, // Using User as fallback
-  staff: User, // Using User as fallback
+  parent: User,
+  staff: User,
   admin: Shield,
 };
 
@@ -53,7 +53,6 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
     if (initialData) {
       setFormData(initialData);
     } else {
-      // Initialize with empty values
       const empty = { 
         name: "", 
         email: "", 
@@ -74,7 +73,6 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -123,7 +121,6 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
     return option?.color || "gray";
   };
 
-  // Safety check - if config doesn't exist, don't render
   if (!config) {
     return null;
   }
@@ -181,7 +178,7 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
               </h3>
             </div>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   <span className="flex items-center gap-2">
@@ -300,7 +297,7 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
               </h3>
             </div>
             
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   <span className="flex items-center gap-2">
@@ -350,7 +347,7 @@ const UserFormModal = ({ role, initialData, onSubmit, onClose }) => {
                 </h3>
               </div>
               
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {config.fields.map((field) => {
                   const FieldIcon = FIELD_ICONS[field.name] || User;
                   

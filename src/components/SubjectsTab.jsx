@@ -220,14 +220,14 @@ export default function SubjectsTab() {
       key: "subject_name",
       label: "Subject Name",
       highlight: true,
-      render: (row) => <span className="font-medium">{row.subject_name}</span>,
+      render: (row) => <span className="font-medium px-4 sm:px-6 lg:px-8">{row.subject_name}</span>,
       mobile: { role: "title" },
     },
     {
       key: "class",
       label: "Class & Section",
       render: (row) => (
-        <span className="text-sm text-[var(--color-text-secondary)]">
+        <span className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">
           {getClassDisplay(row.class_section)}
         </span>
       ),
@@ -238,11 +238,11 @@ export default function SubjectsTab() {
       label: "Assigned Teacher",
       render: (row) =>
         row.assigned_teacher ? (
-          <Badge tone="teacher" className="text-[10px]">
+          <Badge tone="teacher" className="text-[10px] px-4 sm:px-6 lg:px-8">
             {getTeacherName(row.assigned_teacher)}
           </Badge>
         ) : (
-          <Badge color="neutral" className="text-[10px]">
+          <Badge color="neutral" className="text-[10px] px-4 sm:px-6 lg:px-8">
             Unassigned
           </Badge>
         ),
@@ -252,21 +252,19 @@ export default function SubjectsTab() {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex justify-start gap-1">
-          <button
-            onClick={() => handleEdit(row)}
-            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] hover:bg-[var(--color-admin-primary)] hover:text-white transition-colors"
+        <div className="flex flex-col md:flex-row justify-start gap-1 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleEdit(row)}
+            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] hover:bg-[var(--color-admin-primary)] hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
             title="Edit"
           >
             <Edit size={15} />
-          </button>
-          <button
-            onClick={() => handleDelete(row)}
-            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger)] hover:text-white transition-colors"
+          </Button>
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleDelete(row)}
+            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger)] hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
             title="Delete"
           >
             <Trash2 size={15} />
-          </button>
+          </Button>
         </div>
       ),
       mobile: { role: "hidden" },
@@ -276,7 +274,7 @@ export default function SubjectsTab() {
   // ─── Loading State ─────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow border border-gray-100 min-h-[200px] flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow border border-gray-100 min-h-[200px] flex flex-col md:flex-row items-center justify-center px-4 sm:px-6 lg:px-8">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -285,8 +283,8 @@ export default function SubjectsTab() {
   return (
     <>
       {/* ─── Controls + Filters ────────────────────────────────────── */}
-      <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100">
-        <div className="flex-1 min-w-[200px]">
+      <div className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 flex flex-col md:flex-row-wrap items-center justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 border-b border-gray-100 px-4 sm:px-6 lg:px-8">
+        <div className="flex-1 min-w-[200px] px-4 sm:px-6 lg:px-8">
           <SubjectFilters
             filterClass={filterClass}
             setFilterClass={setFilterClass}
@@ -298,15 +296,15 @@ export default function SubjectsTab() {
             subjectOptions={subjectOptions}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="primary" tone="admin" size="sm" leftIcon={<Plus size={14} />} onClick={handleAdd}>
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary" tone="admin" size="sm" leftIcon={<Plus size={14} />} onClick={handleAdd}>
             Add Subject
           </Button>
         </div>
       </div>
 
       {/* ─── Table ──────────────────────────────────────────────────── */}
-      <div className="pb-2">
+      <div className="pb-2 px-4 sm:px-6 lg:px-8">
         <ResponsiveTable
           columns={columns}
           data={paginatedData}
@@ -314,21 +312,19 @@ export default function SubjectsTab() {
           keyField="id"
           emptyMessage="No subjects found"
           mobileActions={(row) => (
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                onClick={() => handleEdit(row)}
-                className="px-3 py-1.5 text-sm font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg hover:bg-[var(--color-admin-light)]/70 transition-colors flex items-center gap-1.5"
+            <div className="flex flex-col md:flex-row items-center justify-end gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 pt-2 px-4 sm:px-6 lg:px-8">
+              <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleEdit(row)}
+                className="px-3 py-1.5 text-sm md:text-base md:text-base font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg hover:bg-[var(--color-admin-light)]/70 transition-colors flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8"
               >
                 <Edit size={14} />
                 Edit
-              </button>
-              <button
-                onClick={() => handleDelete(row)}
-                className="px-3 py-1.5 text-sm font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg hover:bg-[var(--color-danger-bg)]/70 transition-colors flex items-center gap-1.5"
+              </Button>
+              <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleDelete(row)}
+                className="px-3 py-1.5 text-sm md:text-base md:text-base font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg hover:bg-[var(--color-danger-bg)]/70 transition-colors flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8"
               >
                 <Trash2 size={14} />
                 Delete
-              </button>
+              </Button>
             </div>
           )}
         />
@@ -351,9 +347,8 @@ export default function SubjectsTab() {
         title={drawerMode === "add" ? "Add New Subject" : "Edit Subject"}
         width="max-w-[380px]"
         footer={
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="outline"
               tone="admin"
               fullWidth
               onClick={() => {
@@ -363,8 +358,7 @@ export default function SubjectsTab() {
             >
               Cancel
             </Button>
-            <Button
-              variant="primary"
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary"
               tone="admin"
               fullWidth
               onClick={handleSave}
@@ -377,31 +371,31 @@ export default function SubjectsTab() {
       >
         {/* Error Banner */}
         {drawerError && (
-          <div className="mb-4 p-3 bg-[var(--color-danger-bg)] border border-[var(--color-danger-border)] rounded-lg flex items-start gap-2 text-sm text-[var(--color-danger-text)]">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 bg-[var(--color-danger-bg)] border border-[var(--color-danger-border)] rounded-lg flex flex-col md:flex-row items-start gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-sm md:text-base md:text-base text-[var(--color-danger-text)] px-4 sm:px-6 lg:px-8">
+            <AlertCircle size={16} className="shrink-0 mt-0.5 px-4 sm:px-6 lg:px-8" />
             <span>{drawerError}</span>
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 sm:px-6 lg:px-8">
           {/* Subject Name */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
-              Subject Name <span className="text-[var(--color-danger)]">*</span>
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
+              Subject Name <span className="text-[var(--color-danger)] px-4 sm:px-6 lg:px-8">*</span>
             </label>
             <input
               type="text"
               value={formData.subject_name || ""}
               onChange={(e) => setFormData({ ...formData, subject_name: e.target.value })}
               placeholder="e.g., Mathematics"
-              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm"
+              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8"
             />
           </div>
           
           {/* Class & Section */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
-              Class & Section <span className="text-[var(--color-danger)]">*</span>
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
+              Class & Section <span className="text-[var(--color-danger)] px-4 sm:px-6 lg:px-8">*</span>
             </label>
             <Select
               value={formData.class_section_id || ""}
@@ -418,8 +412,8 @@ export default function SubjectsTab() {
           
           {/* Assigned Teacher */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
-              Assigned Teacher <span className="text-[var(--color-text-muted)] text-[10px] font-normal">(Optional)</span>
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
+              Assigned Teacher <span className="text-[var(--color-text-muted)] text-[10px] font-normal px-4 sm:px-6 lg:px-8">(Optional)</span>
             </label>
             <Select
               value={formData.assigned_teacher_id || ""}

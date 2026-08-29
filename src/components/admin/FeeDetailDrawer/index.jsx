@@ -1,7 +1,7 @@
-﻿// src/components/admin/FeeDetailDrawer/index.jsx
+// src/components/admin/FeeDetailDrawer/index.jsx
 import React, { useState } from "react";
 import { X, Calendar, CreditCard, Receipt } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
 const formatCurrency = (amount) =>
@@ -57,7 +57,7 @@ const FeeDetailDrawer = ({ fee, onRecordPayment, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -104,10 +104,12 @@ const FeeDetailDrawer = ({ fee, onRecordPayment, onClose }) => {
             <div>
               {!showPaymentForm ? (
                 <Button
+                  variant="primary"
+                  className="w-full flex items-center justify-center gap-2"
                   onClick={() => setShowPaymentForm(true)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <CreditCard className="w-4 h-4 mr-2" /> Record a Payment
+                  <CreditCard className="w-4 h-4" />
+                  Record a Payment
                 </Button>
               ) : (
                 <form onSubmit={handleRecordPayment} className="space-y-3 border border-gray-100 rounded-xl p-4">
@@ -163,7 +165,6 @@ const FeeDetailDrawer = ({ fee, onRecordPayment, onClose }) => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button
-                      type="button"
                       variant="outline"
                       onClick={() => setShowPaymentForm(false)}
                       disabled={submitting}
@@ -171,11 +172,11 @@ const FeeDetailDrawer = ({ fee, onRecordPayment, onClose }) => {
                       Cancel
                     </Button>
                     <Button
+                      variant="primary"
                       type="submit"
-                      className="bg-green-600 hover:bg-green-700 text-white"
                       disabled={submitting}
                     >
-                      {submitting ? "Saving…" : "Save Payment"}
+                      {submitting ? "Saving..." : "Save Payment"}
                     </Button>
                   </div>
                 </form>
@@ -199,8 +200,8 @@ const FeeDetailDrawer = ({ fee, onRecordPayment, onClose }) => {
                       <div>
                         <p className="text-sm font-medium text-gray-800">{formatCurrency(p.amount_paid)}</p>
                         <p className="text-xs text-gray-500">
-                          {p.payment_date ? new Date(p.payment_date).toLocaleDateString() : "—"} · {p.payment_method}
-                          {p.receipt_no ? ` · ${p.receipt_no}` : ""}
+                          {p.payment_date ? new Date(p.payment_date).toLocaleDateString() : "—"} • {p.payment_method}
+                          {p.receipt_no ? ` • ${p.receipt_no}` : ""}
                         </p>
                       </div>
                     </div>

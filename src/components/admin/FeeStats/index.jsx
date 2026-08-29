@@ -1,4 +1,4 @@
-﻿// src/components/admin/FeeStats/index.jsx
+// src/components/admin/FeeStats/index.jsx
 import React from "react";
 import Card from "@/components/ui/Card";
 import { DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
@@ -40,12 +40,12 @@ const FeeStats = ({ stats, formatCurrency }) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
       {statItems.map((stat) => (
-        <Card key={stat.label} className={`p-4 border-l-4 border-l-${stat.color}-500`}>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</p>
-          <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-          <p className="text-xs text-gray-400 mt-1">{stat.subtext}</p>
+        <Card key={stat.label} className={`p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border-l-4 border-l-${stat.color}-500`}>
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4 sm:px-6 lg:px-8">{stat.label}</p>
+          <p className="text-2xl md:text-3xl font-bold text-gray-800 px-4 sm:px-6 lg:px-8">{stat.value}</p>
+          <p className="text-xs text-gray-400 mt-1 px-4 sm:px-6 lg:px-8">{stat.subtext}</p>
         </Card>
       ))}
     </div>

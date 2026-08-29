@@ -249,14 +249,14 @@ export default function ClassesTab() {
       key: "name",
       label: "Class & Section",
       highlight: true,
-      render: (row) => <span className="font-medium">{row.class_name}-{row.section}</span>,
+      render: (row) => <span className="font-medium px-4 sm:px-6 lg:px-8">{row.class_name}-{row.section}</span>,
       mobile: { role: "title" },
     },
     {
       key: "default_room",
       label: "Default Room",
       render: (row) => (
-        <Badge tone="admin" className="text-[10px]">
+        <Badge tone="admin" className="text-[10px] px-4 sm:px-6 lg:px-8">
           {row.default_room_name || row.default_room || "—"}
         </Badge>
       ),
@@ -272,21 +272,19 @@ export default function ClassesTab() {
       key: "actions",
       label: "Actions",
       render: (row) => (
-        <div className="flex justify-start gap-1.5">
-          <button
-            onClick={() => handleEdit(row)}
-            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] hover:bg-[var(--color-admin-primary)] hover:text-white transition-colors"
+        <div className="flex flex-col md:flex-row justify-start gap-1.5 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleEdit(row)}
+            className="p-1.5 rounded-lg text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] hover:bg-[var(--color-admin-primary)] hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
             title="Edit"
           >
             <Edit size={15} />
-          </button>
-          <button
-            onClick={() => handleDelete(row)}
-            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger)] hover:text-white transition-colors"
+          </Button>
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleDelete(row)}
+            className="p-1.5 rounded-lg text-[var(--color-danger)] bg-[var(--color-danger-bg)] hover:bg-[var(--color-danger)] hover:text-white transition-colors px-4 sm:px-6 lg:px-8"
             title="Delete"
           >
             <Trash2 size={15} />
-          </button>
+          </Button>
         </div>
       ),
       mobile: { role: "hidden" },
@@ -296,7 +294,7 @@ export default function ClassesTab() {
   // ─── Loading State ─────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow border border-gray-100 min-h-[200px] flex items-center justify-center">
+      <div className="bg-white rounded-xl shadow border border-gray-100 min-h-[200px] flex flex-col md:flex-row items-center justify-center px-4 sm:px-6 lg:px-8">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -305,7 +303,7 @@ export default function ClassesTab() {
   return (
     <>
       {/* ─── Controls ──────────────────────────────────────────────── */}
-      <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-100">
+      <div className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 flex flex-col md:flex-row-wrap items-center justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 border-b border-gray-100 px-4 sm:px-6 lg:px-8">
         <ClassFilters
           classes={classes}
           filterClass={filterClass}
@@ -317,15 +315,15 @@ export default function ClassesTab() {
           totalCount={filtered.length}
         />
 
-        <div className="flex items-center gap-2">
-          <Button variant="primary" tone="admin" size="sm" leftIcon={<Plus size={14} />} onClick={handleAdd}>
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary" tone="admin" size="sm" leftIcon={<Plus size={14} />} onClick={handleAdd}>
             Add
           </Button>
         </div>
       </div>
     
       {/* ─── Table ──────────────────────────────────────────────────── */}
-      <div className="pb-2">
+      <div className="pb-2 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -338,21 +336,19 @@ export default function ClassesTab() {
             keyField="id"
             emptyMessage="No classes found"
             mobileActions={(row) => (
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  onClick={() => handleEdit(row)}
-                  className="px-3 py-1.5 text-sm font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg hover:bg-[var(--color-admin-light)]/70 transition-colors flex items-center gap-1.5"
+              <div className="flex flex-col md:flex-row items-center justify-end gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 pt-2 px-4 sm:px-6 lg:px-8">
+                <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleEdit(row)}
+                  className="px-3 py-1.5 text-sm md:text-base md:text-base font-medium text-[var(--color-admin-primary)] bg-[var(--color-admin-light)] rounded-lg hover:bg-[var(--color-admin-light)]/70 transition-colors flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8"
                 >
                   <Edit size={14} />
                   Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(row)}
-                  className="px-3 py-1.5 text-sm font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg hover:bg-[var(--color-danger-bg)]/70 transition-colors flex items-center gap-1.5"
+                </Button>
+                <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" onClick={() => handleDelete(row)}
+                  className="px-3 py-1.5 text-sm md:text-base md:text-base font-medium text-[var(--color-danger)] bg-[var(--color-danger-bg)] rounded-lg hover:bg-[var(--color-danger-bg)]/70 transition-colors flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8"
                 >
                   <Trash2 size={14} />
                   Delete
-                </button>
+                </Button>
               </div>
             )}
           />
@@ -376,9 +372,8 @@ export default function ClassesTab() {
         title={drawerMode === "add" ? "Add New Class" : "Edit Class"}
         width="max-w-[380px]"
         footer={
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="outline"
               tone="admin"
               fullWidth
               onClick={() => {
@@ -388,7 +383,7 @@ export default function ClassesTab() {
             >
               Cancel
             </Button>
-            <Button variant="primary" tone="admin" fullWidth onClick={handleSave} disabled={updating}>
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" variant="primary" tone="admin" fullWidth onClick={handleSave} disabled={updating}>
               {drawerMode === "add" ? "Add" : "Save"}
             </Button>
           </div>
@@ -396,44 +391,44 @@ export default function ClassesTab() {
       >
         {/* Error Banner */}
         {drawerError && (
-          <div className="mb-4 p-3 bg-[var(--color-danger-bg)] border border-[var(--color-danger-border)] rounded-lg flex items-start gap-2 text-sm text-[var(--color-danger-text)]">
-            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+          <div className="mb-4 p-3 bg-[var(--color-danger-bg)] border border-[var(--color-danger-border)] rounded-lg flex flex-col md:flex-row items-start gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 text-sm md:text-base md:text-base text-[var(--color-danger-text)] px-4 sm:px-6 lg:px-8">
+            <AlertCircle size={16} className="shrink-0 mt-0.5 px-4 sm:px-6 lg:px-8" />
             <span>{drawerError}</span>
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 sm:px-6 lg:px-8">
           {/* Class Name */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
-              Class Name <span className="text-[var(--color-danger)]">*</span>
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
+              Class Name <span className="text-[var(--color-danger)] px-4 sm:px-6 lg:px-8">*</span>
             </label>
             <input
               type="text"
               value={formData.class_name || ""}
               onChange={(e) => setFormData({ ...formData, class_name: e.target.value })}
               placeholder="e.g., 10"
-              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm"
+              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8"
             />
           </div>
           
           {/* Section */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
-              Section <span className="text-[var(--color-danger)]">*</span>
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
+              Section <span className="text-[var(--color-danger)] px-4 sm:px-6 lg:px-8">*</span>
             </label>
             <input
               type="text"
               value={formData.section || ""}
               onChange={(e) => setFormData({ ...formData, section: e.target.value })}
               placeholder="e.g., A"
-              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm"
+              className="w-full px-3.5 py-2.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] transition-all text-sm md:text-base md:text-base px-4 sm:px-6 lg:px-8"
             />
           </div>
           
           {/* Default Room */}
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+            <label className="block md:hidden text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-1 px-4 sm:px-6 lg:px-8">
               Default Room
             </label>
             <Select

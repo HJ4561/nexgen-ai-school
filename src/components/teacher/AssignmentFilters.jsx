@@ -91,7 +91,7 @@ export default function AssignmentFilters({
 }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-soft border border-gray-100">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col flex-wrap items-center gap-3 md:flex-row">
         {/* ─── Search Input ─── */}
         <div className="relative flex-1 min-w-[180px]">
           <Search 

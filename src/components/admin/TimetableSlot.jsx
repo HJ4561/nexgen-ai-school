@@ -94,14 +94,14 @@ export default function TimetableSlot({
   if (isEmpty) {
     return (
       <div
-        className="p-0.5 md:p-1.5 min-h-[55px] md:min-h-[80px] cursor-pointer transition-colors hover:bg-[var(--color-admin-light)]/30 bg-white"
+        className="p-0.5 md:p-1.5 min-h-[55px] md:min-h-[80px] cursor-pointer transition-colors hover:bg-[var(--color-admin-light)]/30 bg-white px-4 sm:px-6 lg:px-8"
         onClick={() => onAdd(day, time)}
       >
-        <div className="h-full flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg hover:border-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)]/20 transition-all">
+        <div className="h-full flex flex-col md:flex-row items-center justify-center border-2 border-dashed border-gray-200 rounded-lg hover:border-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)]/20 transition-all px-4 sm:px-6 lg:px-8">
           {/* Add button - visible on hover */}
-          <div className="flex flex-col items-center opacity-30 hover:opacity-70 transition-opacity">
-            <Plus size={14} className="md:size-4 text-[var(--color-admin-primary)]" />
-            <span className="text-[6px] md:text-[8px] font-bold uppercase text-[var(--color-admin-primary)] hidden sm:block">
+          <div className="flex flex-col md:flex-row-col items-center opacity-30 hover:opacity-70 transition-opacity px-4 sm:px-6 lg:px-8">
+            <Plus size={14} className="md:size-4 text-[var(--color-admin-primary)] px-4 sm:px-6 lg:px-8" />
+            <span className="text-[6px] md:text-[8px] font-bold uppercase text-[var(--color-admin-primary)] hidden md:block md:hidden sm:block md:hidden px-4 sm:px-6 lg:px-8">
               Add
             </span>
           </div>
@@ -113,33 +113,33 @@ export default function TimetableSlot({
   // ─── Occupied Slot ─────────────────────────────────────────────────
   return (
     <div
-      className="p-0.5 md:p-1.5 min-h-[55px] md:min-h-[80px] cursor-pointer transition-colors hover:bg-[var(--color-admin-light)]/30"
+      className="p-0.5 md:p-1.5 min-h-[55px] md:min-h-[80px] cursor-pointer transition-colors hover:bg-[var(--color-admin-light)]/30 px-4 sm:px-6 lg:px-8"
       onClick={(e) => {
         e.stopPropagation();
         onEdit(entry);
       }}
     >
       <div
-        className="h-full rounded-lg p-1.5 md:p-2 border-l-4 cursor-pointer hover:shadow-md transition-all"
+        className="h-full rounded-lg p-1.5 md:p-2 border-l-4 cursor-pointer hover:shadow-md transition-all px-4 sm:px-6 lg:px-8"
         style={{
           borderLeftColor: `var(--color-${colorTone || 'admin'}-primary)`,
           background: "rgba(255,255,255,0.7)",
         }}
       >
         {/* ─── Subject Name ─── */}
-        <p className="text-[10px] md:text-xs font-bold text-[var(--color-text-primary)] truncate">
+        <p className="text-[10px] md:text-xs font-bold text-[var(--color-text-primary)] truncate px-4 sm:px-6 lg:px-8">
           {subjectName || entry.subject}
         </p>
         
-        {/* ─── Teacher Name (hidden on small mobile) ─── */}
-        <p className="text-[8px] md:text-[10px] text-[var(--color-text-muted)] truncate hidden sm:block">
+        {/* ─── Teacher Name (hidden md:block md:hidden on small mobile) ─── */}
+        <p className="text-[8px] md:text-[10px] text-[var(--color-text-muted)] truncate hidden md:block md:hidden sm:block md:hidden px-4 sm:px-6 lg:px-8">
           {teacherName || entry.teacher}
         </p>
         
-        {/* ─── Room (hidden on mobile, visible on desktop) ─── */}
-        <div className="flex items-center gap-0.5 mt-0.5 hidden md:flex">
-          <Building size={10} className="text-[var(--color-text-muted)]" />
-          <span className="text-[8px] md:text-[9px] text-[var(--color-text-muted)] truncate">
+        {/* ─── Room (hidden md:block md:hidden on mobile, visible on desktop) ─── */}
+        <div className="flex flex-col md:flex-row items-center gap-0.5 mt-0.5 hidden md:block md:hidden md:flex flex-col md:flex-row px-4 sm:px-6 lg:px-8">
+          <Building size={10} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+          <span className="text-[8px] md:text-[9px] text-[var(--color-text-muted)] truncate px-4 sm:px-6 lg:px-8">
             {roomName || entry.room}
           </span>
         </div>

@@ -67,7 +67,7 @@ const ProgressRing = ({ percent, gradientId, colors, size = 68, stroke = 6 }) =>
   const offset = circumference - (mounted ? clamped / 100 : 0) * circumference;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90 px-4 sm:px-6 lg:px-8">
       <defs>
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={colors[0]} />
@@ -80,7 +80,7 @@ const ProgressRing = ({ percent, gradientId, colors, size = 68, stroke = 6 }) =>
         r={radius}
         fill="none"
         strokeWidth={stroke}
-        className="stroke-slate-100 dark:stroke-slate-800"
+        className="stroke-slate-100 dark:stroke-slate-800 px-4 sm:px-6 lg:px-8"
       />
       <circle
         cx={size / 2}
@@ -115,9 +115,9 @@ const ProgressBar = ({ percent, colors }) => {
   const clamped = Math.min(100, Math.max(0, percent));
 
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+    <div className="h-1.5 w-full overflow-hidden md:block md:hidden rounded-full bg-slate-100 dark:bg-slate-800 px-4 sm:px-6 lg:px-8">
       <div
-        className="h-full rounded-full"
+        className="h-full rounded-full px-4 sm:px-6 lg:px-8"
         style={{
           width: mounted ? `${clamped}%` : "0%",
           background: `linear-gradient(90deg, ${colors[0]}, ${colors[1]})`,
@@ -164,7 +164,7 @@ const AcademicFilterSelect = ({ value, onChange }) => (
     className="relative z-10 w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs
                font-medium text-text-secondary outline-none transition-colors
                hover:border-student-primary/40 focus:border-student-primary
-               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 px-4 sm:px-6 lg:px-8"
   >
     {EXAM_FILTERS.map((option) => (
       <option key={option} value={option}>
@@ -227,6 +227,39 @@ const QuickStats = () => {
 
   /**
    * ============================================
+   * ✅ FIXED: SAFE GRADE STATS EXTRACTION
+   * ============================================
+   * 
+   * Safely extracts grades from reportCard regardless of data structure
+   */
+  const gradeStats = useMemo(() => {
+    const grades = reportCard?.grades;
+    
+    // If grades is an array, use it directly
+    if (Array.isArray(grades)) {
+      return grades;
+    }
+    
+    // If grades is an object with results/data property
+    if (grades && typeof grades === 'object') {
+      if (grades.results && Array.isArray(grades.results)) {
+        return grades.results;
+      }
+      if (grades.data && Array.isArray(grades.data)) {
+        return grades.data;
+      }
+      // If it's a single grade object, wrap it
+      if (grades.id && grades.subject) {
+        return [grades];
+      }
+    }
+    
+    // Default to empty array
+    return [];
+  }, [reportCard]);
+
+  /**
+   * ============================================
    * STATISTICS CALCULATIONS
    * ============================================
    * 
@@ -252,21 +285,21 @@ const QuickStats = () => {
     /* ==========================================
         Academic Performance
         Scoped to the selected exam-type filter.
+        ✅ FIXED: Uses safe gradeStats instead of reportCard.grades directly
     ========================================== */
 
-    const allGrades = reportCard?.grades || [];
     const grades =
       academicFilter === "All"
-        ? allGrades
-        : allGrades.filter((grade) => grade.exam_type === academicFilter);
+        ? gradeStats
+        : gradeStats.filter((grade) => grade.exam_type === academicFilter);
 
     const obtainedMarks = grades.reduce(
-      (sum, grade) => sum + Number(grade.obtained_marks),
+      (sum, grade) => sum + Number(grade.obtained_marks || grade.marks_obtained || 0),
       0
     );
 
     const totalMarks = grades.reduce(
-      (sum, grade) => sum + Number(grade.total_marks),
+      (sum, grade) => sum + Number(grade.total_marks || grade.max_marks || 0),
       0
     );
 
@@ -312,7 +345,7 @@ const QuickStats = () => {
       attendancePercentage,
       averageMarks,
       totalExams: new Set(
-        grades.map((grade) => grade.subject_name)
+        gradeStats.map((grade) => grade.subject_name || grade.subject)
       ).size,
       totalAssignments,
       pendingAssignments,
@@ -322,7 +355,7 @@ const QuickStats = () => {
       podiumFinishes,
       achievementRate,
     };
-  }, [attendance, reportCard, mergedAssignments, participations, academicFilter]);
+  }, [attendance, gradeStats, mergedAssignments, participations, academicFilter]);
 
   /**
    * ============================================
@@ -413,52 +446,50 @@ const QuickStats = () => {
   ];
 
   return (
-    <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 px-4 sm:px-6 lg:px-8">
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
           <div
             key={card.key}
             style={{ animationDelay: `${index * 90}ms` }}
-            className="group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-5 opacity-0 shadow-sm [animation-fill-mode:forwards]
+            className="group relative overflow-hidden md:block md:hidden rounded-2xl border border-slate-200/70 bg-white p-5 opacity-0 shadow-sm [animation-fill-mode:forwards]
                        animate-[quickstat-in_0.6s_ease-out] transition-all duration-300
                        hover:-translate-y-1 hover:border-slate-200 hover:shadow-xl hover:shadow-slate-200/70
-                       dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/30"
+                       dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-black/30 px-4 sm:px-6 lg:px-8"
           >
             {/* ─── Top Accent Line ─── */}
             <div
-              aria-hidden
-              className="absolute inset-x-0 top-0 h-[3px] opacity-80"
+              aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] opacity-80 px-4 sm:px-6 lg:px-8"
               style={{ background: `linear-gradient(90deg, ${card.colors[0]}, ${card.colors[1]})` }}
             />
 
             {/* ─── Ambient Glow ─── */}
             <div
-              aria-hidden
-              className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-25"
+              aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-25 px-4 sm:px-6 lg:px-8"
               style={{ background: `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})` }}
             />
 
-            <div className="relative flex items-start justify-between">
+            <div className="relative flex flex-col md:flex-row items-start justify-between px-4 sm:px-6 lg:px-8">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-4 sm:px-6 lg:px-8">
                   {card.title}
                 </p>
-                <p className="mt-1.5 text-3xl font-bold tabular-nums tracking-tight text-slate-800 dark:text-slate-100">
+                <p className="mt-1.5 text-3xl font-bold tabular-nums tracking-tight text-slate-800 dark:text-slate-100 px-4 sm:px-6 lg:px-8">
                   {card.value}
                 </p>
               </div>
 
               {/* ─── Visual: Ring or Icon ─── */}
               {card.visual.type === "ring" ? (
-                <div className="relative flex h-[68px] w-[68px] shrink-0 items-center justify-center">
+                <div className="relative flex flex-col md:flex-row h-[68px] w-[68px] shrink-0 items-center justify-center px-4 sm:px-6 lg:px-8">
                   <ProgressRing
                     percent={card.visual.percent}
                     gradientId={`grad-${card.key}`}
                     colors={card.colors}
                   />
                   <div
-                    className="absolute flex h-9 w-9 items-center justify-center rounded-full text-white shadow-md transition-transform duration-300 group-hover:scale-105"
+                    className="absolute flex flex-col md:flex-row h-9 w-9 items-center justify-center rounded-full text-white shadow-md transition-transform duration-300 group-hover:scale-105 px-4 sm:px-6 lg:px-8"
                     style={{ background: `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})` }}
                   >
                     <Icon size={17} strokeWidth={2.25} />
@@ -466,7 +497,7 @@ const QuickStats = () => {
                 </div>
               ) : (
                 <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3"
+                  className="flex flex-col md:flex-row h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3 px-4 sm:px-6 lg:px-8"
                   style={{ background: `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})` }}
                 >
                   <Icon size={20} strokeWidth={2.25} />
@@ -474,17 +505,16 @@ const QuickStats = () => {
               )}
             </div>
 
-            <div className="relative mt-4 space-y-2.5">
+            <div className="relative mt-4 space-y-2.5 px-4 sm:px-6 lg:px-8">
               {/* ─── Progress Bar ─── */}
               {card.visual.type === "bar" && (
                 <ProgressBar percent={card.visual.percent} colors={card.colors} />
               )}
 
               {/* ─── Footer ─── */}
-              <p className={`flex items-center gap-1.5 text-sm font-medium ${footerToneClasses[card.footerTone]}`}>
+              <p className={`flex flex-col md:flex-row items-center gap-1.5 text-sm md:text-base md:text-base font-medium ${footerToneClasses[card.footerTone]}`}>
                 <span
-                  aria-hidden
-                  className="h-1.5 w-1.5 shrink-0 rounded-full"
+                  aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full px-4 sm:px-6 lg:px-8"
                   style={{ background: `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})` }}
                 />
                 {card.footer}

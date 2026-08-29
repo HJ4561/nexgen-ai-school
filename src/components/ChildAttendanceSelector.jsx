@@ -84,15 +84,15 @@ const ChildAttendanceSelector = () => {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full px-4 sm:px-6 lg:px-8">
       {/* ─── Label ─── */}
-      <label className="mb-3 block text-sm font-semibold text-parent-primary">
+      <label className="mb-3 block md:hidden text-sm md:text-base md:text-base font-semibold text-parent-primary px-4 sm:px-6 lg:px-8">
         Select Child
       </label>
 
       {/* ─── Custom Dropdown ─── */}
-      <div className="relative">
-        {/* Native select (hidden appearance) */}
+      <div className="relative px-4 sm:px-6 lg:px-8">
+        {/* Native select (hidden md:block md:hidden appearance) */}
         <select
           value={currentChild?.student || ""}
           onChange={handleChange}
@@ -111,7 +111,7 @@ const ChildAttendanceSelector = () => {
             focus:border-parent-primary
             focus:ring-2
             focus:ring-parent-primary/20
-          "
+           px-4 sm:px-6 lg:px-8"
         >
           {parentLinks.map((child) => (
             <option
@@ -129,8 +129,7 @@ const ChildAttendanceSelector = () => {
             absolute
             left-4
             top-1/2
-            flex
-            h-12
+            flex flex-col md:flex-row h-12
             w-12
             -translate-y-1/2
             items-center
@@ -138,7 +137,7 @@ const ChildAttendanceSelector = () => {
             rounded-full
             bg-parent-primary
             text-white
-          "
+           px-4 sm:px-6 lg:px-8"
         >
           <User size={22} />
         </div>
@@ -152,13 +151,13 @@ const ChildAttendanceSelector = () => {
               left-20
               top-1/2
               -translate-y-1/2
-            "
+             px-4 sm:px-6 lg:px-8"
           >
-            <p className="font-semibold text-text-primary">
+            <p className="font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
               {currentChild.student_name}
             </p>
 
-            <p className="text-xs text-text-secondary">
+            <p className="text-xs text-text-secondary px-4 sm:px-6 lg:px-8">
               Roll No: {currentChild.student_roll_number}
             </p>
           </div>
@@ -174,7 +173,7 @@ const ChildAttendanceSelector = () => {
             top-1/2
             -translate-y-1/2
             text-text-secondary
-          "
+           px-4 sm:px-6 lg:px-8"
         />
       </div>
     </Card>

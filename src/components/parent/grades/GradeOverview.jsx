@@ -1,243 +1,105 @@
-/**
- * ============================================
- * GRADE OVERVIEW COMPONENT
- * ============================================
- * 
- * Purpose: Displays grade statistics summary for parent view
- * Features:
- * - Overall average percentage
- * - Number of subjects
- * - Highest score
- * - Lowest score
- * - Marks obtained / total marks
- * - Color-coded stat cards with icons
- * - Role-based theming (parent)
- * - Responsive grid layout (1/2/5 columns)
- * 
- * Dependencies:
- * - lucide-react for icons (Award, BookOpen, TrendingUp, TrendingDown, GraduationCap)
- * - @/components/ui/Card for container
- * - react-redux for state management
- * 
- * Usage:
- * <GradeOverview />
- * ============================================
- */
-
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-
+// src/components/parent/grades/GradeOverview.jsx
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { TrendingUp, BookOpen, Award, Star, TrendingDown } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import { selectGrades, selectSelectedChild } from '@/modules/parent/store/parentSlice';
 
-import {
-  Award,
-  BookOpen,
-  TrendingUp,
-  TrendingDown,
-  GraduationCap,
-} from "lucide-react";
-
-/**
- * ============================================
- * GRADE OVERVIEW COMPONENT
- * ============================================
- * 
- * Renders grade statistics in a visual card grid
- * 
- * @returns {JSX.Element} Grade overview UI
- * 
- * @example
- * // In parent dashboard
- * <GradeOverview />
- * ============================================
- */
 const GradeOverview = () => {
-  /**
-   * ============================================
-   * REDUX STATE
-   * ============================================
-   * 
-   * Retrieves grades, parentLinks, selectedChild, and selectedTerm
-   */
-  const {
-    grades,
-    parentLinks,
-    selectedChild,
-    selectedTerm,
-  } = useSelector((state) => state.parent);
+  const grades = useSelector(selectGrades);
+  const selectedChild = useSelector(selectSelectedChild);
 
-  /**
-   * ============================================
-   * SELECTED CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Returns undefined if not found
-   */
-  const currentChild = useMemo(
-    () =>
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ),
-    [parentLinks, selectedChild]
-  );
-
-  /**
-   * ============================================
-   * FILTER GRADES
-   * ============================================
-   * 
-   * Filters grades for the selected child and exam type
-   * - Filters by student name
-   * - Filters by exam type (or shows all if "All" selected)
-   */
-  const filteredGrades = useMemo(() => {
-    if (!currentChild) return [];
-
-    return grades.filter(
-      (item) =>
-        item.student_name === currentChild.student_name &&
-        (selectedTerm === "All" || item.exam_type === selectedTerm)
-    );
-  }, [grades, currentChild, selectedTerm]);
-
-  /**
-   * ============================================
-   * STATISTICS
-   * ============================================
-   * 
-   * Calculates grade statistics:
-   * - average: Weighted average percentage (obtained/total)
-   * - highest: Highest percentage among all grades
-   * - lowest: Lowest percentage among all grades
-   * - obtained: Total obtained marks
-   * - total: Total possible marks
-   * - subjects: Number of unique subjects
-   * 
-   * Returns default values if no grades exist
-   */
   const stats = useMemo(() => {
-    // Return default values if no filtered grades
-    if (!filteredGrades.length) {
+    // Filter grades by selected child
+    let filteredGrades = grades;
+    if (selectedChild) {
+      filteredGrades = grades.filter(g => g.student === selectedChild || g.student_id === selectedChild);
+    }
+
+    if (filteredGrades.length === 0) {
       return {
         average: 0,
+        totalSubjects: 0,
         highest: 0,
         lowest: 0,
-        obtained: 0,
-        total: 0,
-        subjects: 0,
+        totalMarks: 0,
+        obtainedMarks: 0,
+        percentage: 0,
       };
     }
 
-    // Calculate percentages for each grade
-    const percentages = filteredGrades.map(
-      (item) => (Number(item.obtained_marks) / Number(item.total_marks)) * 100
+    const totalMarks = filteredGrades.reduce((sum, g) => sum + (g.total_marks || 0), 0);
+    const obtainedMarks = filteredGrades.reduce((sum, g) => sum + (g.marks_obtained || 0), 0);
+    const percentages = filteredGrades.map(g => 
+      g.total_marks > 0 ? (g.marks_obtained / g.total_marks) * 100 : 0
     );
-
-    // Sum obtained marks
-    const obtained = filteredGrades.reduce(
-      (sum, item) => sum + Number(item.obtained_marks),
-      0
-    );
-
-    // Sum total marks
-    const total = filteredGrades.reduce(
-      (sum, item) => sum + Number(item.total_marks),
-      0
-    );
-
+    
     return {
-      average: (obtained / total) * 100,
-      highest: Math.max(...percentages),
-      lowest: Math.min(...percentages),
-      obtained,
-      total,
-      subjects: new Set(filteredGrades.map((item) => item.subject_name)).size,
+      average: percentages.length > 0 
+        ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) 
+        : 0,
+      totalSubjects: filteredGrades.length,
+      highest: percentages.length > 0 ? Math.round(Math.max(...percentages)) : 0,
+      lowest: percentages.length > 0 ? Math.round(Math.min(...percentages)) : 0,
+      totalMarks,
+      obtainedMarks,
+      percentage: totalMarks > 0 ? Math.round((obtainedMarks / totalMarks) * 100) : 0,
     };
-  }, [filteredGrades]);
-
-  /**
-   * ============================================
-   * STAT CARDS CONFIGURATION
-   * ============================================
-   * 
-   * Defines the configuration for each statistic card
-   * 
-   * @constant {Array} cards
-   * @property {string} title - Display label for the stat
-   * @property {string|number} value - The statistic value
-   * @property {Component} icon - Lucide icon component
-   * @property {string} iconBg - Background color class for the icon container
-   * @property {string} iconColor - Text color class for the icon
-   */
-  const cards = [
-    {
-      title: "Overall Average",
-      value: `${stats.average.toFixed(2)}%`,
-      icon: Award,
-      iconBg: "bg-parent-primary/10",
-      iconColor: "text-parent-primary",
-    },
-    {
-      title: "Subjects",
-      value: stats.subjects,
-      icon: BookOpen,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      title: "Highest Score",
-      value: `${stats.highest.toFixed(2)}%`,
-      icon: TrendingUp,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-    },
-    {
-      title: "Lowest Score",
-      value: `${stats.lowest.toFixed(2)}%`,
-      icon: TrendingDown,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-    {
-      title: "Marks",
-      value: `${stats.obtained.toFixed(2)} / ${stats.total.toFixed(2)}`,
-      icon: GraduationCap,
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-  ];
+  }, [grades, selectedChild]);
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      {/* ─── Render each stat card ─── */}
-      {cards.map((card) => {
-        const Icon = card.icon;
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <Card className="p-3 md:p-4 border-l-4 border-l-blue-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Average</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-800 mt-0.5 md:mt-1">{stats.average}%</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Overall average</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+          </div>
+        </div>
+      </Card>
 
-        return (
-          <Card key={card.title} hover={false} className="h-full">
-            <div className="flex items-center justify-between">
-              {/* Stat label and value */}
-              <div>
-                <p className="text-sm text-text-secondary">
-                  {card.title}
-                </p>
+      <Card className="p-3 md:p-4 border-l-4 border-l-emerald-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects</p>
+            <p className="text-xl md:text-2xl font-bold text-emerald-600 mt-0.5 md:mt-1">{stats.totalSubjects}</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Total subjects</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
+          </div>
+        </div>
+      </Card>
 
-                <h3 className="mt-2 text-2xl font-bold text-text-primary">
-                  {card.value}
-                </h3>
-              </div>
+      <Card className="p-3 md:p-4 border-l-4 border-l-purple-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Highest</p>
+            <p className="text-xl md:text-2xl font-bold text-purple-600 mt-0.5 md:mt-1">{stats.highest}%</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Best performance</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+            <Award className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+          </div>
+        </div>
+      </Card>
 
-              {/* Icon container with color coding */}
-              <div
-                className={`flex h-12 w-12 items-center justify-center rounded-xl ${card.iconBg}`}
-              >
-                <Icon size={22} className={card.iconColor} />
-              </div>
-            </div>
-          </Card>
-        );
-      })}
+      <Card className="p-3 md:p-4 border-l-4 border-l-amber-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wider">Lowest</p>
+            <p className="text-xl md:text-2xl font-bold text-amber-600 mt-0.5 md:mt-1">{stats.lowest}%</p>
+            <p className="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1">Needs improvement</p>
+          </div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+            <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

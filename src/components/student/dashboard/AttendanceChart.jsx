@@ -146,14 +146,14 @@ const CustomTooltip = ({ active, payload, label }) => {
   const style = STATUS_STYLES[point.status] || STATUS_STYLES.Absent;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-lg">
-      <p className="text-xs font-medium text-text-secondary">{label}</p>
-      <div className="mt-1 flex items-center gap-2">
+    <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-lg px-4 sm:px-6 lg:px-8">
+      <p className="text-xs font-medium text-text-secondary px-4 sm:px-6 lg:px-8">{label}</p>
+      <div className="mt-1 flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
         <span
-          className="h-2 w-2 rounded-full"
+          className="h-2 w-2 rounded-full px-4 sm:px-6 lg:px-8"
           style={{ backgroundColor: style.color }}
         />
-        <span className="text-sm font-semibold text-text-primary">{style.label}</span>
+        <span className="text-sm md:text-base md:text-base font-semibold text-text-primary px-4 sm:px-6 lg:px-8">{style.label}</span>
       </div>
     </div>
   );
@@ -169,14 +169,14 @@ const CustomTooltip = ({ active, payload, label }) => {
  * @returns {JSX.Element} Legend UI
  */
 const Legend = () => (
-  <div className="mt-4 flex items-center justify-center gap-5">
+  <div className="mt-4 flex flex-col md:flex-row items-center justify-center gap-5 px-4 sm:px-6 lg:px-8">
     {Object.values(STATUS_STYLES).map((style) => (
-      <div key={style.label} className="flex items-center gap-1.5">
+      <div key={style.label} className="flex flex-col md:flex-row items-center gap-1.5 px-4 sm:px-6 lg:px-8">
         <span
-          className="h-2 w-2 rounded-full"
+          className="h-2 w-2 rounded-full px-4 sm:px-6 lg:px-8"
           style={{ backgroundColor: style.color }}
         />
-        <span className="text-xs text-text-secondary">{style.label}</span>
+        <span className="text-xs text-text-secondary px-4 sm:px-6 lg:px-8">{style.label}</span>
       </div>
     ))}
   </div>
@@ -285,27 +285,27 @@ const AttendanceChart = () => {
       : "text-slate-500 bg-slate-100";
 
   return (
-    <Card hover={false} className="h-full">
+    <Card hover={false} className="h-full px-4 sm:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-6 flex flex-col md:flex-row-wrap items-center justify-between gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
         <div>
-          <h2 className="text-xl font-semibold text-text-primary">Attendance Trend</h2>
-          <p className="mt-1 text-sm text-text-secondary">Last 10 attendance records.</p>
+          <h2 className="text-xl md:text-2xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">Attendance Trend</h2>
+          <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">Last 10 attendance records.</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
           {/* Trend Badge */}
           {trend && (
-            <div className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold ${trendTone}`}>
+            <div className={`flex flex-col md:flex-row items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold ${trendTone}`}>
               <TrendIcon size={13} strokeWidth={2.5} />
               {trend.direction === "flat" ? "Steady" : `${Math.abs(trend.delta)}%`}
             </div>
           )}
 
           {/* Attendance Percentage */}
-          <div className="rounded-xl bg-student-light px-4 py-2">
-            <p className="text-xs text-text-secondary">Attendance</p>
-            <h3 className="text-lg font-bold text-student-primary">
+          <div className="rounded-xl bg-student-light px-4 py-2 px-4 sm:px-6 lg:px-8">
+            <p className="text-xs text-text-secondary px-4 sm:px-6 lg:px-8">Attendance</p>
+            <h3 className="text-lg md:text-xl md:text-2xl font-bold text-student-primary px-4 sm:px-6 lg:px-8">
               {attendancePercentage}%
             </h3>
           </div>
@@ -315,14 +315,14 @@ const AttendanceChart = () => {
       {/* ─── Chart ────────────────────────────────────────────────── */}
       {chartData.length === 0 ? (
         // ─── Empty State ──────────────────────────────────────────
-        <div className="flex h-80 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-300">
-          <CalendarX2 size={36} className="text-slate-400" />
-          <p className="text-sm text-text-secondary">No attendance records yet.</p>
+        <div className="flex flex-col md:flex-row h-80 flex-col items-center justify-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 rounded-xl border border-dashed border-slate-300 px-4 sm:px-6 lg:px-8">
+          <CalendarX2 size={36} className="text-slate-400 px-4 sm:px-6 lg:px-8" />
+          <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">No attendance records yet.</p>
         </div>
       ) : (
         <>
           {/* ─── Area Chart ──────────────────────────────────────── */}
-          <div className="h-80">
+          <div className="h-80 px-4 sm:px-6 lg:px-8">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                 <defs>

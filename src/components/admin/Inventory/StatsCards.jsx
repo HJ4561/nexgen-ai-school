@@ -5,10 +5,10 @@ import Card from '@/components/ui/Card';
 const StatsCards = ({ stats }) => {
   if (!stats) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="p-4 animate-pulse">
-            <div className="h-16 bg-gray-200 rounded-lg"></div>
+          <Card key={i} className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 animate-pulse px-4 sm:px-6 lg:px-8">
+            <div className="h-16 bg-gray-200 rounded-lg px-4 sm:px-6 lg:px-8"></div>
           </Card>
         ))}
       </div>
@@ -50,18 +50,18 @@ const StatsCards = ({ stats }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
       {statItems.map((item, index) => {
         const Icon = item.icon;
         return (
-          <Card key={index} className="p-4 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
+          <Card key={index} className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 hover:shadow-md transition-shadow duration-200 px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8">
               <div>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{item.label}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{item.value}</p>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider px-4 sm:px-6 lg:px-8">{item.label}</p>
+                <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1 px-4 sm:px-6 lg:px-8">{item.value}</p>
               </div>
-              <div className={`w-10 h-10 rounded-lg ${colorMap[item.color]} flex items-center justify-center`}>
-                <Icon className="w-5 h-5" />
+              <div className={`w-10 h-10 rounded-lg ${colorMap[item.color]} flex flex-col md:flex-row items-center justify-center`}>
+                <Icon className="w-5 h-5 px-4 sm:px-6 lg:px-8" />
               </div>
             </div>
           </Card>

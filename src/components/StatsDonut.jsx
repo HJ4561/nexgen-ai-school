@@ -95,9 +95,9 @@ export default function StatsDonut({ data }) {
   const animatedTotal = useCountUp(total, { duration: 1.2 });
 
   return (
-    <div className="flex items-center gap-8 group">
+    <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-4 sm:gap-5 sm:p-6 sm:p-8 group px-4 sm:px-6 lg:px-8">
       {/* ─── Donut Chart ─── */}
-      <div className="relative shrink-0 transition-transform duration-300 group-hover:scale-105">
+      <div className="relative shrink-0 transition-transform duration-300 group-hover:scale-105 px-4 sm:px-6 lg:px-8">
         <ResponsiveContainer width={110} height={110}>
           <PieChart>
             <Pie
@@ -130,34 +130,34 @@ export default function StatsDonut({ data }) {
         </ResponsiveContainer>
         
         {/* ─── Center Total ─── */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xl font-bold text-[var(--color-text-primary)]">
+        <div className="absolute inset-0 flex flex-col md:flex-row-col items-center justify-center px-4 sm:px-6 lg:px-8">
+          <span className="text-xl md:text-2xl md:text-2xl font-bold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
             {animatedTotal}
           </span>
-          <span className="text-[8px] text-[var(--color-text-muted)] uppercase tracking-wider">
+          <span className="text-[8px] text-[var(--color-text-muted)] uppercase tracking-wider px-4 sm:px-6 lg:px-8">
             Total
           </span>
         </div>
       </div>
 
       {/* ─── Legend ─── */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col md:flex-row-col gap-1.5 px-4 sm:px-6 lg:px-8">
         {data.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 group/legend cursor-pointer transition-all hover:translate-x-1"
+            className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 group/legend cursor-pointer transition-all hover:translate-x-1 px-4 sm:px-6 lg:px-8"
           >
             {/* Color indicator */}
             <span
-              className="w-3 h-3 rounded-full transition-shadow group-hover/legend:shadow-md"
+              className="w-3 h-3 rounded-full transition-shadow group-hover/legend:shadow-md px-4 sm:px-6 lg:px-8"
               style={{ background: COLORS[index % COLORS.length] }}
             />
             {/* Label and value */}
-            <div className="flex items-center justify-between min-w-[150px]">
-              <span className="text-sm text-[var(--color-text-secondary)] group-hover/legend:text-[var(--color-text-primary)]">
+            <div className="flex flex-col md:flex-row items-center justify-between min-w-[150px] px-4 sm:px-6 lg:px-8">
+              <span className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] group-hover/legend:text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                 {item.label}
               </span>
-              <span className="font-bold text-[var(--color-text-primary)]">
+              <span className="font-bold text-[var(--color-text-primary)] px-4 sm:px-6 lg:px-8">
                 {item.value}
               </span>
             </div>

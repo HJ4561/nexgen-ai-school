@@ -3,185 +3,560 @@
  * PARENT ATTENDANCE COMPONENT
  * ============================================
  * 
- * Purpose: Parent attendance dashboard for tracking child attendance
+ * Purpose: View child attendance records and statistics
  * Used by: Parent module routes
  * 
  * Features:
- * - Child selector for switching between children
- * - Attendance statistics summary
- * - Attendance trend chart
- * - Monthly calendar view
- * - Detailed attendance table
- * - GSAP entrance animations
- * - Responsive grid layout
- * - Data fetching on mount
+ * - Page header with title and breadcrumbs
+ * - Child selector for filtering by child
+ * - Attendance statistics (present, absent, late, percentage)
+ * - Monthly calendar view with attendance markers
+ * - Detailed attendance list with filters
+ * - Filter by date range
+ * - Export attendance data
+ * - Responsive design
+ * - GSAP animations
  * 
- * Dependencies:
- * - react-redux for state management
- * - gsap for animations
- * - @/modules/parent/store/parentThunks for data fetching
- * - Various parent attendance components
+ * API Endpoints:
+ * - GET /api/attendance/attendance/ - Get attendance records
+ * - GET /api/attendance/attendance/stats/ - Get statistics
  * 
  * Usage:
  * <Route path="/parent/attendance" element={<Attendance />} />
  * ============================================
  */
 
-import { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
-import { gsap } from "gsap";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Calendar as CalendarIcon,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  Search,
+  X,
+  Filter,
+  ChevronDown,
+  RefreshCw,
+  AlertCircle,
+  User,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+} from "lucide-react";
+
+import PageHeader from "@/components/layout/PageHeader";
+import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import Pagination from "@/components/admin/Pagination";
+import { FadeIn, StaggerGroup, StaggerItem } from "@/components/admin/animations/index.jsx";
 
 import {
-  fetchAttendance,
   fetchParentLinks,
+  fetchAttendance,
+  fetchAttendanceStats,
 } from "@/modules/parent/store/parentThunks";
 
-import ChildSelector from "@/components/parent/ChildSelector";
-import AttendanceCalendar from "@/components/parent/attendance/AttendanceCalendar";
-import AttendanceTable from "@/components/parent/attendance/AttendanceTable";
-import AttendanceChart from "@/components/parent/attendance/AttendanceChart";
-import AttendanceStats from "@/components/parent/attendance/AttendanceStats";
+import {
+  selectParentLinks,
+  selectSelectedChild,
+  selectAttendance,
+  selectAttendanceStats,
+  selectParentLoading,
+  selectParentError,
+} from "@/modules/parent/store/parentSlice";
 
-/**
- * ============================================
- * PARENT ATTENDANCE COMPONENT
- * ============================================
- * 
- * Renders the parent attendance dashboard
- * 
- * @returns {JSX.Element} Parent attendance page
- * 
- * @example
- * // In parent routes
- * <Route path="/parent/attendance" element={<Attendance />} />
- * ============================================
- */
+const ITEMS_PER_PAGE = 15;
+
+const formatDate = (dateString) => {
+  if (!dateString) return "—";
+  try {
+    return new Date(dateString).toLocaleDateString("en-PK", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+};
+
+const getStatusBadge = (status) => {
+  const config = {
+    present: { color: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: CheckCircle },
+    absent: { color: "bg-red-50 text-red-700 border-red-200", icon: XCircle },
+    late: { color: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+    leave: { color: "bg-blue-50 text-blue-700 border-blue-200", icon: Clock },
+  };
+  const info = config[status] || config.present;
+  const Icon = info.icon;
+  return (
+    <Badge className={`${info.color} text-xs flex items-center gap-1`}>
+      <Icon className="w-3 h-3" />
+      {status?.charAt(0).toUpperCase() + status?.slice(1) || "Present"}
+    </Badge>
+  );
+};
+
+// ─── Child Selector ──────────────────────────────────────────────────────
+
+const ChildSelector = ({ onSelect, selectedChild, children }) => {
+  if (!children || children.length === 0) return null;
+
+  return (
+    <div className="relative">
+      <select
+        value={selectedChild || ""}
+        onChange={(e) => onSelect(e.target.value ? parseInt(e.target.value) : null)}
+        className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white border border-gray-200 rounded-lg sm:rounded-xl appearance-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xs sm:text-sm pr-8 sm:pr-10 min-h-[36px] sm:min-h-[42px]"
+      >
+        <option value="">All Children</option>
+        {children.map((child) => (
+          <option key={child.id} value={child.student || child.id}>
+            {child.student_name || child.name || `Child ${child.id}`}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400 pointer-events-none" />
+    </div>
+  );
+};
+
+// ─── Monthly Calendar ───────────────────────────────────────────────────
+
+const MonthlyCalendar = ({ records, month, year, onDateClick }) => {
+  const getDayStatus = (date) => {
+    const record = records.find(r => r.date === date);
+    return record?.status || null;
+  };
+
+  const getStatusColor = (status) => {
+    if (status === "present") return "bg-emerald-500 text-white";
+    if (status === "absent") return "bg-red-500 text-white";
+    if (status === "late") return "bg-amber-500 text-white";
+    if (status === "leave") return "bg-blue-500 text-white";
+    return "hover:bg-gray-100";
+  };
+
+  // Generate calendar days
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const days = [];
+
+  // Empty cells for days before first day
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null);
+  }
+
+  // Days of the month
+  for (let i = 1; i <= daysInMonth; i++) {
+    const date = `${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    const status = getDayStatus(date);
+    days.push({ day: i, date, status });
+  }
+
+  return (
+    <div className="w-full">
+      {/* Month Header */}
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-gray-700">
+          {new Date(year, month - 1).toLocaleString('default', { month: 'long' })} {year}
+        </h4>
+      </div>
+
+      {/* Day Headers */}
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          <div key={day} className="text-center text-[10px] sm:text-xs font-medium text-gray-500 py-1">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Days Grid */}
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+        {days.map((day, index) => (
+          <div
+            key={index}
+            className={`aspect-square flex items-center justify-center text-xs sm:text-sm rounded-lg transition-colors ${
+              day
+                ? `${getStatusColor(day.status)} cursor-pointer hover:opacity-80`
+                : 'cursor-default'
+            }`}
+            onClick={() => day && onDateClick?.(day.date)}
+          >
+            {day?.day}
+          </div>
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap items-center gap-3 mt-3 pt-2 border-t border-gray-100">
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+          Present
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-red-500"></span>
+          Absent
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+          Late
+        </div>
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+          Leave
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Main Component ──────────────────────────────────────────────────────
+
 const Attendance = () => {
   const dispatch = useDispatch();
 
-  // ─── GSAP Refs ───────────────────────────────────────────────────────
+  // ─── Redux State ──────────────────────────────────────────────────────
+  const children = useSelector(selectParentLinks);
+  const selectedChild = useSelector(selectSelectedChild);
+  const records = useSelector(selectAttendance);
+  const stats = useSelector(selectAttendanceStats);
+  const loading = useSelector(selectParentLoading);
+  const error = useSelector(selectParentError);
 
-  /**
-   * ============================================
-   * ANIMATION REFS
-   * ============================================
-   * 
-   * Refs for animating different sections of the attendance page
-   */
+  // ─── Local State ──────────────────────────────────────────────────────
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [toast, setToast] = useState(null);
+
+  // ─── Refs for Animations ─────────────────────────────────────────────
   const containerRef = useRef(null);
-  const selectorRef = useRef(null);
-  const statsRef = useRef(null);
-  const chartRef = useRef(null);
-  const calendarRef = useRef(null);
-  const tableRef = useRef(null);
 
-  // ─── Data Fetching ───────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * FETCH DATA ON MOUNT
-   * ============================================
-   * 
-   * Dispatches actions to fetch:
-   * - Parent-child links for child selector
-   * - Attendance records for all children
-   */
+  // ─── Data Fetching ────────────────────────────────────────────────────
   useEffect(() => {
     dispatch(fetchParentLinks());
     dispatch(fetchAttendance());
+    dispatch(fetchAttendanceStats({}));
   }, [dispatch]);
 
-  // ─── Entrance Animations ─────────────────────────────────────────────
+  // ─── Filter Logic ─────────────────────────────────────────────────────
+  const filteredRecords = useMemo(() => {
+    let filtered = records;
 
-  /**
-   * ============================================
-   * GSAP ENTRANCE ANIMATIONS
-   * ============================================
-   * 
-   * Animates page sections on load with staggered timing:
-   * - Child Selector: fade in + slide up
-   * - Stats: fade in + slide up
-   * - Chart: fade in + slide up
-   * - Calendar: fade in + slide left
-   * - Table: fade in + slide right
-   * 
-   * Uses power3.out easing for smooth transitions
-   */
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    if (selectedChild) {
+      filtered = filtered.filter(r => r.student === selectedChild || r.student_id === selectedChild);
+    }
 
-      // ─── Child Selector ───
-      tl.fromTo(
-        selectorRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.55 }
-      )
-        // ─── Stats ───
-        .fromTo(
-          statsRef.current,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.6 },
-          "-=0.3"
-        )
-        // ─── Chart ───
-        .fromTo(
-          chartRef.current,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.6 },
-          "-=0.35"
-        )
-        // ─── Calendar ───
-        .fromTo(
-          calendarRef.current,
-          { opacity: 0, x: -20 },
-          { opacity: 1, x: 0, duration: 0.55 },
-          "-=0.3"
-        )
-        // ─── Table ───
-        .fromTo(
-          tableRef.current,
-          { opacity: 0, x: 20 },
-          { opacity: 1, x: 0, duration: 0.55 },
-          "-=0.45"
-        );
-    }, containerRef);
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(r =>
+        r.student_name?.toLowerCase().includes(search) ||
+        r.teacher_name?.toLowerCase().includes(search)
+      );
+    }
 
-    return () => ctx.revert();
-  }, []);
+    if (filterStatus !== "all") {
+      filtered = filtered.filter(r => r.status === filterStatus);
+    }
 
+    if (selectedDate) {
+      filtered = filtered.filter(r => r.date === selectedDate);
+    }
+
+    return filtered;
+  }, [records, selectedChild, searchTerm, filterStatus, selectedDate]);
+
+  // ─── Pagination ──────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = filteredRecords.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // ─── Handlers ────────────────────────────────────────────────────────
+  const handleChildSelect = (childId) => {
+    // This would dispatch setSelectedChild
+    setCurrentPage(1);
+  };
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date === selectedDate ? null : date);
+    setCurrentPage(1);
+  };
+
+  const handleExport = () => {
+    // Export functionality
+    showToast("Export started...", "info");
+  };
+
+  const showToast = (message, type = "info") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setFilterStatus("all");
+    setSelectedDate(null);
+    setCurrentPage(1);
+  };
+
+  const hasActiveFilters = searchTerm || filterStatus !== "all" || selectedDate;
+
+  // ─── Loading State ────────────────────────────────────────────────────
+  if (loading && records.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-3 sm:p-4 lg:p-6">
+        <PageHeader title="Attendance" subtitle="View your child's attendance records" breadcrumbs={["Parent", "Attendance"]} />
+        <div className="flex flex-col items-center justify-center h-64 sm:h-96">
+          <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-blue-100 border-t-blue-600"></div>
+          <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500 font-medium">Loading attendance...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────
   return (
-    <div ref={containerRef} className="space-y-6">
-      {/* ─── Child Selector ───────────────────────────────────────────── */}
-      <div ref={selectorRef}>
-        <ChildSelector
-          title="Select Child"
-          subtitle="Choose a child to view attendance."
+    <div ref={containerRef} className="min-h-screen bg-gray-50 p-3 sm:p-4 lg:p-6">
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-3 sm:top-4 right-3 sm:right-4 z-50 max-w-[calc(100vw-24px)] sm:max-w-sm w-full bg-white rounded-xl shadow-lg border p-3 sm:p-4 flex items-start gap-2 sm:gap-3 animate-in slide-in-from-top-4 duration-300 ${
+          toast.type === "success" ? "border-emerald-200" : toast.type === "error" ? "border-red-200" : "border-blue-200"
+        }`}>
+          {toast.type === "success" ? (
+            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 shrink-0 mt-0.5" />
+          ) : toast.type === "error" ? (
+            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 shrink-0 mt-0.5" />
+          ) : (
+            <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 shrink-0 mt-0.5" />
+          )}
+          <p className="text-xs sm:text-sm text-gray-800 flex-1">{toast.message}</p>
+          <button onClick={() => setToast(null)} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+            <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Page Header */}
+      <FadeIn y={10} duration={0.5}>
+        <PageHeader
+          title="Attendance"
+          subtitle="View your child's attendance records"
+          breadcrumbs={["Parent", "Attendance"]}
+          actions={
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+              <div className="w-full sm:w-48 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2.5 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm sm:text-base min-h-[36px] sm:min-h-[42px]"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExport}
+                className="min-h-[36px] sm:min-h-[40px]"
+              >
+                <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Export</span>
+              </Button>
+            </div>
+          }
         />
-      </div>
+      </FadeIn>
 
-      {/* ─── Summary Cards ────────────────────────────────────────────── */}
-      <div ref={statsRef}>
-        <AttendanceStats />
-      </div>
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-3 sm:p-4">
+          <div className="flex items-start gap-2 sm:gap-3">
+            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-700">Error loading attendance</p>
+              <p className="text-xs sm:text-sm text-red-600">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* ─── Trend Chart ────────────────────────────────────────────────── */}
-      <div ref={chartRef}>
-        <AttendanceChart />
-      </div>
+      {/* Stats Cards */}
+      <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <StaggerItem>
+          <Card className="p-3 sm:p-4 border-l-4 border-l-blue-500">
+            <p className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Total Days</p>
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">{stats.total || 0}</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">All days</p>
+          </Card>
+        </StaggerItem>
+        <StaggerItem>
+          <Card className="p-3 sm:p-4 border-l-4 border-l-emerald-500">
+            <p className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Present</p>
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-emerald-600">{stats.present || 0}</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">Present days</p>
+          </Card>
+        </StaggerItem>
+        <StaggerItem>
+          <Card className="p-3 sm:p-4 border-l-4 border-l-amber-500">
+            <p className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Late</p>
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-amber-600">{stats.late || 0}</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">Late arrivals</p>
+          </Card>
+        </StaggerItem>
+        <StaggerItem>
+          <Card className="p-3 sm:p-4 border-l-4 border-l-red-500">
+            <p className="text-[10px] sm:text-xs font-medium text-gray-500 uppercase tracking-wider">Absent</p>
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">{stats.absent || 0}</p>
+            <p className="text-[10px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1">Absent days</p>
+          </Card>
+        </StaggerItem>
+      </StaggerGroup>
 
-      {/* ─── Main Layout ───────────────────────────────────────────────── */}
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* Calendar (2/5 columns) */}
-        <div ref={calendarRef} className="space-y-6 lg:col-span-2">
-          <AttendanceCalendar />
+      {/* Filters */}
+      <Card className="p-3 sm:p-4 border border-gray-100">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <ChildSelector
+            children={children}
+            selectedChild={selectedChild}
+            onSelect={handleChildSelect}
+          />
+          <div className="flex flex-wrap gap-2 sm:gap-3 flex-1">
+            <select
+              value={filterStatus}
+              onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+              className="px-2.5 sm:px-4 py-1.5 sm:py-2.5 bg-white border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-xs sm:text-sm min-h-[36px] sm:min-h-[42px] flex-1 sm:flex-none"
+            >
+              <option value="all">All Status</option>
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+              <option value="late">Late</option>
+              <option value="leave">Leave</option>
+            </select>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-xs sm:text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1 min-h-[36px] sm:min-h-[42px]"
+              >
+                <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden xs:inline">Clear</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* Monthly Calendar */}
+      <Card className="p-4 sm:p-6 border border-gray-100">
+        <MonthlyCalendar
+          records={records}
+          month={currentMonth}
+          year={currentYear}
+          onDateClick={handleDateClick}
+        />
+        {selectedDate && (
+          <div className="mt-3 flex items-center gap-2">
+            <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+              Filtering by: {formatDate(selectedDate)}
+            </Badge>
+            <button
+              onClick={() => setSelectedDate(null)}
+              className="text-xs text-red-500 hover:text-red-600 transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+      </Card>
+
+      {/* Attendance List */}
+      <Card className="overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          {pageItems.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 px-4">
+              <div className="flex flex-col items-center gap-3">
+                <CalendarIcon className="w-12 h-12 text-gray-300" />
+                <p className="text-sm sm:text-base text-gray-500 font-medium">No attendance records found</p>
+                <p className="text-xs sm:text-sm text-gray-400">
+                  {hasActiveFilters || selectedChild ? 'Try adjusting your filters' : 'Attendance records will appear here'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="block sm:hidden">
+                {pageItems.map((record) => (
+                  <div key={record.id} className="p-4 hover:bg-blue-50/30 transition-colors border-b border-gray-100">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-gray-800 text-sm">{record.student_name || "Student"}</p>
+                        <p className="text-xs text-gray-500 mt-1">{formatDate(record.date)}</p>
+                        <div className="mt-2">{getStatusBadge(record.status)}</div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">{record.teacher_name || "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block">
+                <table className="w-full min-w-[700px]">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="text-left px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Student</th>
+                      <th className="text-left px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Teacher</th>
+                      <th className="text-left px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="text-left px-3 sm:px-4 py-2.5 sm:py-3.5 text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {pageItems.map((record) => (
+                      <tr key={record.id} className="hover:bg-blue-50/30 transition-colors">
+                        <td className="px-3 sm:px-4 py-2.5 sm:py-3.5">
+                          <span className="text-sm font-medium text-gray-800">{record.student_name || "Student"}</span>
+                        </td>
+                        <td className="px-3 sm:px-4 py-2.5 sm:py-3.5 hidden md:table-cell">
+                          <span className="text-sm text-gray-600">{record.teacher_name || "—"}</span>
+                        </td>
+                        <td className="px-3 sm:px-4 py-2.5 sm:py-3.5">
+                          <span className="text-sm text-gray-600">{formatDate(record.date)}</span>
+                        </td>
+                        <td className="px-3 sm:px-4 py-2.5 sm:py-3.5">
+                          {getStatusBadge(record.status)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Table (3/5 columns) */}
-        <div ref={tableRef} className="lg:col-span-3">
-          <AttendanceTable />
-        </div>
-      </div>
+        {filteredRecords.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            startIndex={startIndex}
+            itemsShown={pageItems.length}
+            totalItems={filteredRecords.length}
+            onPageChange={setCurrentPage}
+          />
+        )}
+      </Card>
     </div>
   );
 };

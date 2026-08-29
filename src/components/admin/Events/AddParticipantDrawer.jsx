@@ -88,18 +88,19 @@ export default function AddParticipantDrawer({
       width="max-w-[350px]"
       footer={
         <div className="flex gap-3">
-          <Button variant="outline" tone="admin" fullWidth onClick={onClose}>
+          <button
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+            onClick={onClose}
+          >
             Cancel
-          </Button>
-          <Button
-            variant="primary"
-            tone="admin"
-            fullWidth
+          </button>
+          <button
+            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-[var(--color-admin-primary)] rounded-lg hover:bg-[var(--color-admin-hover)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onSave}
             disabled={loading || !formData.student_id}
           >
-            Add
-          </Button>
+            {loading ? 'Adding...' : 'Add'}
+          </button>
         </div>
       }
     >
@@ -110,16 +111,16 @@ export default function AddParticipantDrawer({
             Student <span className="text-[var(--color-danger)]">*</span>
           </label>
           <Select
-  value={formData.student || ''}  // Changed from student_id
-  onChange={(val) => setFormData({ ...formData, student: val })}  // Changed from student_id
-  options={[
-    { value: '', label: 'Select a student...' },
-    ...studentOptions,
-  ]}
-  tone="admin"
-  size="md"
-  placeholder="Search student..."
-/>
+            value={formData.student || ''}
+            onChange={(val) => setFormData({ ...formData, student: val })}
+            options={[
+              { value: '', label: 'Select a student...' },
+              ...studentOptions,
+            ]}
+            tone="admin"
+            size="md"
+            placeholder="Search student..."
+          />
         </div>
 
         {/* ─── Role Selection ────────────────────────────────────────────── */}
@@ -165,17 +166,3 @@ export default function AddParticipantDrawer({
     </Drawer>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

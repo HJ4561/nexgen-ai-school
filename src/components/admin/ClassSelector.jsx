@@ -67,10 +67,10 @@ export default function ClassSelector({
   classOptions,
 }) {
   return (
-    <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4">
+    <div className="flex flex-col md:flex-row-col sm:flex-row flex-wrap items-start sm:items-center gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
       {/* ─── Class Dropdown ─── */}
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <label className="text-sm font-medium text-[var(--color-text-primary)] whitespace-nowrap">
+      <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 w-full sm:w-auto px-4 sm:px-6 lg:px-8">
+        <label className="text-sm md:text-base md:text-base font-medium text-[var(--color-text-primary)] whitespace-nowrap px-4 sm:px-6 lg:px-8">
           Class:
         </label>
         <Select
@@ -79,24 +79,24 @@ export default function ClassSelector({
           options={classOptions}
           tone="admin"
           size="sm"
-          className="min-w-[150px] sm:min-w-[180px] w-full sm:w-auto"
+          className="min-w-[150px] sm:min-w-[180px] w-full sm:w-auto px-4 sm:px-6 lg:px-8"
         />
       </div>
 
       {/* ─── Search Input ─── */}
-      <div className="flex-1 min-w-[200px] w-full sm:w-auto">
-        <div className="relative">
+      <div className="flex-1 min-w-[200px] w-full sm:w-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative px-4 sm:px-6 lg:px-8">
           {/* Search icon */}
           <Search 
             size={14} 
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" 
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" 
           />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by subject, teacher, or room..."
-            className="w-full pl-9 pr-4 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none"
+            className="w-full pl-9 pr-4 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm md:text-base md:text-base focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none px-4 sm:px-6 lg:px-8"
           />
         </div>
       </div>

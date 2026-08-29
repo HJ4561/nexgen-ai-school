@@ -13,7 +13,7 @@
  * 
  * Dependencies:
  * - @/components/ui/Card for container
- * - @/components/composite/StatusBadge for status indicators
+ * - @/components/common/StatusBadge for status indicators
  * 
  * Usage:
  * <ComplaintStatusGuide />
@@ -21,7 +21,7 @@
  */
 
 import Card from '@/components/ui/Card'
-import StatusBadge from "@/components/composite/StatusBadge"
+import StatusBadge from "@/components/common/StatusBadge"
 
 /**
  * ============================================
@@ -69,29 +69,29 @@ const ComplaintStatusGuide = () => {
 
   return (
     <Card>
-      {/* ─── Header Section ─── */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-text-primary">
+      {/* â”€â”€â”€ Header Section â”€â”€â”€ */}
+      <div className="mb-6 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl md:text-2xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
           Complaint Status Guide
         </h2>
 
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           Understand what each complaint status means.
         </p>
       </div>
 
-      {/* ─── Status Cards Grid ─── */}
-      <div className="grid gap-5 md:grid-cols-3">
+      {/* â”€â”€â”€ Status Cards Grid â”€â”€â”€ */}
+      <div className="grid gap-5 md:grid-cols-3 px-4 sm:px-6 lg:px-8">
         {statuses.map((status) => (
           <div
             key={status.title}
-            className="rounded-xl border border-border p-5"
+            className="rounded-xl border border-border p-5 px-4 sm:px-6 lg:px-8"
           >
             {/* Status badge with color coding */}
             <StatusBadge status={status.title} />
 
             {/* Status description */}
-            <p className="mt-4 text-sm leading-6 text-text-secondary">
+            <p className="mt-4 text-sm md:text-base md:text-base leading-6 text-text-secondary px-4 sm:px-6 lg:px-8">
               {status.description}
             </p>
           </div>

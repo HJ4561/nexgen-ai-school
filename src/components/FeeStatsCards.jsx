@@ -32,7 +32,7 @@
  * ============================================
  */
 
-import { Receipt, DollarSign, Edit, CheckCircle } from 'lucide-react'; // ← added CheckCircle
+import { Receipt, DollarSign, Edit, CheckCircle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import Button from "@/components/ui/Button";
 import { formatCurrency } from "@/utils/helpers";

@@ -120,22 +120,22 @@ const ComplaintStats = ({ stats, latestComplaints, onViewAll, onViewDetail }) =>
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-4 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
       {/* ─── Render each stat card ─── */}
       {statItems.map((item, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8"
         >
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
             {/* Icon container with role-based color */}
             <div className={`p-2 rounded-lg ${item.bg}`}>
               <item.icon className={`h-5 w-5 ${item.color}`} />
             </div>
             {/* Stat label and value */}
             <div>
-              <p className="text-sm text-gray-500">{item.label}</p>
-              <p className="text-2xl font-semibold">{item.value}</p>
+              <p className="text-sm md:text-base md:text-base text-gray-500 px-4 sm:px-6 lg:px-8">{item.label}</p>
+              <p className="text-2xl md:text-3xl font-semibold px-4 sm:px-6 lg:px-8">{item.value}</p>
             </div>
           </div>
         </div>

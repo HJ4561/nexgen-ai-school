@@ -1,4 +1,4 @@
-ï»¿// src/components/admin/FeeFormModal/index.jsx
+// src/components/admin/FeeFormModal/index.jsx
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 const FEE_STATUS_OPTIONS = ["pending", "partial", "paid", "overdue", "waived"];
 
 const inputClass =
-  "w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
+  "w-full px-3 py-2 border border-gray-200 rounded-xl text-sm md:text-base md:text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none";
 
 const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose }) => {
   const isEdit = Boolean(initialData);
@@ -48,22 +48,22 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">{isEdit ? "Edit Fee" : "Add Fee"}</h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="Close">
-            <X className="w-5 h-5" />
-          </button>
+    <div className="fixed inset-0 z-50 flex flex-col md:flex-row items-center justify-center p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-black/50 px-4 sm:px-6 lg:px-8" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row items-center justify-between px-6 py-4 border-b border-gray-100 px-4 sm:px-6 lg:px-8">
+          <h2 className="text-lg md:text-xl md:text-2xl font-semibold text-gray-800 px-4 sm:px-6 lg:px-8">{isEdit ? "Edit Fee" : "Add Fee"}</h2>
+          <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" type="button" onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 px-4 sm:px-6 lg:px-8" aria-label="Close">
+            <X className="w-5 h-5 px-4 sm:px-6 lg:px-8" />
+          </Button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {error && <div className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{error}</div>}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 space-y-4 px-4 sm:px-6 lg:px-8">
+          {error && <div className="text-sm md:text-base md:text-base text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2 px-4 sm:px-6 lg:px-8">{error}</div>}
 
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Student <span className="text-red-500">*</span>
+          <div className="space-y-1 px-4 sm:px-6 lg:px-8">
+            <label className="block md:hidden text-xs font-medium text-gray-600 mb-1 px-4 sm:px-6 lg:px-8">
+              Student <span className="text-red-500 px-4 sm:px-6 lg:px-8">*</span>
             </label>
             <select
               value={values.student}
@@ -71,7 +71,7 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
               className={inputClass}
               disabled={isEdit}
             >
-              <option value="">Select a studentâ€¦</option>
+              <option value="">Select a student…</option>
               {students.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name} {s.admission_no ? `(${s.admission_no})` : ""}
@@ -80,8 +80,8 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
             </select>
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Fee Type</label>
+          <div className="space-y-1 px-4 sm:px-6 lg:px-8">
+            <label className="block md:hidden text-xs font-medium text-gray-600 mb-1 px-4 sm:px-6 lg:px-8">Fee Type</label>
             <select
               value={values.fee_structure}
               onChange={(e) => handleStructureChange(e.target.value)}
@@ -90,16 +90,16 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
               <option value="">Custom / none</option>
               {feeStructures.map((fs) => (
                 <option key={fs.id} value={fs.id}>
-                  {fs.title} â€” PKR {fs.amount}
+                  {fs.title} — PKR {fs.amount}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Amount (PKR) <span className="text-red-500">*</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+            <div className="space-y-1 px-4 sm:px-6 lg:px-8">
+              <label className="block md:hidden text-xs font-medium text-gray-600 mb-1 px-4 sm:px-6 lg:px-8">
+                Amount (PKR) <span className="text-red-500 px-4 sm:px-6 lg:px-8">*</span>
               </label>
               <input
                 type="number"
@@ -109,9 +109,9 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
                 className={inputClass}
               />
             </div>
-            <div className="space-y-1">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Due Date <span className="text-red-500">*</span>
+            <div className="space-y-1 px-4 sm:px-6 lg:px-8">
+              <label className="block md:hidden text-xs font-medium text-gray-600 mb-1 px-4 sm:px-6 lg:px-8">
+                Due Date <span className="text-red-500 px-4 sm:px-6 lg:px-8">*</span>
               </label>
               <input
                 type="date"
@@ -122,8 +122,8 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>
+          <div className="space-y-1 px-4 sm:px-6 lg:px-8">
+            <label className="block md:hidden text-xs font-medium text-gray-600 mb-1 px-4 sm:px-6 lg:px-8">Status</label>
             <select
               value={values.status}
               onChange={(e) => setValues({ ...values, status: e.target.value })}
@@ -137,12 +137,12 @@ const FeeFormModal = ({ initialData, students, feeStructures, onSubmit, onClose 
             </select>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
+          <div className="flex flex-col md:flex-row items-center justify-end gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 pt-2 px-4 sm:px-6 lg:px-8">
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" type="button" variant="outline" onClick={onClose} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={submitting}>
-              {submitting ? "Savingâ€¦" : isEdit ? "Save Changes" : "Add Fee"}
+            <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 lg:px-8" disabled={submitting}>
+              {submitting ? "Saving…" : isEdit ? "Save Changes" : "Add Fee"}
             </Button>
           </div>
         </form>

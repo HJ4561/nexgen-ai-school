@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Search, Download, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -34,18 +34,16 @@ const BehaviorFilters = ({
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
-          <Button
-            variant="outline"
-            className="border-gray-200"
+          <button
+            className="inline-flex items-center px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
             onClick={onExport}
           >
             <Download className="w-4 h-4 mr-2" />
             Export CSV
-          </Button>
+          </button>
           {(search || filterSeverity !== "all") && (
-            <Button
-              variant="outline"
-              className="border-gray-200 px-3 text-gray-500"
+            <button
+              className="inline-flex items-center px-3 py-2.5 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-gray-700 transition-all"
               onClick={() => {
                 setSearch("");
                 setFilterSeverity("all");
@@ -53,7 +51,7 @@ const BehaviorFilters = ({
             >
               <X className="w-3.5 h-3.5 mr-1" />
               Clear
-            </Button>
+            </button>
           )}
         </div>
       </div>

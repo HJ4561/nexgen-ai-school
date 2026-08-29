@@ -122,19 +122,18 @@ function Toggle({ checked, onChange, tone = 'brand', size = 'md', disabled = fal
   const bgColor = checked ? toneColors[tone] || toneColors.brand : 'bg-gray-300';
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
       {/* ─── Label ────────────────────────────────────────────────── */}
-      {label && <span className="text-sm text-[var(--color-text-secondary)]">{label}</span>}
+      {label && <span className="text-sm md:text-base md:text-base text-[var(--color-text-secondary)] px-4 sm:px-6 lg:px-8">{label}</span>}
 
       {/* ─── Toggle Button ──────────────────────────────────────────── */}
-      <button
-        type="button"
+      <button className="min-h-11 min-w-11 px-4 sm:px-6 lg:px-8" type="button"
         role="switch"
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`
-          relative inline-flex items-center rounded-full transition-colors duration-200 ease-in-out
+          relative inline-flex flex-col md:flex-row items-center rounded-full transition-colors duration-200 ease-in-out
           ${sizeClasses[size].wrapper}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           ${bgColor}
@@ -143,12 +142,12 @@ function Toggle({ checked, onChange, tone = 'brand', size = 'md', disabled = fal
         {/* ─── Toggle Dot ────────────────────────────────────────────── */}
         <span
           className={`
-            inline-block rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out
+            inline-block md:hidden rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out
             ${sizeClasses[size].dot}
             ${checked ? sizeClasses[size].translate : 'translate-x-0.5'}
           `}
         />
-      </button>
+      </Button>
     </div>
   );
 }

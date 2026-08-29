@@ -18,7 +18,7 @@
  * <Badge variant="success">Completed</Badge>
  * <Badge variant="warning">Pending</Badge>
  * <Badge variant="danger">Overdue</Badge>
- * <Badge className="text-xs">Custom</Badge>
+ * <Badge className="text-xs px-4 sm:px-6 lg:px-8">Custom</Badge>
  * ============================================
  */
 
@@ -42,7 +42,7 @@ import React from 'react';
  * <Badge variant="success">Active</Badge>
  * 
  * // Warning badge with custom class
- * <Badge variant="warning" className="text-xs font-bold">
+ * <Badge variant="warning" className="text-xs font-bold px-4 sm:px-6 lg:px-8">
  *   Pending
  * </Badge>
  * 
@@ -75,7 +75,7 @@ export const Badge = ({ children, className, variant }) => {
 
   return (
     <span className={`
-      inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+      inline-flex flex-col md:flex-row items-center px-2.5 py-0.5 rounded-full text-xs font-medium
       ${variant ? variantClasses[variant] : variantClasses.default}
       ${className || ''}
     `}>

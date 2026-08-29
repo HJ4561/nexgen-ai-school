@@ -160,7 +160,12 @@ const InventoryDrawer = ({ isOpen, onClose, mode, formData, setFormData, onSave,
 
         {/* ─── Footer with Action Buttons ─── */}
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
           <Button
             variant="primary"
             tone="admin"

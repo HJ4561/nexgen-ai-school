@@ -134,25 +134,25 @@ export default function ProfileStats({ students, teachers, parents }) {
   return (
     <StaggerGroup 
       as="div" 
-      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8"
     >
       {stats.map((stat) => (
         <StaggerItem key={stat.label}>
           {/* ─── Stat Card ─── */}
           <div
-            className="bg-white rounded-xl p-4 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 border-t-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md"
+            className="bg-white rounded-xl p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 border-t-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md px-4 sm:px-6 lg:px-8"
             style={{ 
               borderTopColor: borderColorMap[stat.color] || 'var(--color-text-muted)' 
             }}
           >
             {/* Label */}
-            <p className="text-xs text-[var(--color-text-muted)]">
+            <p className="text-xs text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
               {stat.label}
             </p>
             
             {/* Value with color */}
             <p
-              className="text-2xl font-bold"
+              className="text-2xl md:text-3xl font-bold px-4 sm:px-6 lg:px-8"
               style={{ 
                 color: borderColorMap[stat.color] || 'var(--color-text-primary)' 
               }}

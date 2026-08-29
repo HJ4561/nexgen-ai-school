@@ -28,7 +28,7 @@ import { useSelector } from "react-redux";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { gsap } from "gsap";
 
-import ProfileCard from "@/components/composite/ProfileCard";
+import ProfileCard from "@/components/common/ProfileCard";
 
 /**
  * DashboardHeader Component
@@ -43,7 +43,7 @@ import ProfileCard from "@/components/composite/ProfileCard";
 const DashboardHeader = () => {
   const { profile } = useSelector((state) => state.student);
 
-  // ─── Refs ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Refs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const containerRef = useRef(null);
   const bannerRef = useRef(null);
   const greetingRef = useRef(null);
@@ -53,7 +53,7 @@ const DashboardHeader = () => {
   const animationRef = useRef(null);
   const profileCardRef = useRef(null);
 
-  // ─── Computed Values ──────────────────────────────────────────────
+  // â”€â”€â”€ Computed Values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
 
@@ -72,7 +72,7 @@ const DashboardHeader = () => {
     });
   }, []);
 
-  // ─── GSAP Animations ──────────────────────────────────────────────
+  // â”€â”€â”€ GSAP Animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
     if (!profile) return;
 
@@ -94,7 +94,7 @@ const DashboardHeader = () => {
           { opacity: 1, x: 0, duration: 0.5 },
           "-=0.35"
         )
-        // Waving hand — pop in then a little wiggle
+        // Waving hand â€” pop in then a little wiggle
         .fromTo(
           waveRef.current,
           { opacity: 0, scale: 0, rotate: -30 },
@@ -156,7 +156,7 @@ const DashboardHeader = () => {
     return () => ctx.revert();
   }, [profile]);
 
-  // ─── Hover Handlers ──────────────────────────────────────────────
+  // â”€â”€â”€ Hover Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleProfileEnter = () => {
     gsap.to(profileCardRef.current, {
       y: -4,
@@ -177,28 +177,28 @@ const DashboardHeader = () => {
     });
   };
 
-  // ─── Render ──────────────────────────────────────────────────────
+  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (!profile) return null;
 
   return (
-    <div ref={containerRef} className="space-y-6">
+    <div ref={containerRef} className="space-y-6 px-4 sm:px-6 lg:px-8">
       {/* ==========================================
           Welcome Banner
       ========================================== */}
 
       <div
         ref={bannerRef}
-        className="rounded-2xl bg-gradient-to-r from-student-primary to-student-hover p-6 text-white shadow-lg overflow-hidden"
+        className="rounded-2xl bg-gradient-to-r from-student-primary to-student-hover p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 text-white shadow-lg overflow-hidden md:block md:hidden px-4 sm:px-6 lg:px-8"
       >
-        <div className="flex flex-col-reverse items-center gap-6 lg:flex-row lg:justify-between">
+        <div className="flex flex-col md:flex-row-col-reverse items-center gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 lg:flex-row lg:justify-between px-4 sm:px-6 lg:px-8">
           {/* Left Content */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <h1 ref={greetingRef} className="text-3xl font-bold leading-tight">
+          <div className="flex-1 text-center lg:text-left px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 lg:justify-start px-4 sm:px-6 lg:px-8">
+              <h1 ref={greetingRef} className="text-3xl font-bold leading-tight px-4 sm:px-6 lg:px-8">
                 {greeting}, {profile?.full_name?.split(" ")[0] || "Student"}
               </h1>
 
-              <div ref={waveRef} className="h-12 w-12 shrink-0">
+              <div ref={waveRef} className="h-12 w-12 shrink-0 px-4 sm:px-6 lg:px-8">
                 <DotLottieReact
                   src="/animations/hand wave.lottie"
                   autoplay
@@ -211,24 +211,24 @@ const DashboardHeader = () => {
               </div>
             </div>
 
-            <p ref={subtitleRef} className="mt-3 max-w-xl text-white/90">
+            <p ref={subtitleRef} className="mt-3 max-w-xl text-white/90 px-4 sm:px-6 lg:px-8">
               Welcome back! Here's an overview of your academic progress
               and today's activities.
             </p>
 
             <div
               ref={todayRef}
-              className="mt-6 inline-block rounded-xl bg-white/10 px-5 py-3 backdrop-blur"
+              className="mt-6 inline-block md:hidden rounded-xl bg-white/10 px-5 py-3 backdrop-blur px-4 sm:px-6 lg:px-8"
             >
-              <p className="text-sm text-white/80">Today</p>
-              <p className="font-semibold">{today}</p>
+              <p className="text-sm md:text-base md:text-base text-white/80 px-4 sm:px-6 lg:px-8">Today</p>
+              <p className="font-semibold px-4 sm:px-6 lg:px-8">{today}</p>
             </div>
           </div>
 
           {/* Right Animation */}
           <div
             ref={animationRef}
-            className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 flex-shrink-0"
+            className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 flex-shrink-0 px-4 sm:px-6 lg:px-8"
           >
             <DotLottieReact
               src="/animations/Student.lottie"
@@ -251,7 +251,7 @@ const DashboardHeader = () => {
         ref={profileCardRef}
         onMouseEnter={handleProfileEnter}
         onMouseLeave={handleProfileLeave}
-        className="rounded-2xl"
+        className="rounded-2xl px-4 sm:px-6 lg:px-8"
       >
         <ProfileCard
           name={profile.full_name}

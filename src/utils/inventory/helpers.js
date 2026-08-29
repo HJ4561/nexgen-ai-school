@@ -1,116 +1,141 @@
-﻿// ─── Format Currency ──────────────────────────────────────────────────────
 export const formatCurrency = (amount) => {
-  const numAmount = Number(amount);
-  if (isNaN(numAmount) || numAmount === 0) {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-      maximumFractionDigits: 0,
-    }).format(0);
-  }
-  return new Intl.NumberFormat('en-PK', {
+  if (!amount && amount !== 0) return "$0.00";
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'PKR',
-    maximumFractionDigits: 0,
-  }).format(numAmount);
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
 };
 
-// ─── Get Status Color ──────────────────────────────────────────────────────
-export const getStatusColor = (status) => {
-  const colors = {
-    available: 'bg-green-100 text-green-700 border-green-200',
-    low: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    unavailable: 'bg-red-100 text-red-700 border-red-200',
-    damaged: 'bg-gray-100 text-gray-700 border-gray-200',
-  };
-  return colors[status] || 'bg-gray-100 text-gray-700 border-gray-200';
-};
-
-// ─── Get Status Label ──────────────────────────────────────────────────────
-export const getStatusLabel = (status) => {
-  const labels = {
-    available: 'Available',
-    low: 'Low Stock',
-    unavailable: 'Unavailable',
-    damaged: 'Damaged',
-  };
-  return labels[status] || status || 'Unknown';
-};
-
-// ─── Get Status ────────────────────────────────────────────────────────────
-export const getStatus = (status) => {
-  const statusMap = {
-    available: { label: 'Available', className: 'bg-green-100 text-green-700 border-green-200' },
-    low: { label: 'Low Stock', className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-    unavailable: { label: 'Unavailable', className: 'bg-red-100 text-red-700 border-red-200' },
-    damaged: { label: 'Damaged', className: 'bg-gray-100 text-gray-700 border-gray-200' },
-  };
-  return statusMap[status] || { label: status || 'Unknown', className: 'bg-gray-100 text-gray-700 border-gray-200' };
-};
-
-// ─── Get Category Style ────────────────────────────────────────────────────
-export const getCategoryStyle = (category) => {
-  const styles = {
-    stationery: 'bg-blue-50 text-blue-700 border-blue-200',
-    furniture: 'bg-amber-50 text-amber-700 border-amber-200',
-    equipment: 'bg-purple-50 text-purple-700 border-purple-200',
-    electronics: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    supplies: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    books: 'bg-rose-50 text-rose-700 border-rose-200',
-  };
-  return styles[category?.toLowerCase()] || 'bg-gray-50 text-gray-700 border-gray-200';
-};
-
-// ─── Format Date ───────────────────────────────────────────────────────────
-export const formatDate = (dateString) => {
-  if (!dateString) return '—';
-  return new Date(dateString).toLocaleDateString('en-PK', {
+export const formatDate = (date) => {
+  if (!date) return "N/A";
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   });
 };
 
-// ─── Get Inventory Stats ──────────────────────────────────────────────────
-export const getInventoryStats = (items) => {
-  const total = items.length;
-  const totalItems = items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
-  const totalValue = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 0), 0);
-  const available = items.filter(i => i.status === 'available').length;
-  const lowStock = items.filter(i => Number(i.quantity) <= 5 && i.status !== 'unavailable').length;
-  const damaged = items.filter(i => i.status === 'damaged').length;
-  return { total, totalItems, totalValue, available, lowStock, damaged };
+export const getStatusColor = (status) => {
+  const colors = {
+    "in-stock": "success",
+    "low-stock": "warning",
+    "out-of-stock": "danger",
+    "discontinued": "secondary",
+  };
+  return colors[status] || "secondary";
 };
 
-// ─── Filter Inventory Items ──────────────────────────────────────────────
-export const filterInventoryItems = (items, searchTerm, filterCategory, filterStatus) => {
-  let filtered = items;
-
-  if (searchTerm) {
-    const search = searchTerm.toLowerCase();
-    filtered = filtered.filter(item =>
-      (item.name || '').toLowerCase().includes(search) ||
-      (item.category || '').toLowerCase().includes(search) ||
-      (item.supplier || '').toLowerCase().includes(search)
-    );
-  }
-
-  if (filterCategory && filterCategory !== 'all') {
-    filtered = filtered.filter(item => item.category === filterCategory);
-  }
-
-  if (filterStatus && filterStatus !== 'all') {
-    filtered = filtered.filter(item => item.status === filterStatus);
-  }
-
-  return filtered;
+export const getStatusLabel = (status) => {
+  const labels = {
+    "in-stock": "In Stock",
+    "low-stock": "Low Stock",
+    "out-of-stock": "Out of Stock",
+    "discontinued": "Discontinued",
+  };
+  return labels[status] || status;
 };
 
-// ─── Get Unique Categories ────────────────────────────────────────────────
-export const getUniqueCategories = (items) => {
-  const categories = new Set();
-  items.forEach(item => {
-    if (item.category) categories.add(item.category);
+// --- getStatus (Alias for getStatusLabel) ------------------------------
+export const getStatus = (status) => {
+  return getStatusLabel(status);
+};
+
+export const calculateInventoryValue = (items) => {
+  if (!items || !Array.isArray(items)) return 0;
+  return items.reduce((total, item) => total + (item.quantity * item.price), 0);
+};
+
+export const filterInventoryItems = (items, filters) => {
+  if (!items || !Array.isArray(items)) return [];
+  return items.filter(item => {
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const match = item.name?.toLowerCase().includes(searchLower) ||
+                    item.sku?.toLowerCase().includes(searchLower) ||
+                    item.category?.toLowerCase().includes(searchLower);
+      if (!match) return false;
+    }
+    if (filters.category && item.category !== filters.category) return false;
+    if (filters.status && item.status !== filters.status) return false;
+    return true;
   });
+};
+
+export const sortInventoryItems = (items, sortBy, sortOrder = "asc") => {
+  if (!items || !Array.isArray(items)) return [];
+  const sorted = [...items];
+  sorted.sort((a, b) => {
+    let aVal = a[sortBy];
+    let bVal = b[sortBy];
+    if (typeof aVal === "string") {
+      aVal = aVal.toLowerCase();
+      bVal = bVal.toLowerCase();
+    }
+    if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+  return sorted;
+};
+
+export const getUniqueCategories = (items) => {
+  if (!items || !Array.isArray(items)) return [];
+  const categories = new Set(items.map(item => item.category).filter(Boolean));
   return Array.from(categories);
+};
+
+export const calculateInventoryStats = (items) => {
+  if (!items || !Array.isArray(items)) {
+    return {
+      totalItems: 0,
+      totalValue: 0,
+      lowStockCount: 0,
+      outOfStockCount: 0,
+    };
+  }
+  
+  return {
+    totalItems: items.length,
+    totalValue: items.reduce((sum, item) => sum + (item.quantity * item.price), 0),
+    lowStockCount: items.filter(item => item.status === "low-stock").length,
+    outOfStockCount: items.filter(item => item.status === "out-of-stock").length,
+  };
+};
+
+export const getInventoryStats = (items) => {
+  return calculateInventoryStats(items);
+};
+
+export const getCategoryStyle = (category) => {
+  const styles = {
+    'Electronics': 'bg-blue-100 text-blue-700 border-blue-200',
+    'Furniture': 'bg-green-100 text-green-700 border-green-200',
+    'Stationery': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    'Equipment': 'bg-purple-100 text-purple-700 border-purple-200',
+    'Books': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+    'Supplies': 'bg-orange-100 text-orange-700 border-orange-200',
+    'Sports': 'bg-cyan-100 text-cyan-700 border-cyan-200',
+    'Uniform': 'bg-pink-100 text-pink-700 border-pink-200',
+    'Other': 'bg-gray-100 text-gray-700 border-gray-200',
+    'Default': 'bg-gray-100 text-gray-700 border-gray-200',
+  };
+  return styles[category] || styles.Default;
+};
+
+export default {
+  formatCurrency,
+  formatDate,
+  getStatusColor,
+  getStatusLabel,
+  getStatus,
+  calculateInventoryValue,
+  filterInventoryItems,
+  sortInventoryItems,
+  getUniqueCategories,
+  calculateInventoryStats,
+  getInventoryStats,
+  getCategoryStyle,
 };

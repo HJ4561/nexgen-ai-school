@@ -1,570 +1,436 @@
-/**
- * ============================================
- * STUDENT SERVICE
- * ============================================
- * 
- * Purpose: Handles all student-related API calls
- * Used by: studentThunks and student components
- * 
- * Features:
- * - Profile management (get, update)
- * - Attendance tracking
- * - Report card and grades
- * - Assignment management (get, submit, update, delete)
- * - Fee and payment management
- * - Event participations and certificates
- * - Complaint management (get, create, update)
- * - Notification management (get, mark read)
- * - AI Chat sessions and messages
- * 
- * Dependencies:
- * - @/services/api for HTTP requests
- * - @/mocks/studentMock for mock data fallbacks
- * 
- * API Endpoints:
- * - /auth/profile
- * - /student/attendance
- * - /student/grades
- * - /student/assignments
- * - /student/submissions
- * - /student/fees
- * - /student/payments
- * - /student/events/participations
- * - /student/certificates
- * - /student/complaints
- * - /student/notifications
- * - /student/chat/sessions
- * - /student/chat/messages
- * ============================================
- */
-
-import * as mockData from "@/mocks/studentMock";
+// src/modules/student/services/studentService.js
 import api from "@/services/api";
 
-/**
- * ============================================
- * STUDENT SERVICE
- * ============================================
- * 
- * Service object containing all student-related API methods
- */
 const studentService = {
   // ─── Profile ──────────────────────────────────────────────────────────────
-
-  /**
-   * ============================================
-   * GET PROFILE
-   * ============================================
-   * 
-   * Fetches the authenticated student's profile information
-   * 
-   * @returns {Promise<Object>} Student profile data
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const profile = await studentService.getProfile();
-   * console.log(profile.full_name);
-   */
+  
   getProfile: async () => {
-    const response = await api.get("/auth/profile");
+    const response = await api.get("/users/students/me/");
     return response.data;
   },
 
-  /**
-   * ============================================
-   * UPDATE PROFILE
-   * ============================================
-   * 
-   * Updates the authenticated student's profile information
-   * 
-   * @param {Object} profileData - Profile data to update
-   * @param {string} profileData.full_name - Student's full name
-   * @param {string} profileData.email - Student's email address
-   * @param {string} profileData.phone - Student's phone number
-   * @param {string} profileData.address - Student's address
-   * @returns {Promise<Object>} Updated profile data
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await studentService.updateProfile({
-   *   full_name: 'Fazail Nadeem',
-   *   phone: '0300-1234567'
-   * });
-   */
   updateProfile: async (profileData) => {
-    const response = await api.put("/auth/profile", profileData);
+    const response = await api.patch("/users/students/me/", profileData);
     return response.data;
   },
 
   // ─── Attendance ──────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET ATTENDANCE
-   * ============================================
-   * 
-   * Fetches the student's attendance records
-   * 
-   * @returns {Promise<Array>} Array of attendance records
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const attendance = await studentService.getAttendance();
-   * console.log(`Present: ${attendance.filter(a => a.status === 'Present').length}`);
-   */
-  getAttendance: async () => {
-    const { data } = await api.get("/student/attendance");
-    return data;
+  getAttendance: async (params = {}) => {
+    const response = await api.get("/attendance/attendance/", { params });
+    return response.data;
   },
 
-  // ─── Report Card ─────────────────────────────────────────────────────────
+  // ─── Behavior Logs ──────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET REPORT CARD
-   * ============================================
-   * 
-   * Fetches the student's report card with grades
-   * 
-   * @returns {Promise<Object>} Report card data with academic_year, published_at, remarks, and grades
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const reportCard = await studentService.getReportCard();
-   * console.log(`Overall Grade: ${reportCard.grades.reduce((acc, g) => acc + g.obtained_marks, 0)}`);
-   */
-  getReportCard: async () => {
-    const { data } = await api.get("/student/grades");
-    return {
-      academic_year: "2025-2026",
-      published_at: new Date().toISOString(),
-      remarks: "",
-      grades: data,
-    };
+  getBehaviorLogs: async (params = {}) => {
+    const response = await api.get("/attendance/behavior-logs/", { params });
+    return response.data;
+  },
+
+  // ─── Report Card / Grades ───────────────────────────────────────────────
+
+  getReportCard: async (params = {}) => {
+    try {
+      const response = await api.get("/exams/results/", { params });
+      
+      const results = response.data?.results || response.data || [];
+      
+      const grades = results.map((item) => ({
+        id: item.id,
+        subject_name: item.exam?.name || item.subject_name || "General",
+        teacher_name: item.teacher?.name || item.teacher_name || "N/A",
+        exam_type: item.exam?.exam_type || item.exam_type || "General",
+        obtained_marks: item.marks_obtained || 0,
+        total_marks: item.exam?.total_marks || item.total_marks || 100,
+        exam_date: item.exam?.date || item.created_at || new Date().toISOString(),
+      }));
+
+      return {
+        academic_year: "2025-2026",
+        published_at: new Date().toISOString(),
+        remarks: response.data?.remarks || "No remarks available.",
+        grades: grades,
+      };
+    } catch (error) {
+      console.error("Error fetching report card:", error);
+      return {
+        academic_year: "2025-2026",
+        published_at: new Date().toISOString(),
+        remarks: "No results available.",
+        grades: [],
+      };
+    }
+  },
+
+  // ─── Results ─────────────────────────────────────────────────────────────
+
+  getResults: async (params = {}) => {
+    const response = await api.get("/exams/results/", { params });
+    console.log("📋 getResults raw response:", response.data);
+    return response.data;
+  },
+
+  // ─── Grade Scale ─────────────────────────────────────────────────────────
+
+  getGradeScale: async (params = {}) => {
+    const response = await api.get("/exams/grade-scale/", { params });
+    console.log("📋 getGradeScale raw response:", response.data);
+    return response.data;
+  },
+
+  // ─── Exams ───────────────────────────────────────────────────────────────
+
+  getExams: async (params = {}) => {
+    const response = await api.get("/exams/exams/", { params });
+    console.log("📋 getExams raw response:", response.data);
+    return response.data;
+  },
+
+  // ─── Timetable ──────────────────────────────────────────────────────────
+
+  getTimetable: async (params = {}) => {
+    const response = await api.get("/academics/timetable/", { params });
+    return response.data;
   },
 
   // ─── Assignments ─────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET ASSIGNMENTS
-   * ============================================
-   * 
-   * Fetches all assignments for the student
-   * 
-   * @returns {Promise<Array>} Array of assignment objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const assignments = await studentService.getAssignments();
-   * const pending = assignments.filter(a => a.status === 'Pending');
-   */
-  getAssignments: async () => {
-    const { data } = await api.get("/student/assignments");
-    return data;
+  getAssignments: async (params = {}) => {
+    try {
+      const response = await api.get("/assignments/assignments/", { params });
+      console.log("📋 getAssignments status:", response.status);
+      return response.data;
+    } catch (error) {
+      console.error("❌ getAssignments error:", error.message);
+      return { results: [] };
+    }
   },
 
-  /**
-   * ============================================
-   * SUBMIT ASSIGNMENT
-   * ============================================
-   * 
-   * Submits an assignment with file and comments
-   * 
-   * @param {Object} submissionData - Submission data
-   * @param {number} submissionData.assignmentId - Assignment ID
-   * @param {string} submissionData.file_url - URL of the submitted file
-   * @param {string} submissionData.comment - Optional comment
-   * @returns {Promise<Object>} Created submission
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const submission = await studentService.submitAssignment({
-   *   assignmentId: 1,
-   *   file_url: 'https://storage.com/file.pdf',
-   *   comment: 'Please review my assignment'
-   * });
-   */
+  getSubmissions: async (params = {}) => {
+    try {
+      const response = await api.get("/assignments/submissions/", { params });
+      console.log("📋 getSubmissions status:", response.status);
+      return response.data;
+    } catch (error) {
+      console.error("❌ getSubmissions error:", error.message);
+      return { results: [] };
+    }
+  },
+
   submitAssignment: async (submissionData) => {
-    const { data } = await api.post("/student/submissions", submissionData);
-    return data;
-  },
+  // Check if we have a File object
+  if (submissionData.file instanceof File) {
+    const formData = new FormData();
+    
+    // Required fields
+    formData.append('assignment', submissionData.assignment);
+    formData.append('file', submissionData.file);
+    
+    // Optional fields
+    if (submissionData.description) {
+      formData.append('description', submissionData.description);
+    }
+    
+    // ✅ CRITICAL: Try adding student ID if you have it
+    // Get student ID from localStorage or Redux state
+    try {
+      const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+      const studentId = authData.user_id || authData.id || localStorage.getItem('user_id');
+      if (studentId) {
+        formData.append('student', studentId);
+        console.log('📎 Adding student ID:', studentId);
+      }
+    } catch (e) {
+      console.warn('Could not get student ID:', e);
+    }
+    
+    try {
+      const response = await api.post("/assignments/submissions/", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('❌ Submit error details:', error.response?.data);
+      console.error('❌ Submit error status:', error.response?.status);
+      console.error('❌ Submit error headers:', error.response?.headers);
+      throw error;
+    }
+  }
+  
+  // If no file, send as JSON
+  const response = await api.post("/assignments/submissions/", submissionData);
+  return response.data;
+},
 
-  /**
-   * ============================================
-   * GET SUBMISSIONS
-   * ============================================
-   * 
-   * Fetches all submissions made by the student
-   * 
-   * @returns {Promise<Array>} Array of submission objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const submissions = await studentService.getSubmissions();
-   * console.log(`Total submissions: ${submissions.length}`);
-   */
-  getSubmissions: async () => {
-    const { data } = await api.get("/student/submissions");
-    return data;
-  },
-
-  /**
-   * ============================================
-   * UPDATE SUBMISSION
-   * ============================================
-   * 
-   * Updates an existing submission (e.g., replacing file)
-   * 
-   * @param {number} id - Submission ID
-   * @param {Object} submissionData - Updated submission data
-   * @returns {Promise<Object>} Updated submission
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const updated = await studentService.updateSubmission(1, {
-   *   file_url: 'https://storage.com/updated-file.pdf'
-   * });
-   */
   updateSubmission: async (id, submissionData) => {
-    const { data } = await api.patch(`/student/submissions/${id}`, submissionData);
-    return data;
+    const response = await api.patch(`/assignments/submissions/${id}/`, submissionData);
+    return response.data;
   },
 
-  /**
-   * ============================================
-   * DELETE SUBMISSION
-   * ============================================
-   * 
-   * Deletes a submission by ID
-   * 
-   * @param {number} id - Submission ID
-   * @returns {Promise<void>}
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * await studentService.deleteSubmission(1);
-   */
   deleteSubmission: async (id) => {
-    console.log("deleting");
-    await api.delete(`/student/submissions/${id}`);
+    await api.delete(`/assignments/submissions/${id}/`);
   },
 
   // ─── Finance ─────────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET FEES
-   * ============================================
-   * 
-   * Fetches all fee records for the student
-   * 
-   * @returns {Promise<Array>} Array of fee objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const fees = await studentService.getFees();
-   * const unpaid = fees.filter(f => f.status === 'Pending');
-   */
-  getFees: async () => {
-    const { data } = await api.get("/student/fees");
-    return data;
+  getFees: async (params = {}) => {
+    const response = await api.get("/finance/fees/", { params });
+    return response.data;
   },
 
-  /**
-   * ============================================
-   * GET PAYMENTS
-   * ============================================
-   * 
-   * Fetches all payment history for the student
-   * 
-   * @returns {Promise<Array>} Array of payment objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const payments = await studentService.getPayments();
-   * console.log(`Total paid: ${payments.reduce((sum, p) => sum + p.amount_paid, 0)}`);
-   */
-  getPayments: async () => {
-    const { data } = await api.get("/student/payments");
-    return data;
+  getPayments: async (params = {}) => {
+    const response = await api.get("/finance/payments/", { params });
+    return response.data;
+  },
+
+  getFeeHistory: async (params = {}) => {
+    const response = await api.get("/finance/fee-history/", { params });
+    return response.data;
   },
 
   // ─── Events ─────────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET PARTICIPATIONS
-   * ============================================
-   * 
-   * Fetches all event participations for the student
-   * 
-   * @returns {Promise<Array>} Array of participation objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const participations = await studentService.getParticipations();
-   * const upcoming = participations.filter(p => new Date(p.event_date) > new Date());
-   */
-  getParticipations: async () => {
-    const { data } = await api.get("/student/events/participations");
-    return data;
+  getEvents: async (params = {}) => {
+    const response = await api.get("/events/events/", { params });
+    return response.data;
   },
 
-  /**
-   * ============================================
-   * GET CERTIFICATES
-   * ============================================
-   * 
-   * Fetches all certificates earned by the student
-   * 
-   * @returns {Promise<Array>} Array of certificate objects
-   * @throws {Error} If the request fails
-   * 
-   * @example
-   * const certificates = await studentService.getCertificates();
-   * console.log(`Total certificates: ${certificates.length}`);
-   */
-  getCertificates: async () => {
-    console.log("Inside getCertificates");
+  getParticipations: async (params = {}) => {
+    const response = await api.get("/events/event-participation/", { params });
+    return response.data;
+  },
 
-    try {
-      const response = await api.get("/student/certificates");
-      console.log("Full Response:", response);
-      console.log("Data:", response.data);
-      return response.data;
-    } catch (error) {
-      console.log("API Error:", error);
-      console.log("Status:", error.response?.status);
-      console.log("Response:", error.response?.data);
-      throw error;
-    }
+  registerForEvent: async (data) => {
+    const response = await api.post("/events/event-participation/", data);
+    return response.data;
+  },
+
+  getCertificates: async (params = {}) => {
+    const response = await api.get("/events/certificates/", { params });
+    return response.data;
+  },
+
+  // ─── Transport ──────────────────────────────────────────────────────────
+
+  getBusStudents: async (params = {}) => {
+    const response = await api.get("/transport/bus-students/", { params });
+    return response.data;
+  },
+
+  getTransportAttendance: async (params = {}) => {
+    const response = await api.get("/transport/transport-attendance/", { params });
+    return response.data;
+  },
+
+  getRoutes: async (params = {}) => {
+    const response = await api.get("/transport/routes/", { params });
+    return response.data;
+  },
+
+  // ─── Library ─────────────────────────────────────────────────────────────
+
+  getBookIssues: async (params = {}) => {
+    const response = await api.get("/library/book-issues/", { params });
+    return response.data;
+  },
+
+  getBookIssueHistory: async (params = {}) => {
+    const response = await api.get("/library/book-issue-history/", { params });
+    return response.data;
+  },
+
+  // ─── Canteen ─────────────────────────────────────────────────────────────
+
+  getMenuItems: async (params = {}) => {
+    const response = await api.get("/canteen/menu-items/", { params });
+    return response.data;
+  },
+
+  getCategories: async (params = {}) => {
+    const response = await api.get("/canteen/categories/", { params });
+    return response.data;
+  },
+
+  createOrder: async (orderData) => {
+    const response = await api.post("/canteen/order-items/", orderData);
+    return response.data;
+  },
+
+  getOrders: async (params = {}) => {
+    const response = await api.get("/canteen/order-items/", { params });
+    return response.data;
+  },
+
+  // ─── Security ───────────────────────────────────────────────────────────
+
+  getEntryExitLogs: async (params = {}) => {
+    const response = await api.get("/security/entry-exit-logs/", { params });
+    return response.data;
+  },
+
+  // ─── Documents ──────────────────────────────────────────────────────────
+
+  getDocuments: async (params = {}) => {
+    const response = await api.get("/documents/documents/", { params });
+    return response.data;
+  },
+
+  getDocumentTypes: async (params = {}) => {
+    const response = await api.get("/documents/document-types/", { params });
+    return response.data;
+  },
+
+  // ─── Analytics ──────────────────────────────────────────────────────────
+
+  getPredictions: async (params = {}) => {
+    const response = await api.get("/analytics/predictions/", { params });
+    return response.data;
+  },
+
+  getRecommendations: async (params = {}) => {
+    const response = await api.get("/analytics/recommendations/", { params });
+    return response.data;
+  },
+
+  getStudentGoals: async (params = {}) => {
+    const response = await api.get("/analytics/student-goals/", { params });
+    return response.data;
+  },
+
+  getStudentSkills: async (params = {}) => {
+    const response = await api.get("/analytics/student-skills/", { params });
+    return response.data;
+  },
+
+  getSkillMapping: async (params = {}) => {
+    const response = await api.get("/analytics/skill-mapping/", { params });
+    return response.data;
   },
 
   // ─── Complaints ─────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET COMPLAINTS
-   * ============================================
-   * 
-   * Fetches all complaints filed by the student
-   * 
-   * @returns {Promise<Array>} Array of complaint objects
-   * 
-   * @example
-   * const complaints = await studentService.getComplaints();
-   * console.log(`Open complaints: ${complaints.filter(c => c.status === 'Open').length}`);
-   */
-  getComplaints: async () => mockData.complaints,
-
-  /**
-   * ============================================
-   * CREATE COMPLAINT
-   * ============================================
-   * 
-   * Creates a new complaint
-   * 
-   * @param {Object} complaintData - Complaint data
-   * @param {string} complaintData.complaint_type - Type of complaint
-   * @param {string} complaintData.description - Complaint description
-   * @param {string} complaintData.against_user - User being complained about
-   * @returns {Promise<Object>} Created complaint
-   * 
-   * @example
-   * const complaint = await studentService.createComplaint({
-   *   complaint_type: 'Academic',
-   *   description: 'Teacher is not grading assignments on time',
-   *   against_user: 'Mr. Smith'
-   * });
-   */
-  createComplaint: async (complaintData) => {
-    return {
-      success: true,
-      message: "Complaint submitted successfully.",
-      data: complaintData,
-    };
+  getComplaints: async (params = {}) => {
+    const response = await api.get("/communication/messages/", { params });
+    return response.data;
   },
 
-  /**
-   * ============================================
-   * UPDATE COMPLAINT
-   * ============================================
-   * 
-   * Updates an existing complaint
-   * 
-   * @param {number} id - Complaint ID
-   * @param {Object} complaintData - Updated complaint data
-   * @returns {Promise<Object>} Updated complaint
-   * 
-   * @example
-   * const updated = await studentService.updateComplaint(1, {
-   *   status: 'Resolved'
-   * });
-   */
+  createComplaint: async (complaintData) => {
+    const response = await api.post("/communication/messages/", {
+      subject: complaintData.complaint_type,
+      message: complaintData.description,
+      receiver: complaintData.against_user || 1,
+      student: complaintData.student_id,
+    });
+    return response.data;
+  },
+
   updateComplaint: async (id, complaintData) => {
-    return {
-      success: true,
-      message: "Complaint updated successfully.",
-      id,
-      data: complaintData,
-    };
+    const response = await api.patch(`/communication/messages/${id}/`, complaintData);
+    return response.data;
   },
 
   // ─── Notifications ──────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET NOTIFICATIONS
-   * ============================================
-   * 
-   * Fetches all notifications for the student
-   * 
-   * @returns {Promise<Array>} Array of notification objects
-   * 
-   * @example
-   * const notifications = await studentService.getNotifications();
-   * const unread = notifications.filter(n => !n.is_read);
-   */
-  getNotifications: async () => mockData.notifications,
-
-  /**
-   * ============================================
-   * GET UNREAD NOTIFICATIONS COUNT
-   * ============================================
-   * 
-   * Returns the count of unread notifications
-   * 
-   * @returns {Promise<number>} Number of unread notifications
-   * 
-   * @example
-   * const unreadCount = await studentService.getUnreadNotifications();
-   * console.log(`You have ${unreadCount} unread notifications`);
-   */
-  getUnreadNotifications: async () =>
-    mockData.notifications.filter((notification) => !notification.is_read).length,
-
-  /**
-   * ============================================
-   * MARK NOTIFICATION READ
-   * ============================================
-   * 
-   * Marks a single notification as read
-   * 
-   * @param {number} id - Notification ID
-   * @returns {Promise<Object>} Confirmation of update
-   * 
-   * @example
-   * await studentService.markNotificationRead(5);
-   */
-  markNotificationRead: async (id) => {
-    return {
-      success: true,
-      id,
-    };
+  getNotifications: async (params = {}) => {
+    try {
+      const response = await api.get("/communication/notifications/", { params });
+      return response.data;
+    } catch (error) {
+      console.warn("Notifications not available:", error);
+      return { results: [] };
+    }
   },
 
-  /**
-   * ============================================
-   * MARK ALL NOTIFICATIONS READ
-   * ============================================
-   * 
-   * Marks all notifications as read
-   * 
-   * @returns {Promise<Object>} Confirmation of update
-   * 
-   * @example
-   * await studentService.markAllNotificationsRead();
-   */
+  getUnreadNotifications: async () => {
+    try {
+      const response = await api.get("/communication/notifications/?is_read=false");
+      return response.data?.results?.length || response.data?.length || 0;
+    } catch (error) {
+      return 0;
+    }
+  },
+
+  markNotificationRead: async (id) => {
+    const response = await api.patch(`/communication/notifications/${id}/`, { is_read: true });
+    return response.data;
+  },
+
   markAllNotificationsRead: async () => {
-    return {
-      success: true,
-    };
+    try {
+      const notifications = await api.get("/communication/notifications/?is_read=false");
+      const items = notifications.data?.results || notifications.data || [];
+      const promises = items.map(n => 
+        api.patch(`/communication/notifications/${n.id}/`, { is_read: true })
+      );
+      await Promise.all(promises);
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
   },
 
   // ─── AI Chat ─────────────────────────────────────────────────────────────
 
-  /**
-   * ============================================
-   * GET CHAT SESSIONS
-   * ============================================
-   * 
-   * Fetches all chat sessions for the student
-   * 
-   * @returns {Promise<Array>} Array of chat session objects
-   * 
-   * @example
-   * const sessions = await studentService.getChatSessions();
-   * console.log(`Total sessions: ${sessions.length}`);
-   */
-  getChatSessions: async () => mockData.chatSessions,
+  getChatSessions: async (params = {}) => {
+    try {
+      const response = await api.get("/chat/sessions/", { params });
+      return response.data;
+    } catch (error) {
+      return { results: [] };
+    }
+  },
 
-  /**
-   * ============================================
-   * CREATE CHAT SESSION
-   * ============================================
-   * 
-   * Creates a new chat session
-   * 
-   * @param {Object} sessionData - Session data
-   * @param {string} sessionData.title - Session title
-   * @param {string} sessionData.bot_type - Bot type (general, etc.)
-   * @returns {Promise<Object>} Created session
-   * 
-   * @example
-   * const session = await studentService.createChatSession({
-   *   title: 'Math Help',
-   *   bot_type: 'tutor'
-   * });
-   */
   createChatSession: async (sessionData) => {
-    return {
-      id: Date.now(),
-      user_id: 3,
-      title: sessionData.title ?? "New Chat",
-      role: "student",
-      bot_type: sessionData.bot_type ?? "general",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+    try {
+      const response = await api.post("/chat/sessions/", sessionData);
+      return response.data;
+    } catch (error) {
+      return {
+        id: Date.now(),
+        title: sessionData.title ?? "New Chat",
+        role: "student",
+        bot_type: sessionData.bot_type ?? "general",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
   },
 
-  /**
-   * ============================================
-   * DELETE CHAT SESSION
-   * ============================================
-   * 
-   * Deletes a chat session by ID
-   * 
-   * @param {number} sessionId - Session ID
-   * @returns {Promise<Object>} Confirmation of deletion
-   * 
-   * @example
-   * await studentService.deleteChatSession(1);
-   */
   deleteChatSession: async (sessionId) => {
-    return {
-      success: true,
-      sessionId,
-    };
+    try {
+      await api.delete(`/chat/sessions/${sessionId}/`);
+      return { success: true, sessionId };
+    } catch (error) {
+      return { success: true, sessionId };
+    }
   },
 
-  /**
-   * ============================================
-   * GET CHAT MESSAGES
-   * ============================================
-   * 
-   * Fetches all messages for a chat session
-   * 
-   * @param {number} sessionId - Session ID
-   * @returns {Promise<Array>} Array of message objects
-   * 
-   * @example
-   * const messages = await studentService.getChatMessages(1);
-   * console.log(`Total messages: ${messages.length}`);
-   */
-  getChatMessages: async (sessionId) =>
-    mockData.chatMessages.filter((message) => message.session_id === sessionId),
+  getChatMessages: async (params = {}) => {
+    try {
+      const response = await api.get("/chat/messages/", { params });
+      return response.data;
+    } catch (error) {
+      return { results: [] };
+    }
+  },
+
+  sendChatMessage: async (messageData) => {
+    try {
+      const response = await api.post("/chat/messages/", messageData);
+      return response.data;
+    } catch (error) {
+      return {
+        id: Date.now(),
+        session: messageData.session,
+        content: messageData.content,
+        role: messageData.role || "user",
+        created_at: new Date().toISOString(),
+      };
+    }
+  },
 };
 
 export default studentService;

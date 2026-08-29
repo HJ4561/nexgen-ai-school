@@ -75,17 +75,17 @@ export default function TimetableGrid({
   const RECESS_TIME = "10:00";
 
   return (
-    <div className="overflow-x-auto scrollbar-hide">
-      <div className="min-w-[700px] md:min-w-0">
+    <div className="overflow-x-auto scrollbar-hide px-4 sm:px-6 lg:px-8">
+      <div className="min-w-[700px] md:min-w-0 px-4 sm:px-6 lg:px-8">
         {/* ─── Header Row ─── */}
-        <div className="grid grid-cols-[60px_repeat(6,1fr)] md:grid-cols-[80px_repeat(6,1fr)] border-b border-gray-200 bg-[var(--color-surface-dim)]/30">
+        <div className="grid grid-cols-[60px_repeat(6,1fr)] md:grid-cols-[80px_repeat(6,1fr)] border-b border-gray-200 bg-[var(--color-surface-dim)]/30 px-4 sm:px-6 lg:px-8">
           {/* Time column header */}
-          <div className="p-2 md:p-3 text-center text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+          <div className="p-2 md:p-3 text-center text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
             Time
           </div>
           {/* Day headers */}
           {DAYS.map((day) => (
-            <div key={day} className="p-2 md:p-3 text-center text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+            <div key={day} className="p-2 md:p-3 text-center text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">
               {day}
             </div>
           ))}
@@ -104,7 +104,7 @@ export default function TimetableGrid({
               }`}
             >
               {/* ─── Time Label ─── */}
-              <div className="p-2 md:p-3 flex items-center justify-center text-[10px] md:text-xs font-medium text-[var(--color-text-muted)] bg-[var(--color-surface-dim)]/30">
+              <div className="p-2 md:p-3 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-xs font-medium text-[var(--color-text-muted)] bg-[var(--color-surface-dim)]/30 px-4 sm:px-6 lg:px-8">
                 {time}
               </div>
 
@@ -120,10 +120,10 @@ export default function TimetableGrid({
                     return (
                       <div
                         key={`${time}-${day}`}
-                        className="col-span-6 p-1 md:p-2 flex items-center justify-center text-[10px] md:text-xs text-[var(--color-text-muted)] italic gap-1 md:gap-2"
+                        className="col-span-6 p-1 md:p-2 flex flex-col md:flex-row items-center justify-center text-[10px] md:text-xs text-[var(--color-text-muted)] italic gap-1 md:gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8"
                       >
-                        <Utensils size={16} className="text-[var(--color-text-muted)]" />
-                        <span className="font-medium uppercase tracking-wider">Recess</span>
+                        <Utensils size={16} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+                        <span className="font-medium uppercase tracking-wider px-4 sm:px-6 lg:px-8">Recess</span>
                       </div>
                     );
                   }

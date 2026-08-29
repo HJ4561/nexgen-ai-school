@@ -351,8 +351,8 @@ const Select = ({
               : hasError
                 ? 'var(--color-danger)'
                 : isOpen
-                  ? `var(--color-${tone}-primary)/10`
-                  : `var(--color-${tone}-border)`  
+                  ? `var(--color-${tone}-primary)`
+                  : `var(--color-${tone}-border)`
           }`,
           boxShadow: isOpen ? `0 0 0 2px var(--color-${tone}-primary)` : 'none',
         }}
@@ -376,9 +376,7 @@ const Select = ({
           className="
             absolute left-0 right-0 top-full mt-1 z-50
             bg-white rounded-lg border border-gray-200
-            shadow-lg overflow-hidden
-            animate-in fade-in zoom-in-95 duration-150
-          "
+            shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150"
           role="listbox"
           aria-label={label}
         >

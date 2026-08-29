@@ -75,12 +75,12 @@ export default function ClassFilters({
   }, [classes]);
 
   return (
-    <div className="p-4 border-b border-gray-100 bg-[var(--color-surface-dim)]/30">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 border-b border-gray-100 bg-[var(--color-surface-dim)]/30 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col md:flex-row-wrap items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
         {/* Filter Label */}
-        <div className="flex items-center gap-2">
-          <Filter size={16} className="text-[var(--color-text-muted)]" />
-          <span className="text-xs font-medium text-[var(--color-text-muted)]">Filters:</span>
+        <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+          <Filter size={16} className="text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
+          <span className="text-xs font-medium text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8">Filters:</span>
         </div>
 
         {/* Class Name Filter */}
@@ -94,7 +94,7 @@ export default function ClassFilters({
           tone="admin"
           size="sm"
           placeholder="All Classes"
-          className="min-w-[140px]"
+          className="min-w-[140px] px-4 sm:px-6 lg:px-8"
         />
 
         {/* Section Filter */}
@@ -108,18 +108,18 @@ export default function ClassFilters({
           tone="admin"
           size="sm"
           placeholder="All Sections"
-          className="min-w-[140px]"
+          className="min-w-[140px] px-4 sm:px-6 lg:px-8"
         />
 
         {/* Search Input */}
-        <div className="relative flex-1 min-w-[180px] max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
+        <div className="relative flex-1 min-w-[180px] max-w-xs px-4 sm:px-6 lg:px-8">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search classes..."
-            className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] outline-none transition-all"
+            className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-sm md:text-base md:text-base focus:ring-2 focus:ring-[var(--color-admin-primary)] focus:border-[var(--color-admin-primary)] outline-none transition-all px-4 sm:px-6 lg:px-8"
           />
         </div>
 

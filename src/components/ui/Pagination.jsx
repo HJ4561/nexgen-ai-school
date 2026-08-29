@@ -97,7 +97,7 @@ function Pagination({ currentPage, totalPages, onPageChange, totalItems, itemsPe
   const visiblePages = getVisiblePages();
 
   return (
-    <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between flex-wrap gap-2">
+    <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/50 flex flex-wrap items-center justify-between gap-2">
       {/* ─── Item Range Display ─── */}
       <span className="text-sm text-[var(--color-text-secondary)]">
         Showing {startItem}–{endItem} of {totalItems} items

@@ -111,7 +111,7 @@ const ParticipationCard = ({
 
   return (
     <Card hover={false}>
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         {/* ============================================
             LEFT SECTION
             Icon, event details, and metadata
@@ -119,7 +119,7 @@ const ParticipationCard = ({
 
         <div className="flex flex-1 gap-4">
           {/* ─── Trophy Icon ─── */}
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-parent-light">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-parent-light">
             <Trophy size={26} className="text-parent-primary" />
           </div>
 

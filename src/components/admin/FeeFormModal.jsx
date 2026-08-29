@@ -74,14 +74,21 @@ export default function FeeFormModal({ initialData, students, feeStructures, onS
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">{isEdit ? "Edit Fee" : "Add Fee"}</h2>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="Close">
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            aria-label="Close"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{error}</div>
+            <div className="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+              {error}
+            </div>
           )}
 
           <Field label="Student" required>
@@ -146,10 +153,21 @@ export default function FeeFormModal({ initialData, students, feeStructures, onS
           </Field>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>Cancel</Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={submitting}>
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50"
+              onClick={onClose}
+              disabled={submitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
+              disabled={submitting}
+            >
               {submitting ? "Saving…" : isEdit ? "Save Changes" : "Add Fee"}
-            </Button>
+            </button>
           </div>
         </form>
       </div>

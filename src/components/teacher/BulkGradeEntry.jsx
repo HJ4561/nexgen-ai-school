@@ -158,7 +158,7 @@ export default function BulkGradeEntry({
     <div className="bg-white rounded-xl shadow-soft border border-gray-100 overflow-hidden">
       {/* ─── Filters ────────────────────────────────────────────────── */}
       <div className="p-5 border-b border-gray-100 bg-[var(--color-surface-dim)]/30">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Class Selection */}
           <Select
             label="Class"
@@ -253,26 +253,3 @@ export default function BulkGradeEntry({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

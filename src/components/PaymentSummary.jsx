@@ -55,14 +55,14 @@ const SummaryItem = ({
   value,
   color,
 }) => (
-  <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4">
-    <div className="flex items-center gap-3">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+  <div className="flex flex-col md:flex-row items-center justify-between rounded-xl border border-slate-200 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+      <div className={`flex flex-col md:flex-row h-10 w-10 items-center justify-center rounded-lg ${color}`}>
         <Icon size={18} />
       </div>
-      <span className="font-medium text-text-primary">{label}</span>
+      <span className="font-medium text-text-primary px-4 sm:px-6 lg:px-8">{label}</span>
     </div>
-    <span className="text-xl font-bold text-text-primary">{value}</span>
+    <span className="text-xl md:text-2xl md:text-2xl font-bold text-text-primary px-4 sm:px-6 lg:px-8">{value}</span>
   </div>
 );
 
@@ -147,20 +147,20 @@ const PaymentSummary = () => {
   }, [childFees]);
 
   return (
-    <Card hover={false} className="h-full">
+    <Card hover={false} className="h-full px-4 sm:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-text-primary">
+      <div className="mb-6 px-4 sm:px-6 lg:px-8">
+        <h2 className="text-xl md:text-2xl md:text-2xl font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
           Payment Summary
         </h2>
 
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-1 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           Overview of fee invoices.
         </p>
       </div>
 
       {/* ─── Summary Items ──────────────────────────────────────── */}
-      <div className="space-y-4">
+      <div className="space-y-4 px-4 sm:px-6 lg:px-8">
         {/* Total Invoices */}
         <SummaryItem
           icon={Receipt}

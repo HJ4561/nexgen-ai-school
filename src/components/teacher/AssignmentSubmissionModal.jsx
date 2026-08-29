@@ -99,13 +99,13 @@ const AssignmentSubmissionModal = ({ isOpen, onClose, assignment, onSubmit }) =>
       <div className="space-y-4">
         {/* ─── Assignment Title ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Assignment</label>
+          <label className="block text-sm text-gray-600 mb-1">Assignment</label>
           <p className="font-medium">{assignment?.title || 'Untitled'}</p>
         </div>
 
         {/* ─── File Upload ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">File</label>
+          <label className="block text-sm text-gray-600 mb-1">File</label>
           <Input
             type="file"
             onChange={(e) => setSubmission({ ...submission, file: e.target.files[0] })}
@@ -114,7 +114,7 @@ const AssignmentSubmissionModal = ({ isOpen, onClose, assignment, onSubmit }) =>
 
         {/* ─── Comment Input ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Comment</label>
+          <label className="block text-sm text-gray-600 mb-1">Comment</label>
           <TextArea
             value={submission.comment}
             onChange={(e) => setSubmission({ ...submission, comment: e.target.value })}
@@ -125,8 +125,18 @@ const AssignmentSubmissionModal = ({ isOpen, onClose, assignment, onSubmit }) =>
 
         {/* ─── Action Buttons ─── */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
         </div>
       </div>
     </Modal>

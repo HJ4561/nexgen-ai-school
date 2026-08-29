@@ -86,42 +86,44 @@ const Notification = ({ role }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   return (
-    <div className="space-y-8">
-      {/* ─── Header ────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl bg-surface p-8 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-text-primary">
-              Notifications
-            </h1>
-
-            <p className="mt-2 text-text-secondary">
-              Read your important updates, announcements and reminders.
-            </p>
+    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+        {/* ─── Header ────────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-100">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 sm:gap-4">
+            <div className="w-full">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+                Notifications
+              </h1>
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">
+                Read your important updates, announcements and reminders.
+              </p>
+            </div>
+            {/* Optional: Add action button here if needed */}
           </div>
         </div>
+
+        {/* ─── Statistics ────────────────────────────────────────────────── */}
+        {/* Shows notification counts (total, unread, read, recipients) */}
+        <NotificationStats role={role} />
+
+        {/* ─── Filters ──────────────────────────────────────────────────── */}
+        {/* Provides filter buttons and search functionality */}
+        <NotificationFilters
+          role={role}
+          filter={filter}
+          setFilter={setFilter}
+          unreadCount={unreadCount}
+        />
+
+        {/* ─── Notification List ────────────────────────────────────────── */}
+        {/* Displays notifications with read/unread status and actions */}
+        <NotificationList
+          role={role}
+          filter={filter}
+          onUnreadCountChange={setUnreadCount}
+        />
       </div>
-
-      {/* ─── Statistics ────────────────────────────────────────────────── */}
-      {/* Shows notification counts (total, unread, read, recipients) */}
-      <NotificationStats role={role} />
-
-      {/* ─── Filters ──────────────────────────────────────────────────── */}
-      {/* Provides filter buttons and search functionality */}
-      <NotificationFilters
-        role={role}
-        filter={filter}
-        setFilter={setFilter}
-        unreadCount={unreadCount}
-      />
-
-      {/* ─── Notification List ────────────────────────────────────────── */}
-      {/* Displays notifications with read/unread status and actions */}
-      <NotificationList
-        role={role}
-        filter={filter}
-        onUnreadCountChange={setUnreadCount}
-      />
     </div>
   );
 };

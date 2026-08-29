@@ -25,7 +25,7 @@
  *   onClose={() => setIsOpen(false)}
  *   title="Complaint Details"
  *   width="max-w-[480px]"
- *   footer={<Button onClick={handleSave}>Save</Button>}
+ *   footer={<button onClick={handleSave}>Save</button>}
  * >
  *   <p>Drawer content goes here</p>
  * </Drawer>
@@ -61,8 +61,8 @@ import { X } from "lucide-react";
  *   width="max-w-[480px]"
  *   footer={
  *     <div className="flex gap-3">
- *       <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
- *       <Button variant="primary" onClick={handleSave}>Save</Button>
+ *       <button onClick={() => setIsOpen(false)}>Cancel</button>
+ *       <button onClick={handleSave}>Save</button>
  *     </div>
  *   }
  * >

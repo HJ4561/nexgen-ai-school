@@ -18,7 +18,7 @@
  * Dependencies:
  * - lucide-react for icons (Eye, Edit, DollarSign)
  * - @/components/ui/Badge for scholarship percentage
- * - @/components/composite/StatusBadge for status indicator
+ * - @/components/common/StatusBadge for status indicator
  * - @/components/admin/ResponsiveTable for table structure
  * - @/components/ui/Pagination for page controls
  * - @/utils/helpers for formatting utilities
@@ -40,7 +40,7 @@
 
 import { Eye, Edit, DollarSign } from 'lucide-react';
 import Badge from "@/components/ui/Badge";
-import StatusBadge from "@/components/composite/StatusBadge";
+import StatusBadge from "@/components/common/StatusBadge";
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import Pagination from "@/components/ui/Pagination";
 import { formatCurrency, getStatusLabel } from "@/utils/helpers";
@@ -214,7 +214,7 @@ export default function FeeTable({
       label: 'Actions',
       render: (row) => (
         <div className="flex items-center gap-1">
-          {/* ─── View Button ─── */}
+          {/* â”€â”€â”€ View Button â”€â”€â”€ */}
           <button
             onClick={() => onView(row)}
             className="p-1.5 rounded-lg text-gray-400 hover:text-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)] transition-colors"
@@ -223,7 +223,7 @@ export default function FeeTable({
             <Eye size={15} />
           </button>
           
-          {/* ─── Edit Button ─── */}
+          {/* â”€â”€â”€ Edit Button â”€â”€â”€ */}
           <button
             onClick={() => onEdit(row)}
             className="p-1.5 rounded-lg text-gray-400 hover:text-[var(--color-admin-primary)] hover:bg-[var(--color-admin-light)] transition-colors"
@@ -232,7 +232,7 @@ export default function FeeTable({
             <Edit size={15} />
           </button>
           
-          {/* ─── Payment Button ─── */}
+          {/* â”€â”€â”€ Payment Button â”€â”€â”€ */}
           <button
             onClick={() => onPay(row)}
             className="p-1.5 rounded-lg text-gray-400 hover:text-[var(--color-success)] hover:bg-[var(--color-success-bg)] transition-colors"
@@ -247,7 +247,7 @@ export default function FeeTable({
 
   return (
     <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
-      {/* ─── Responsive Table ─── */}
+      {/* â”€â”€â”€ Responsive Table â”€â”€â”€ */}
       <ResponsiveTable
         columns={tableColumns}
         data={data}
@@ -255,7 +255,7 @@ export default function FeeTable({
         emptyMessage="No fee records found."
       />
 
-      {/* ─── Pagination Controls ─── */}
+      {/* â”€â”€â”€ Pagination Controls â”€â”€â”€ */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

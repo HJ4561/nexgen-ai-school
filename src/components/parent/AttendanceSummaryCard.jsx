@@ -179,48 +179,48 @@ const AttendanceSummaryCard = () => {
   });
 
   return (
-    <Card className="h-full">
+    <Card className="h-full px-4 sm:px-6 lg:px-8">
       {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-parent-primary/10 p-3">
-          <CalendarDays size={22} className="text-parent-primary" />
+      <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
+        <div className="rounded-lg bg-parent-primary/10 p-3 px-4 sm:px-6 lg:px-8">
+          <CalendarDays size={22} className="text-parent-primary px-4 sm:px-6 lg:px-8" />
         </div>
 
         <div>
-          <h3 className="font-semibold text-text-primary">
+          <h3 className="font-semibold text-text-primary px-4 sm:px-6 lg:px-8">
             Attendance Performance
           </h3>
 
-          <p className="text-sm text-text-secondary">Current Session</p>
+          <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">Current Session</p>
         </div>
       </div>
 
       {totalDays === 0 ? (
         // ─── Empty State ──────────────────────────────────────────
-        <p className="mt-8 text-sm text-text-secondary">
+        <p className="mt-8 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
           No attendance records yet for this child.
         </p>
       ) : (
         <>
           {/* ─── Percentage + Ring ─────────────────────────────────── */}
 
-          <div className="mt-8 flex items-center justify-between">
+          <div className="mt-8 flex flex-col md:flex-row items-center justify-between px-4 sm:px-6 lg:px-8">
             {/* Left: Percentage Details */}
             <div>
-              <p className="text-sm text-text-secondary">Attendance</p>
+              <p className="text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">Attendance</p>
 
-              <h2 className="mt-2 text-4xl font-bold text-parent-primary">
+              <h2 className="mt-2 text-4xl font-bold text-parent-primary px-4 sm:px-6 lg:px-8">
                 {percentage}%
               </h2>
 
-              <p className="mt-2 text-sm text-text-secondary">
+              <p className="mt-2 text-sm md:text-base md:text-base text-text-secondary px-4 sm:px-6 lg:px-8">
                 {presentDays} / {totalDays} Days Present
               </p>
             </div>
 
             {/* ─── Multi-status Circular Progress ─── */}
-            <div className="relative h-36 w-36">
-              <svg className="-rotate-90" width="140" height="140">
+            <div className="relative h-36 w-36 px-4 sm:px-6 lg:px-8">
+              <svg className="-rotate-90 px-4 sm:px-6 lg:px-8" width="140" height="140">
                 {/* Background circle */}
                 <circle
                   cx="70"
@@ -249,27 +249,27 @@ const AttendanceSummaryCard = () => {
               </svg>
 
               {/* Center percentage text */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold">{percentage}%</span>
+              <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-center px-4 sm:px-6 lg:px-8">
+                <span className="text-2xl md:text-3xl font-bold px-4 sm:px-6 lg:px-8">{percentage}%</span>
               </div>
             </div>
           </div>
 
           {/* ─── Recent Trend Strip ──────────────────────────────── */}
           {recentAttendance.length > 0 && (
-            <div className="mt-8">
-              <p className="mb-2 text-xs font-medium text-text-secondary">
+            <div className="mt-8 px-4 sm:px-6 lg:px-8">
+              <p className="mb-2 text-xs font-medium text-text-secondary px-4 sm:px-6 lg:px-8">
                 Last {recentAttendance.length} Records
               </p>
 
-              <div className="flex items-end gap-1">
+              <div className="flex flex-col md:flex-row items-end gap-1 px-4 sm:px-6 lg:px-8">
                 {recentAttendance.map((item) => {
                   const style = STATUS_STYLES[item.status] || FALLBACK_STYLE;
                   return (
                     <div
                       key={item.id}
                       title={`${item.date} — ${item.status}`}
-                      className="h-8 flex-1 rounded-sm transition hover:opacity-70"
+                      className="h-8 flex-1 rounded-sm transition hover:opacity-70 px-4 sm:px-6 lg:px-8"
                       style={{ backgroundColor: style.ring }}
                     />
                   );
@@ -280,7 +280,7 @@ const AttendanceSummaryCard = () => {
 
           {/* ─── Bottom Stats ────────────────────────────────────── */}
           <div
-            className="mt-8 grid gap-4"
+            className="mt-8 grid gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 sm:p-4 sm:p-6 sm:p-4 sm:p-6 px-4 sm:px-6 lg:px-8"
             style={{
               gridTemplateColumns: `repeat(${Math.min(
                 statusEntries.length,
@@ -293,10 +293,10 @@ const AttendanceSummaryCard = () => {
               return (
                 <div
                   key={status}
-                  className={`rounded-xl ${style.bg} p-4 text-center`}
+                  className={`rounded-xl ${style.bg} p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 text-center`}
                 >
-                  <p className={`text-sm ${style.text}`}>{status}</p>
-                  <h4 className={`mt-2 text-2xl font-bold ${style.strong}`}>
+                  <p className={`text-sm md:text-base md:text-base ${style.text}`}>{status}</p>
+                  <h4 className={`mt-2 text-2xl md:text-3xl font-bold ${style.strong}`}>
                     {count}
                   </h4>
                 </div>

@@ -20,7 +20,7 @@
  * 1. User selects role
  * 2. Fills common fields (name, email, password)
  * 3. Fills role-specific fields
- * 4. Submits → API call → Redirect to pending-approval
+ * 4. Submits â†’ API call â†’ Redirect to pending-approval
  * 
  * Dependencies:
  * - Redux for auth state management
@@ -36,41 +36,41 @@ import { useNavigate, Link } from 'react-router-dom';
 import {
   Mail, Eye, EyeOff, User, BookOpen,
   GraduationCap, Users,
-  IdCard, Hash,
+  IdCard, Hash, AlertCircle,
 } from 'lucide-react';
 
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
-import PasswordStrength from "@/components/composite/PasswordStrength";
+import PasswordStrength from "@/components/common/PasswordStrength";
 import { registerUser } from "@/modules/auth/store/authThunks";
 import { formatCNIC } from '@/utils/formatter';
 
-// ─── Role cards config ────────────────────────────────────────────────────────
+// â”€â”€â”€ Role cards config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ROLES = [
   {
     key: 'teacher',
     label: 'Teacher',
     icon: GraduationCap,
-    selected: 'border-teacher-border bg-teacher-light text-teacher-text',
-    unselected: 'border-border bg-surface-dim text-text-muted hover:border-teacher-border hover:bg-teacher-light',
-    iconColor: 'text-teacher-primary',
+    selected: 'border-purple-400 bg-purple-50 text-purple-700',
+    unselected: 'border-gray-200 bg-gray-50 text-gray-500 hover:border-purple-300 hover:bg-purple-50',
+    iconColor: 'text-purple-600',
   },
   {
     key: 'student',
     label: 'Student',
     icon: BookOpen,
-    selected: 'border-student-border bg-student-light text-student-text',
-    unselected: 'border-border bg-surface-dim text-text-muted hover:border-student-border hover:bg-student-light',
-    iconColor: 'text-student-primary',
+    selected: 'border-emerald-400 bg-emerald-50 text-emerald-700',
+    unselected: 'border-gray-200 bg-gray-50 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50',
+    iconColor: 'text-emerald-600',
   },
   {
     key: 'parent',
     label: 'Parent',
     icon: Users,
-    selected: 'border-parent-border bg-parent-light text-parent-text',
-    unselected: 'border-border bg-surface-dim text-text-muted hover:border-parent-border hover:bg-parent-light',
-    iconColor: 'text-parent-primary',
+    selected: 'border-amber-400 bg-amber-50 text-amber-700',
+    unselected: 'border-gray-200 bg-gray-50 text-gray-500 hover:border-amber-300 hover:bg-amber-50',
+    iconColor: 'text-amber-600',
   },
 ];
 
@@ -126,10 +126,6 @@ const RELATION_OPTIONS = [
  * 
  * @component
  * @returns {JSX.Element} Rendered register page
- * 
- * @example
- * // In router:
- * <Route path="/register" element={<Register />} />
  */
 function Register() {
   const dispatch = useDispatch();
@@ -157,7 +153,7 @@ function Register() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [localError, setLocalError] = useState('');
 
-  // ─── Handlers ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function handleChange(e) {
     let name, value;
     // Case 1: Standard DOM event (Input, Select native)
@@ -262,55 +258,64 @@ function Register() {
     }
   }
 
-  // ─── Render ──────────────────────────────────────────────────────────
+  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-[95%] sm:max-w-md mx-auto space-y-4 sm:space-y-5 md:space-y-6 font-sans px-3 sm:px-4 py-4 sm:py-6 md:py-8">
       {/* Header */}
-<div className="text-center">
-  <h2 className="text-2xl font-bold text-text-primary">Create account</h2>
-  <p className="mt-1 text-sm text-text-secondary">
-    Select your role, fill in your details, and wait for admin approval.
-  </p>
-</div>
+      <div className="text-center">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
+          Create account
+        </h2>
+        <p className="mt-1 text-xs sm:text-sm text-gray-500">
+          Select your role, fill in your details, and wait for admin approval.
+        </p>
+      </div>
 
       {/* Role selector cards */}
-      <div className="grid grid-cols-3 gap-3">
-        {ROLES.map((role) => {
-          const Icon = role.icon;
-          const isSelected = selectedRole === role.key;
+      <div>
+        <label className="block text-[10px] sm:text-xs font-medium tracking-wide uppercase text-gray-400 mb-2 sm:mb-3">
+          Select Role
+        </label>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {ROLES.map((role) => {
+            const Icon = role.icon;
+            const isSelected = selectedRole === role.key;
 
-          return (
-            <button
-              key={role.key}
-              type="button"
-              onClick={() => {
-                setSelectedRole(role.key);
-                setLocalError('');
-              }}
-              className={[
-                'flex flex-col items-center gap-1.5 rounded-xl border-2 py-3 px-2 transition-all duration-150 cursor-pointer',
-                isSelected ? role.selected : role.unselected,
-              ].join(' ')}
-            >
-              <Icon
-                size={20}
-                className={isSelected ? role.iconColor : 'text-text-muted'}
-              />
-              <span className="text-xs font-semibold">{role.label}</span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={role.key}
+                type="button"
+                onClick={() => {
+                  setSelectedRole(role.key);
+                  setLocalError('');
+                }}
+                className={`
+                  flex flex-col items-center gap-1 sm:gap-1.5 rounded-lg sm:rounded-xl border-2 
+                  py-2.5 sm:py-3 md:py-4 px-2 transition-all duration-150 cursor-pointer
+                  ${isSelected ? role.selected : role.unselected}
+                `}
+              >
+                <Icon
+                  size={18}
+                  className={isSelected ? role.iconColor : 'text-gray-400'}
+                />
+                <span className="text-[10px] sm:text-xs font-semibold">{role.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Error banner - Shows both Redux API error AND local validation error */}
       {(error || localError) && (
-        <div className="rounded-xl bg-danger-bg px-4 py-3 text-sm text-danger-text">
-          {error || localError}
+        <div className="bg-red-50 border border-red-200 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-xs sm:text-sm text-red-700">{error || localError}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* ── Common fields ──────────────────────────────────────── */}
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        {/* â”€â”€ Common fields â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Input
           label="Full Name"
           type="text"
@@ -319,8 +324,9 @@ function Register() {
           tone={selectedRole}
           value={form.full_name}
           onChange={handleChange}
-          leftIcon={<User size={16} />}
+          leftIcon={<User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           required
+          className="text-sm sm:text-base"
         />
         <Input
           label="Email"
@@ -330,8 +336,9 @@ function Register() {
           tone={selectedRole}
           value={form.email}
           onChange={handleChange}
-          leftIcon={<Mail size={16} />}
+          leftIcon={<Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           required
+          className="text-sm sm:text-base"
         />
         <Input
           label="Password"
@@ -345,16 +352,23 @@ function Register() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="text-text-muted hover:text-text-primary transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
               tabIndex={-1}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showPassword ? (
+                <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              ) : (
+                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              )}
             </button>
           }
           required
+          className="text-sm sm:text-base"
         />
 
-        <PasswordStrength password={form.password} />
+        <div className="mt-1">
+          <PasswordStrength password={form.password} />
+        </div>
 
         <Input
           label="Confirm Password"
@@ -368,19 +382,24 @@ function Register() {
             <button
               type="button"
               onClick={() => setShowConfirm((v) => !v)}
-              className="text-text-muted hover:text-text-primary transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
               tabIndex={-1}
             >
-              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showConfirm ? (
+                <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              ) : (
+                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              )}
             </button>
           }
           required
+          className="text-sm sm:text-base"
         />
 
-        {/* ── Student extra ──────────────────────────────────────── */}
+        {/* â”€â”€ Student extra â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {selectedRole === 'student' && (
-          <div className="space-y-4 pt-2 border-t border-surface-muted">
-            <p className="text-xs font-semibold uppercase tracking-widest text-text-muted pt-2">
+          <div className="space-y-3 sm:space-y-4 pt-2 border-t border-gray-100">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-gray-400 pt-2">
               Student Details
             </p>
             <Select
@@ -396,10 +415,10 @@ function Register() {
           </div>
         )}
 
-        {/* ── Teacher extra ──────────────────────────────────────── */}
+        {/* â”€â”€ Teacher extra â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {selectedRole === 'teacher' && (
-          <div className="space-y-4 pt-2 border-t border-surface-muted">
-            <p className="text-xs font-semibold uppercase tracking-widest text-text-muted pt-2">
+          <div className="space-y-3 sm:space-y-4 pt-2 border-t border-gray-100">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-gray-400 pt-2">
               Teacher Details
             </p>
             <Input
@@ -411,16 +430,17 @@ function Register() {
               value={form.cnic}
               maxLength={15}
               onChange={handleChange}
-              leftIcon={<IdCard size={16} />}
+              leftIcon={<IdCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               required
+              className="text-sm sm:text-base"
             />
           </div>
         )}
 
-        {/* ── Parent extra ──────────────────────────────────────── */}
+        {/* â”€â”€ Parent extra â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {selectedRole === 'parent' && (
-          <div className="space-y-4 pt-2 border-t border-surface-muted">
-            <p className="text-xs font-semibold uppercase tracking-widest text-text-muted pt-2">
+          <div className="space-y-3 sm:space-y-4 pt-2 border-t border-gray-100">
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-gray-400 pt-2">
               Parent Details
             </p>
             <Input
@@ -431,9 +451,10 @@ function Register() {
               placeholder="e.g. STU-2024-001"
               value={form.child_roll_number}
               onChange={handleChange}
-              leftIcon={<Hash size={16} />}
+              leftIcon={<Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               helperText="Must match your child's registered roll number exactly"
               required
+              className="text-sm sm:text-base"
             />
             <Select
               label="Relation to Child"
@@ -454,17 +475,18 @@ function Register() {
           fullWidth
           loading={loading}
           tone={SUBMIT_TONE[selectedRole] || 'brand'}
+          className="text-sm sm:text-base py-2.5 sm:py-3"
         >
           Create Account
         </Button>
       </form>
 
       {/* Sign in link */}
-      <p className="text-center text-sm text-text-secondary">
+      <p className="text-center text-[11px] sm:text-sm text-gray-500">
         Already have an account?{' '}
         <Link
           to="/login"
-          className="font-medium text-brand-primary hover:text-brand-hover transition-colors"
+          className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
         >
           Sign in
         </Link>
@@ -474,21 +496,3 @@ function Register() {
 }
 
 export default Register;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

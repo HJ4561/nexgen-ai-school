@@ -10,7 +10,7 @@
  * - Search events or venues
  * - Filter by status (All, Scheduled, Upcoming, Completed)
  * - Admin role theming
- * - Responsive flex layout
+ * - Responsive flex flex-col md:flex-row layout
  * 
  * Dependencies:
  * - Select component for dropdown
@@ -59,16 +59,16 @@ export default function EventFilters({
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 p-4 flex flex-wrap items-center gap-3">
+    <div className="bg-white rounded-xl shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 p-4 sm:p-4 sm:p-6 sm:p-4 sm:p-6 sm:p-4 sm:p-6 flex flex-col md:flex-row-wrap items-center gap-3 sm:gap-4 sm:gap-5 sm:gap-4 sm:gap-5 sm:p-4 sm:p-6 sm:gap-5 px-4 sm:px-6 lg:px-8">
       {/* ─── Search Input ────────────────────────────────────────────── */}
-      <div className="relative flex-1 min-w-[200px]">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" />
+      <div className="relative flex-1 min-w-[200px] px-4 sm:px-6 lg:px-8">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] px-4 sm:px-6 lg:px-8" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search events or venues..."
-          className="w-full pl-9 pr-3 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none"
+          className="w-full pl-9 pr-3 py-1.5 bg-[var(--color-surface-dim)] border-none rounded-lg text-sm md:text-base md:text-base focus:ring-2 focus:ring-[var(--color-admin-primary)] outline-none px-4 sm:px-6 lg:px-8"
         />
       </div>
 
@@ -79,7 +79,7 @@ export default function EventFilters({
         options={statusOptions}
         tone="admin"
         size="sm"
-        className="min-w-[140px]"
+        className="min-w-[140px] px-4 sm:px-6 lg:px-8"
       />
     </div>
   );

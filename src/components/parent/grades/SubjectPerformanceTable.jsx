@@ -1,295 +1,254 @@
-/**
- * ============================================
- * SUBJECT PERFORMANCE TABLE COMPONENT
- * ============================================
- * 
- * Purpose: Displays detailed subject performance in a responsive table
- * Features:
- * - Subject name, exam type, obtained/total marks
- * - Percentage calculation with color coding
- * - Letter grade badges (A+, A, B, C, D, F)
- * - Grade-based badge variants
- * - Responsive design (table on desktop, card list on mobile)
- * - Role-based theming (parent)
- * - Empty state handling
- * 
- * Dependencies:
- * - @/components/ui/Card for container
- * - @/components/ui/Table for desktop view
- * - @/components/ui/Badge for grade indicators
- * - react-redux for state management
- * 
- * Usage:
- * <SubjectPerformanceTable />
- * ============================================
- */
-
-import { useMemo } from "react";
-import { useSelector } from "react-redux";
-
+// src/components/parent/grades/SubjectPerformanceTable.jsx
+import React, { useMemo, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { Search, X, Eye, Calendar, BookOpen, Award } from 'lucide-react';
 import Card from '@/components/ui/Card';
-import Table from '@/components/ui/Table';
-import Badge from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/Badge';
+import Pagination from '@/components/admin/Pagination';
+import { selectGrades, selectSelectedChild, selectSelectedTerm } from '@/modules/parent/store/parentSlice';
 
-/**
- * ============================================
- * SUBJECT PERFORMANCE TABLE COMPONENT
- * ============================================
- * 
- * Renders a responsive table of subject grades
- * 
- * @returns {JSX.Element} Subject performance table UI
- * 
- * @example
- * // In parent dashboard
- * <SubjectPerformanceTable />
- * ============================================
- */
+const ITEMS_PER_PAGE = 8;
+
 const SubjectPerformanceTable = () => {
-  /**
-   * ============================================
-   * REDUX STATE
-   * ============================================
-   * 
-   * Retrieves grades, parentLinks, selectedChild, and selectedTerm
-   */
-  const {
-    grades,
-    parentLinks,
-    selectedChild,
-    selectedTerm,
-  } = useSelector((state) => state.parent);
+  const grades = useSelector(selectGrades);
+  const selectedChild = useSelector(selectSelectedChild);
+  const selectedTerm = useSelector(selectSelectedTerm);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  /**
-   * ============================================
-   * SELECTED CHILD
-   * ============================================
-   * 
-   * Finds the current child from parentLinks
-   * Returns undefined if not found
-   */
-  const currentChild = useMemo(
-    () =>
-      parentLinks.find(
-        (child) => child.student === selectedChild
-      ),
-    [parentLinks, selectedChild]
-  );
+  // ─── Filter Logic ──────────────────────────────────────────────────
+  const filteredGrades = useMemo(() => {
+    let filtered = grades;
 
-  /**
-   * ============================================
-   * TABLE ROWS
-   * ============================================
-   * 
-   * Processes grades into table rows with calculated fields:
-   * - percentage: Calculated percentage (obtained/total * 100)
-   * - grade: Letter grade based on percentage
-   *   - A+: 90-100%
-   *   - A: 80-89%
-   *   - B: 70-79%
-   *   - C: 60-69%
-   *   - D: 50-59%
-   *   - F: Below 50%
-   * 
-   * Filters by student name and exam type
-   */
-  const rows = useMemo(() => {
-    if (!currentChild) return [];
+    // Filter by selected child
+    if (selectedChild) {
+      filtered = filtered.filter(g => g.student === selectedChild || g.student_id === selectedChild);
+    }
 
-    return grades
-      .filter(
-        (item) =>
-          item.student_name === currentChild.student_name &&
-          (selectedTerm === "All" || item.exam_type === selectedTerm)
-      )
-      .map((item) => {
-        const obtained = Number(item.obtained_marks);
-        const total = Number(item.total_marks);
-        const percentage = (obtained / total) * 100;
+    // Filter by selected term
+    if (selectedTerm && selectedTerm !== 'all') {
+      filtered = filtered.filter(g => g.exam_type === selectedTerm);
+    }
 
-        // Determine letter grade
-        let grade = "F";
-        if (percentage >= 90) grade = "A+";
-        else if (percentage >= 80) grade = "A";
-        else if (percentage >= 70) grade = "B";
-        else if (percentage >= 60) grade = "C";
-        else if (percentage >= 50) grade = "D";
+    // Filter by search term
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(g =>
+        g.subject_name?.toLowerCase().includes(search) ||
+        g.exam_name?.toLowerCase().includes(search) ||
+        g.exam_type?.toLowerCase().includes(search)
+      );
+    }
 
-        return {
-          ...item,
-          percentage: percentage.toFixed(1),
-          grade,
-        };
+    return filtered;
+  }, [grades, selectedChild, selectedTerm, searchTerm]);
+
+  // ─── Pagination ──────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filteredGrades.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const pageItems = filteredGrades.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // ─── Handlers ──────────────────────────────────────────────────
+  const clearSearch = useCallback(() => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  }, []);
+
+  // ─── Helper Functions ──────────────────────────────────────────
+  const getGradeColor = (percentage) => {
+    if (percentage >= 80) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (percentage >= 60) return 'bg-blue-50 text-blue-700 border-blue-200';
+    if (percentage >= 40) return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-red-50 text-red-700 border-red-200';
+  };
+
+  const getGradeLabel = (percentage) => {
+    if (percentage >= 80) return 'A';
+    if (percentage >= 70) return 'B';
+    if (percentage >= 60) return 'C';
+    if (percentage >= 50) return 'D';
+    if (percentage >= 40) return 'E';
+    return 'F';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '—';
+    try {
+      return new Date(dateString).toLocaleDateString('en-PK', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       });
-  }, [grades, currentChild, selectedTerm]);
-
-  /**
-   * ============================================
-   * BADGE VARIANT MAPPING
-   * ============================================
-   * 
-   * Maps letter grades to Badge component variants
-   * - A+: success (green)
-   * - A: info (blue)
-   * - B: primary (indigo)
-   * - C: warning (yellow)
-   * - D/F: danger (red)
-   * 
-   * @param {string} grade - Letter grade
-   * @returns {string} Badge variant
-   */
-  const getVariant = (grade) => {
-    switch (grade) {
-      case "A+":
-        return "success";
-      case "A":
-        return "info";
-      case "B":
-        return "primary";
-      case "C":
-        return "warning";
-      default:
-        return "danger";
+    } catch {
+      return '—';
     }
   };
 
-  /**
-   * ============================================
-   * DESKTOP COLUMNS
-   * ============================================
-   * 
-   * Defines the columns for the desktop table view
-   * - Subject: Subject name
-   * - Exam: Exam type
-   * - Obtained: Marks obtained
-   * - Total: Total marks
-   * - Percentage: Calculated percentage (color-coded)
-   * - Grade: Letter grade badge
-   * - Exam Date: Formatted exam date
-   */
-  const columns = [
-    {
-      key: "subject_name",
-      label: "Subject",
-    },
-    {
-      key: "exam_type",
-      label: "Exam",
-    },
-    {
-      key: "obtained_marks",
-      label: "Obtained",
-    },
-    {
-      key: "total_marks",
-      label: "Total",
-    },
-    {
-      key: "percentage",
-      label: "Percentage",
-      render: (row) => (
-        <span className="font-semibold text-green-600">
-          {row.percentage}%
-        </span>
-      ),
-    },
-    {
-      key: "grade",
-      label: "Grade",
-      render: (row) => (
-        <Badge variant={getVariant(row.grade)}>
-          {row.grade}
-        </Badge>
-      ),
-    },
-    {
-      key: "exam_date",
-      label: "Exam Date",
-      render: (row) =>
-        new Date(row.exam_date).toLocaleDateString(),
-    },
-  ];
+  if (filteredGrades.length === 0) {
+    return (
+      <Card className="p-4 md:p-6 text-center border border-gray-100">
+        <div className="flex flex-col items-center gap-2">
+          <BookOpen className="w-8 h-8 text-gray-300" />
+          <p className="text-sm text-gray-500">No performance data found</p>
+          <p className="text-xs text-gray-400">Try adjusting your filters</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
-    <Card hover={false}>
-      {/* ─── Header ────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-text-primary">
-          Subject Performance
-        </h2>
-
-        <p className="mt-1 text-sm text-text-secondary">
-          Detailed marks for the selected examination.
-        </p>
+    <Card className="p-0 overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+      {/* ─── Header ──────────────────────────────────────────────────── */}
+      <div className="p-3 sm:p-4 md:p-6 border-b border-gray-100 bg-gray-50/60">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h3 className="text-sm md:text-base font-semibold text-gray-800 flex items-center gap-2">
+              <Award className="w-4 h-4 text-blue-600" />
+              Subject Performance Details
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex-1 sm:flex-none relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by subject..."
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  className="w-full sm:w-48 pl-9 pr-4 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-xs md:text-sm"
+                />
+              </div>
+              {searchTerm && (
+                <button onClick={clearSearch} className="px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-1">
+                  <X className="w-3 h-3 md:w-3.5 md:h-3.5" /> Clear
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="text-xs text-gray-500">
+            Showing {filteredGrades.length} result{filteredGrades.length > 1 ? 's' : ''}
+            {selectedChild && ' for selected child'}
+            {selectedTerm && selectedTerm !== 'all' && ` in ${selectedTerm}`}
+          </div>
+        </div>
       </div>
 
-      {/* ─── Mobile Card List ──────────────────────────────────── */}
-      <div className="space-y-4 md:hidden">
-        {rows.length === 0 ? (
-          // Empty state
-          <div className="rounded-xl border border-dashed border-slate-300 py-10 text-center text-text-secondary">
-            No grades available.
-          </div>
-        ) : (
-          rows.map((row) => (
-            <div
-              key={row.id}
-              className="rounded-xl border border-slate-200 p-4 shadow-sm"
-            >
-              {/* Top row: Subject + Exam + Grade */}
+      {/* ─── Table ──────────────────────────────────────────────────── */}
+      <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="block sm:hidden">
+          {pageItems.map((grade) => (
+            <div key={grade.id} className="p-4 hover:bg-blue-50/30 transition-colors border-b border-gray-100">
               <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-text-primary">
-                    {row.subject_name}
-                  </h3>
-                  <p className="mt-1 text-sm text-text-secondary">
-                    {row.exam_type}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-800 text-sm truncate">{grade.subject_name || 'Subject'}</p>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    <Badge className={`${getGradeColor(grade.percentage)} text-[10px]`}>
+                      {getGradeLabel(grade.percentage)}
+                    </Badge>
+                    <span className="text-xs text-gray-500">{grade.exam_type || 'Exam'}</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-800 mt-1">
+                    {grade.marks_obtained || 0}/{grade.total_marks || 0}
                   </p>
                 </div>
-                <Badge variant={getVariant(row.grade)}>
-                  {row.grade}
-                </Badge>
-              </div>
-
-              {/* Details grid */}
-              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-text-secondary">Obtained</p>
-                  <p className="font-medium">{row.obtained_marks}</p>
-                </div>
-
-                <div>
-                  <p className="text-text-secondary">Total</p>
-                  <p className="font-medium">{row.total_marks}</p>
-                </div>
-
-                <div>
-                  <p className="text-text-secondary">Percentage</p>
-                  <p className="font-semibold text-green-600">
-                    {row.percentage}%
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-text-secondary">Date</p>
-                  <p className="font-medium">
-                    {new Date(row.exam_date).toLocaleDateString()}
-                  </p>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-gray-800">{grade.percentage || 0}%</span>
+                  <div className="w-16 h-1.5 bg-gray-200 rounded-full mt-1 ml-auto">
+                    <div
+                      className={`h-full rounded-full ${
+                        grade.percentage >= 80 ? 'bg-emerald-500' :
+                        grade.percentage >= 60 ? 'bg-blue-500' :
+                        grade.percentage >= 40 ? 'bg-amber-500' :
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${Math.min(grade.percentage || 0, 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          ))
-        )}
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Subject</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Exam</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Marks</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Percentage</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Grade</th>
+                <th className="text-left px-4 py-3.5 text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {pageItems.map((grade) => (
+                <tr key={grade.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                        <BookOpen className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="font-medium text-gray-800 truncate max-w-[120px]">
+                        {grade.subject_name || 'Subject'}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5 text-sm text-gray-600 truncate max-w-[120px]">
+                    {grade.exam_name || '—'}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <Badge className="bg-gray-100 text-gray-600 border-gray-200 text-xs">
+                      {grade.exam_type || '—'}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3.5 font-semibold text-gray-800">
+                    {grade.marks_obtained || 0}/{grade.total_marks || 0}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-800">{grade.percentage || 0}%</span>
+                      <div className="w-16 h-1.5 bg-gray-200 rounded-full">
+                        <div
+                          className={`h-full rounded-full ${
+                            grade.percentage >= 80 ? 'bg-emerald-500' :
+                            grade.percentage >= 60 ? 'bg-blue-500' :
+                            grade.percentage >= 40 ? 'bg-amber-500' :
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${Math.min(grade.percentage || 0, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <Badge className={`${getGradeColor(grade.percentage)} text-xs`}>
+                      {getGradeLabel(grade.percentage)}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3.5 text-sm text-gray-600">
+                    {formatDate(grade.exam_date || grade.created_at)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* ─── Desktop Table ──────────────────────────────────────── */}
-      <div className="hidden md:block">
-        <Table
-          columns={columns}
-          data={rows}
-          emptyMessage="No grades available."
+      {filteredGrades.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          startIndex={startIndex}
+          itemsShown={pageItems.length}
+          totalItems={filteredGrades.length}
+          onPageChange={setCurrentPage}
         />
-      </div>
+      )}
     </Card>
   );
 };

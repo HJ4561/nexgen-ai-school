@@ -238,19 +238,13 @@ const PendingAssignments = () => {
                     borderLeftColor: colors[1],
                     animationDelay: `${Math.min(index, 8) * 60}ms`,
                   }}
-                  className="group flex flex-col gap-4 rounded-xl border border-slate-200
-                             border-l-4 p-4 opacity-0 [animation-fill-mode:forwards]
-                             animate-[pending-in_0.5s_ease-out] transition-all duration-200
-                             hover:-translate-y-0.5 hover:border-student-primary hover:shadow-sm
-
-                             lg:flex-row lg:items-center lg:justify-between"
+                  className="group flex flex-col gap-4 rounded-xl border border-slate-200 border-l-4 p-4 opacity-0 [animation-fill-mode:forwards] animate-[pending-in_0.5s_ease-out] transition-all duration-200 hover:-translate-y-0.5 hover:border-student-primary hover:shadow-sm lg:flex-row lg:items-center lg:justify-between"
                 >
                   {/* ─── Left Section ─── */}
                   <div className="flex items-start gap-4">
                     {/* Urgency Icon */}
                     <div
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm
-                                 transition-transform duration-300 group-hover:scale-105"
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-105"
                       style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}
                     >
                       <BookOpen size={20} strokeWidth={2.25} />

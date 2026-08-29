@@ -132,7 +132,7 @@ const BehaviorLogDrawer = ({ isOpen, onClose, student }) => {
 
         {/* ─── Behavior Type Dropdown ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Behavior Type</label>
+          <label className="block text-sm text-gray-600 mb-1">Behavior Type</label>
           <Select
             value={behaviorData.type}
             onChange={(e) => setBehaviorData({ ...behaviorData, type: e.target.value })}
@@ -146,7 +146,7 @@ const BehaviorLogDrawer = ({ isOpen, onClose, student }) => {
 
         {/* ─── Severity Dropdown ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Severity</label>
+          <label className="block text-sm text-gray-600 mb-1">Severity</label>
           <Select
             value={behaviorData.severity}
             onChange={(e) => setBehaviorData({ ...behaviorData, severity: e.target.value })}
@@ -159,7 +159,7 @@ const BehaviorLogDrawer = ({ isOpen, onClose, student }) => {
 
         {/* ─── Description Text Area ─── */}
         <div>
-          <label className="text-sm text-gray-600 mb-1 block">Description</label>
+          <label className="block text-sm text-gray-600 mb-1">Description</label>
           <TextArea
             value={behaviorData.description}
             onChange={(e) => setBehaviorData({ ...behaviorData, description: e.target.value })}
@@ -170,8 +170,18 @@ const BehaviorLogDrawer = ({ isOpen, onClose, student }) => {
 
         {/* ─── Action Buttons ─── */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={handleSubmit}>Submit Log</Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+          >
+            Submit Log
+          </Button>
         </div>
       </div>
     </Modal>
