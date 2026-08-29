@@ -33,7 +33,6 @@ export default defineConfig({
     target: 'es2020',
     rollupOptions: {
       output: {
-        // ✅ This MUST be a function
         manualChunks(id) {
           if (id.includes('node_modules')) {
             return 'vendor';
@@ -45,6 +44,8 @@ export default defineConfig({
       },
     },
   },
+  // ✅ Remove this line if you have it - it's causing issues
+  // esbuild: false,
   define: {
     'process.env.VITE_API_URL': JSON.stringify('/api'),
   },
