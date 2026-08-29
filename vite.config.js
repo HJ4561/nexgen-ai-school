@@ -30,6 +30,7 @@ export default defineConfig({
     }
   },
   build: {
+    minify: 'esbuild',
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
