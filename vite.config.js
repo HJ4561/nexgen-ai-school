@@ -27,34 +27,27 @@ export default defineConfig({
     }
   },
   build: {
-    minify: 'esbuild', // ✅ Use esbuild (no terser needed)
-    chunkSizeWarningLimit: 1000,
+    minify: 'esbuild', // Use esbuild instead of terser for faster builds
+    chunkSizeWarningLimit: 2000,
     sourcemap: false,
+    target: 'es2020',
+    cssMinify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'react-vendor';
-            }
-            if (id.includes('@reduxjs') || id.includes('react-redux')) {
-              return 'redux-vendor';
-            }
-            if (id.includes('lucide-react') || id.includes('framer-motion')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('recharts')) {
-              return 'chart-vendor';
-            }
-            if (id.includes('axios')) {
-              return 'api-vendor';
-            }
-            return 'vendor';
-          }
+        // Simplified chunking to reduce memory usage
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'redux-vendor': ['@reduxjs/toolkit', 'react-redux'],
+          'ui-vendor': ['lucide-react', 'framer-motion', 'lottie-react', 'react-icons'],
+          'chart-vendor': ['recharts'],
+          'api-vendor': ['axios'],
+          'animation-vendor': ['gsap', 'lenis'],
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
+        compact: true,
+        generatedCode: 'es2015',
       },
     },
   },
@@ -70,9 +63,27 @@ export default defineConfig({
       'framer-motion',
       'recharts',
       'gsap',
+      'lottie-react',
+      'react-icons',
+      'react-hot-toast',
+      'react-textarea-autosize',
+      'react-chatbot-kit',
+      'react-markdown',
+      '@lottiefiles/dotlottie-react',
+      'lenis',
+      'split-type',
     ],
+    force: true,
+    esbuildOptions: {
+      target: 'es2020',
+      treeShaking: true,
+    },
   },
   define: {
     'process.env.VITE_API_URL': JSON.stringify('/api'),
   },
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' },
+  },
+  cacheDir: '.vite-cache',
 })
