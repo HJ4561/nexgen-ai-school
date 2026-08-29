@@ -33,9 +33,24 @@ export default defineConfig({
     target: 'es2020',
     rollupOptions: {
       output: {
-        // Simple chunking function
+        // ✅ manualChunks MUST be a function
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@reduxjs') || id.includes('react-redux')) {
+              return 'redux-vendor';
+            }
+            if (id.includes('lucide-react') || id.includes('framer-motion') || id.includes('lottie-react') || id.includes('react-icons')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('recharts')) {
+              return 'chart-vendor';
+            }
+            if (id.includes('axios')) {
+              return 'api-vendor';
+            }
             return 'vendor';
           }
         },
@@ -57,6 +72,7 @@ export default defineConfig({
       'framer-motion',
       'recharts',
     ],
+    // Remove deprecated esbuildOptions
   },
   define: {
     'process.env.VITE_API_URL': JSON.stringify('/api'),
