@@ -1,9 +1,9 @@
 // src/services/api.js
 import axios from "axios";
 
-// ✅ Use absolute URL in production, relative in development
+// ✅ Use the full URL in production
 const API_BASE_URL = import.meta.env.PROD 
-  ? "https://school-backend-new-rho.vercel.app/api" // ✅ Your actual backend URL
+  ? "https://school-backend-new-rho.vercel.app/api"
   : "/api";
 
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || "default-school";
@@ -12,10 +12,11 @@ const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
-    "X-Tenant-Slug": TENANT_SLUG, // ✅ Add this here too
+    "X-Tenant-Slug": TENANT_SLUG, // ✅ Ensure tenant header is always sent
   },
   timeout: 30000,
 });
+
 
 // ─── Helper Functions ──────────────────────────────────────────────────────
 
