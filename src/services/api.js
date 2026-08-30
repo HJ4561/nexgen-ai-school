@@ -1,13 +1,18 @@
 // src/services/api.js
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+// ✅ Use absolute URL in production, relative in development
+const API_BASE_URL = import.meta.env.PROD 
+  ? "https://school-backend-new-rho.vercel.app/api" // ✅ Your actual backend URL
+  : "/api";
+
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || "default-school";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    "X-Tenant-Slug": TENANT_SLUG, // ✅ Add this here too
   },
   timeout: 30000,
 });

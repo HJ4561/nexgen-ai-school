@@ -44,9 +44,8 @@ export default defineConfig({
       },
     },
   },
-  // ✅ Remove this line if you have it - it's causing issues
-  // esbuild: false,
   define: {
-    'process.env.VITE_API_URL': JSON.stringify('/api'),
+    // ✅ Use the full URL for production
+    'process.env.VITE_API_URL': JSON.stringify('https://school-backend-new-rho.vercel.app/api'),
   },
 })
