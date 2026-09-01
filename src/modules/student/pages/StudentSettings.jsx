@@ -2,31 +2,28 @@
 
 /**
  * ============================================
- * STUDENT SETTINGS - COMPLETE
+ * STUDENT SETTINGS - READ-ONLY MODE
  * ============================================
  * 
- * Purpose: Student settings with full API integration
+ * Purpose: Student settings with read-only profile view
  * 
  * API Endpoints:
- * - GET /api/users/students/me/ - Get student profile
- * - PATCH /api/users/students/me/ - Update student profile
- * - POST /api/auth/change-password/ - Change password
- * - PATCH /api/users/students/me/preferences/ - Update preferences
+ * - GET /api/users/students/me/ - Get student profile (read-only)
+ * - POST /api/auth/change-password/ - Change password (only writable action)
  * 
  * USAGE OF NEW API FIELDS:
  * - user_name from profile (read-only)
  * - class_name from profile (read-only)
  * - parent_name from profile (read-only)
  * 
- * IMPORTANT: These fields are READ-ONLY - only appear in responses.
- * Do NOT send them in POST/PATCH request bodies.
+ * IMPORTANT: Students CANNOT update their profile directly.
+ * All profile changes must go through school administration.
  * ============================================
  */
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { gsap } from "gsap";
 import {
   User,
   Mail,
@@ -44,49 +41,33 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
-  UserPlus,
   GraduationCap,
   Key,
-  Fingerprint,
   Camera,
-  Settings,
   ShieldCheck,
-  Sparkles,
-  Moon,
-  Sun,
-  Award,
-  TrendingUp,
-  Star,
   Clock,
   Calendar as CalendarIcon,
   Users,
   School,
   Loader2,
-  ChevronRight,
-  MailCheck,
-  Smartphone,
-  Crown,
-  Edit,
-  UserCircle,
-  Venus,
-  Mars,
-  Cake,
   Hash,
   BadgeCheck,
   CreditCard,
+  Info,
 } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import api from "@/services/api";
 import {
   fetchProfile,
-  updateProfile,
+  changePassword,
 } from "@/modules/student/store/studentThunks";
 import {
   selectStudentProfile,
   selectStudentLoading,
   selectStudentError,
+  selectStudentSubmitting,
+  selectStudentSuccessMessage,
 } from "@/modules/student/store/studentSlice";
 
 // ─── Smart Name Resolution ────────────────────────────────────────────
@@ -153,7 +134,7 @@ function Toast({ message, type, onClose }) {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border ${config.bg} border-gray-100 px-5 py-3.5 shadow-xl backdrop-blur-sm`}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border ${config.bg} border-gray-100 px-5 py-3.5 shadow-xl backdrop-blur-sm max-w-md`}
     >
       <Icon className={`h-5 w-5 ${config.iconColor}`} />
       <span className={`text-sm font-medium ${config.text}`}>{message}</span>
@@ -163,7 +144,7 @@ function Toast({ message, type, onClose }) {
 
 // ─── Profile Avatar ────────────────────────────────────────────────────
 
-function ProfileAvatar({ name, email, profile }) {
+function ProfileAvatar({ name, profile }) {
   const fileInputRef = useRef(null);
   
   const getInitials = (name) => {
@@ -177,7 +158,6 @@ function ProfileAvatar({ name, email, profile }) {
   };
 
   const studentName = getUserName(profile) || name || "Student";
-  const classDisplay = getClassName(profile) || "Class";
 
   return (
     <div className="flex flex-col items-center">
@@ -187,9 +167,11 @@ function ProfileAvatar({ name, email, profile }) {
         </div>
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="absolute bottom-0 right-0 p-1.5 rounded-full bg-white border border-gray-200 shadow-md hover:shadow-lg transition-all"
+          className="absolute bottom-0 right-0 p-1.5 rounded-full bg-white border border-gray-200 shadow-md hover:shadow-lg transition-all opacity-50 cursor-not-allowed"
+          disabled
+          title="Profile picture updates are managed by school administration"
         >
-          <Camera className="h-3.5 w-3.5 text-gray-500" />
+          <Camera className="h-3.5 w-3.5 text-gray-400" />
         </button>
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" />
       </div>
@@ -197,7 +179,7 @@ function ProfileAvatar({ name, email, profile }) {
       <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
         <span className="flex items-center gap-1 text-sm text-gray-500">
           <School className="h-3.5 w-3.5" />
-          {classDisplay}
+          {getClassName(profile) || "Class"}
         </span>
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
           <BadgeCheck className="h-3 w-3" />
@@ -211,7 +193,6 @@ function ProfileAvatar({ name, email, profile }) {
 // ─── Stats Row ─────────────────────────────────────────────────────────
 
 function StatsRow({ profile }) {
-  const studentName = getUserName(profile) || "Student";
   const classDisplay = getClassName(profile) || "Class";
   
   const stats = [
@@ -249,7 +230,7 @@ function StatsRow({ profile }) {
 
 // ─── Settings Card ─────────────────────────────────────────────────────
 
-function SettingsCard({ title, description, icon: Icon, children, delay }) {
+function SettingsCard({ title, description, icon: Icon, children, delay, readOnly }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -258,13 +239,18 @@ function SettingsCard({ title, description, icon: Icon, children, delay }) {
       className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
     >
       <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-indigo-50 text-indigo-500">
+        <div className={`p-2 rounded-lg ${readOnly ? 'bg-gray-50 text-gray-400' : 'bg-indigo-50 text-indigo-500'}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
           <h3 className="text-base font-semibold text-gray-800">{title}</h3>
           {description && <p className="text-xs text-gray-400">{description}</p>}
         </div>
+        {readOnly && (
+          <span className="ml-auto text-[10px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+            Read-Only
+          </span>
+        )}
       </div>
       <div className="p-5 space-y-4">{children}</div>
     </motion.div>
@@ -319,12 +305,15 @@ function Input({ value, onChange, placeholder, type = "text", disabled, ...props
 
 // ─── Select ────────────────────────────────────────────────────────────
 
-function Select({ value, onChange, options, placeholder, ...props }) {
+function Select({ value, onChange, options, placeholder, disabled, ...props }) {
   return (
     <select
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+      disabled={disabled}
+      className={`w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all ${
+        disabled ? "opacity-60 cursor-not-allowed" : ""
+      }`}
       {...props}
     >
       {placeholder && <option value="">{placeholder}</option>}
@@ -339,7 +328,7 @@ function Select({ value, onChange, options, placeholder, ...props }) {
 
 // ─── Toggle ────────────────────────────────────────────────────────────
 
-function Toggle({ enabled, onChange, label, description }) {
+function Toggle({ enabled, onChange, label, description, disabled }) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -347,11 +336,12 @@ function Toggle({ enabled, onChange, label, description }) {
         {description && <p className="text-xs text-gray-400">{description}</p>}
       </div>
       <button
-        onClick={() => onChange(!enabled)}
+        onClick={() => !disabled && onChange(!enabled)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-          enabled ? "bg-indigo-500" : "bg-gray-300"
-        }`}
+          disabled ? "opacity-50 cursor-not-allowed" : ""
+        } ${enabled ? "bg-indigo-500" : "bg-gray-300"}`}
         type="button"
+        disabled={disabled}
       >
         <span
           className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
@@ -363,6 +353,38 @@ function Toggle({ enabled, onChange, label, description }) {
   );
 }
 
+// ─── Info Banner ──────────────────────────────────────────────────────
+
+function InfoBanner() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6"
+    >
+      <div className="flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <h4 className="font-medium text-blue-800 text-sm">Profile Management</h4>
+          <p className="text-sm text-blue-700 mt-0.5">
+            Your profile information is managed by the school administration for data accuracy and security.
+          </p>
+          <ul className="mt-2 text-sm text-blue-700 list-disc list-inside space-y-0.5">
+            <li>Name changes → Contact school office</li>
+            <li>Address updates → Contact school office</li>
+            <li>Phone number changes → Contact school office</li>
+            <li>Class changes → Contact school office</li>
+            <li>Parent/Guardian info → Contact school office</li>
+          </ul>
+          <p className="mt-2 text-sm text-blue-700">
+            <strong>Need to update your information?</strong> Please visit or call your school administration office.
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── Main Component ────────────────────────────────────────────────────
 
 function StudentSettings() {
@@ -370,21 +392,12 @@ function StudentSettings() {
   const profile = useSelector(selectStudentProfile);
   const loading = useSelector(selectStudentLoading);
   const error = useSelector(selectStudentError);
+  const submitting = useSelector(selectStudentSubmitting);
+  const successMessage = useSelector(selectStudentSuccessMessage);
 
   const [toast, setToast] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // ─── Profile State ──────────────────────────────────────────────
-  const [formData, setFormData] = useState({
-    phone: "",
-    address: "",
-    gender: "",
-    dob: "",
-    parent_phone: "",
-    parent_email: "",
-  });
 
   // ─── Password State ─────────────────────────────────────────────
   const [passwordData, setPasswordData] = useState({
@@ -416,20 +429,6 @@ function StudentSettings() {
     loadProfile();
   }, [loadProfile]);
 
-  // ─── Update form data when profile loads ──────────────────────
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        phone: profile.phone || "",
-        address: profile.address || "",
-        gender: profile.gender || "",
-        dob: profile.dob || "",
-        parent_phone: profile.parent?.phone || profile.parent_phone || "",
-        parent_email: profile.parent?.email || profile.parent_email || "",
-      });
-    }
-  }, [profile]);
-
   // ─── Debug new API fields ──────────────────────────────────────
   useEffect(() => {
     if (profile) {
@@ -440,19 +439,18 @@ function StudentSettings() {
     }
   }, [profile]);
 
-  // ─── Handle Profile Update ──────────────────────────────────────
-  const handleProfileUpdate = async () => {
-    setIsSaving(true);
-    try {
-      await dispatch(updateProfile(formData)).unwrap();
-      setToast({ message: 'Profile updated successfully!', type: 'success' });
-    } catch (err) {
-      console.error('Failed to update profile:', err);
-      setToast({ message: err || 'Failed to update profile', type: 'error' });
-    } finally {
-      setIsSaving(false);
+  // ─── Handle Toast from Success/Error ──────────────────────────
+  useEffect(() => {
+    if (successMessage) {
+      setToast({ message: successMessage, type: 'success' });
     }
-  };
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      setToast({ message: error, type: 'error' });
+    }
+  }, [error]);
 
   // ─── Handle Password Change ─────────────────────────────────────
   const handlePasswordChange = async () => {
@@ -465,39 +463,27 @@ function StudentSettings() {
       return;
     }
 
-    setIsSaving(true);
     try {
-      await api.post('/auth/change-password/', {
+      await dispatch(changePassword({
         current_password: passwordData.current_password,
         new_password: passwordData.new_password,
-      });
-      setToast({ message: 'Password changed successfully!', type: 'success' });
+      })).unwrap();
+      
       setPasswordData({
         current_password: "",
         new_password: "",
         confirm_password: "",
       });
     } catch (err) {
+      // Error is handled in the slice
       console.error('Failed to change password:', err);
-      const msg = err.response?.data?.message || 'Failed to change password';
-      setToast({ message: msg, type: 'error' });
-    } finally {
-      setIsSaving(false);
     }
   };
 
   // ─── Handle Preferences Update ─────────────────────────────────
   const handlePreferencesUpdate = async () => {
-    setIsSaving(true);
-    try {
-      await api.patch('/users/students/me/preferences/', preferences);
-      setToast({ message: 'Preferences updated successfully!', type: 'success' });
-    } catch (err) {
-      console.error('Failed to update preferences:', err);
-      setToast({ message: 'Preferences updated', type: 'success' });
-    } finally {
-      setIsSaving(false);
-    }
+    // Preferences are stored locally for now
+    setToast({ message: 'Preferences saved locally', type: 'success' });
   };
 
   // ─── Refresh ─────────────────────────────────────────────────────
@@ -506,12 +492,6 @@ function StudentSettings() {
     await loadProfile();
     setIsRefreshing(false);
     setToast({ message: 'Settings refreshed', type: 'info' });
-  };
-
-  // ─── Form Input Change ──────────────────────────────────────────
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   // ─── Password Input Change ──────────────────────────────────────
@@ -550,7 +530,7 @@ function StudentSettings() {
       {/* ─── Page Header ────────────────────────────────────────────── */}
       <PageHeader
         title="Settings"
-        subtitle="Manage your profile and preferences"
+        subtitle="View your profile and manage your password"
         breadcrumbs={["Student", "Settings"]}
         bgColor="bg-indigo-50"
         actions={
@@ -579,6 +559,9 @@ function StudentSettings() {
 
       <div className="mt-6" />
 
+      {/* ─── Info Banner ────────────────────────────────────────────── */}
+      <InfoBanner />
+
       {/* ─── Profile & Stats ────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -595,8 +578,14 @@ function StudentSettings() {
 
       {/* ─── Settings Grid ────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-6">
-        {/* Profile */}
-        <SettingsCard title="Profile" description="Your personal information" icon={User} delay={0.05}>
+        {/* Profile - READ ONLY */}
+        <SettingsCard 
+          title="Profile" 
+          description="Your personal information (read-only)" 
+          icon={User} 
+          delay={0.05}
+          readOnly
+        >
           <SettingsField label="Full Name" icon={User} readOnly>
             <ReadOnlyField value={studentName} placeholder="Enter your full name" />
           </SettingsField>
@@ -605,69 +594,36 @@ function StudentSettings() {
             <ReadOnlyField value={profile?.user?.email || profile?.email || "No email set"} placeholder="Enter your email" />
           </SettingsField>
 
-          <SettingsField label="Phone" icon={Phone}>
-            <Input
-              name="phone"
-              value={formData.phone}
-              onChange={handleFormChange}
-              placeholder="Enter your phone number"
-            />
+          <SettingsField label="Phone" icon={Phone} readOnly>
+            <ReadOnlyField value={profile?.phone || "Not set"} placeholder="Enter your phone number" />
           </SettingsField>
 
-          <SettingsField label="Address" icon={MapPin}>
-            <Input
-              name="address"
-              value={formData.address}
-              onChange={handleFormChange}
-              placeholder="Enter your address"
-            />
+          <SettingsField label="Address" icon={MapPin} readOnly>
+            <ReadOnlyField value={profile?.address || "Not set"} placeholder="Enter your address" />
           </SettingsField>
 
-          <SettingsField label="Date of Birth" icon={CalendarIcon}>
-            <Input
-              type="date"
-              name="dob"
-              value={formData.dob}
-              onChange={handleFormChange}
-              placeholder="Select date of birth"
-            />
+          <SettingsField label="Date of Birth" icon={CalendarIcon} readOnly>
+            <ReadOnlyField value={profile?.dob || "Not set"} placeholder="Select date of birth" />
           </SettingsField>
 
-          <SettingsField label="Gender" icon={User}>
-            <Select
-              name="gender"
-              value={formData.gender}
-              onChange={handleFormChange}
-              placeholder="Select gender"
-              options={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
-                { value: "other", label: "Other" },
-              ]}
-            />
+          <SettingsField label="Gender" icon={User} readOnly>
+            <ReadOnlyField value={profile?.gender || "Not set"} placeholder="Select gender" />
           </SettingsField>
 
-          <button
-            onClick={handleProfileUpdate}
-            disabled={isSaving}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save Profile
-              </>
-            )}
-          </button>
+          <div className="text-xs text-gray-400 italic mt-2 flex items-center gap-1">
+            <Lock className="h-3 w-3" />
+            Profile updates are managed by school administration.
+          </div>
         </SettingsCard>
 
         {/* Academic (Read-Only) */}
-        <SettingsCard title="Academic" description="Your academic details (read-only)" icon={GraduationCap} delay={0.1}>
+        <SettingsCard 
+          title="Academic" 
+          description="Your academic details (read-only)" 
+          icon={GraduationCap} 
+          delay={0.1}
+          readOnly
+        >
           <SettingsField label="Class" icon={BookOpen} readOnly>
             <ReadOnlyField value={classDisplay} placeholder="Not set" />
           </SettingsField>
@@ -689,52 +645,36 @@ function StudentSettings() {
           </SettingsField>
         </SettingsCard>
 
-        {/* Parent/Guardian */}
-        <SettingsCard title="Parent/Guardian" description="Your parent or guardian info" icon={UserPlus} delay={0.15}>
+        {/* Parent/Guardian - READ ONLY */}
+        <SettingsCard 
+          title="Parent/Guardian" 
+          description="Your parent or guardian info (read-only)" 
+          icon={Users} 
+          delay={0.15}
+          readOnly
+        >
           <SettingsField label="Parent Name" icon={User} readOnly>
             <ReadOnlyField value={parentName || "Not set"} placeholder="Enter parent name" />
           </SettingsField>
 
-          <SettingsField label="Phone" icon={Phone}>
-            <Input
-              name="parent_phone"
-              value={formData.parent_phone}
-              onChange={handleFormChange}
-              placeholder="Enter parent phone"
-            />
+          <SettingsField label="Phone" icon={Phone} readOnly>
+            <ReadOnlyField value={profile?.parent?.phone || profile?.parent_phone || "Not set"} placeholder="Enter parent phone" />
           </SettingsField>
 
-          <SettingsField label="Email" icon={Mail}>
-            <Input
-              type="email"
-              name="parent_email"
-              value={formData.parent_email}
-              onChange={handleFormChange}
-              placeholder="Enter parent email"
-            />
+          <SettingsField label="Email" icon={Mail} readOnly>
+            <ReadOnlyField value={profile?.parent?.email || profile?.parent_email || "Not set"} placeholder="Enter parent email" />
           </SettingsField>
 
-          <button
-            onClick={handleProfileUpdate}
-            disabled={isSaving}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save Changes
-              </>
-            )}
-          </button>
+          <div className="text-xs text-gray-400 italic mt-2">Parent information is managed by the school administration.</div>
         </SettingsCard>
 
-        {/* Security */}
-        <SettingsCard title="Security" description="Change your password" icon={Lock} delay={0.2}>
+        {/* Security - Only writable section */}
+        <SettingsCard 
+          title="Security" 
+          description="Change your password" 
+          icon={Lock} 
+          delay={0.2}
+        >
           <SettingsField label="Current Password" icon={Key}>
             <div className="relative">
               <input
@@ -779,10 +719,10 @@ function StudentSettings() {
 
           <button
             onClick={handlePasswordChange}
-            disabled={isSaving}
+            disabled={submitting}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50"
           >
-            {isSaving ? (
+            {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Updating...
@@ -796,8 +736,13 @@ function StudentSettings() {
           </button>
         </SettingsCard>
 
-        {/* Preferences */}
-        <SettingsCard title="Preferences" description="Customize your experience" icon={Bell} delay={0.25}>
+        {/* Preferences - Local only */}
+        <SettingsCard 
+          title="Preferences" 
+          description="Customize your experience" 
+          icon={Bell} 
+          delay={0.25}
+        >
           <Toggle
             label="Email Notifications"
             description="Receive updates via email"
@@ -833,7 +778,7 @@ function StudentSettings() {
             />
           </SettingsField>
 
-          <SettingsField label="Profile Visibility" icon={Fingerprint}>
+          <SettingsField label="Profile Visibility" icon={ShieldCheck}>
             <Select
               value={preferences.profile_visibility}
               onChange={(e) => setPreferences({ ...preferences, profile_visibility: e.target.value })}
@@ -847,20 +792,11 @@ function StudentSettings() {
 
           <button
             onClick={handlePreferencesUpdate}
-            disabled={isSaving}
+            disabled={submitting}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50"
           >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Save Preferences
-              </>
-            )}
+            <Save className="h-4 w-4" />
+            Save Preferences
           </button>
         </SettingsCard>
       </div>
@@ -868,6 +804,7 @@ function StudentSettings() {
       {/* ─── Footer ────────────────────────────────────────────────── */}
       <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
         <p>© 2024 Smart School Management System • Settings Module</p>
+        <p className="mt-1">Profile updates are managed by school administration.</p>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 // src/modules/student/services/studentService.js
+
 import api from "@/services/api";
 
 const studentService = {
@@ -9,8 +10,18 @@ const studentService = {
     return response.data;
   },
 
+  // ✅ Students cannot update their profile directly
+  // Profile updates must go through school administration
+  // Only password changes are allowed
   updateProfile: async (profileData) => {
-    const response = await api.patch("/users/students/me/", profileData);
+    // This will throw an error if called
+    throw new Error('Profile updates are managed by school administration. Please contact your school office for any changes.');
+  },
+
+  // ─── Password Change ──────────────────────────────────────────────────────
+
+  changePassword: async (passwordData) => {
+    const response = await api.post("/auth/change-password/", passwordData);
     return response.data;
   },
 
@@ -119,51 +130,50 @@ const studentService = {
   },
 
   submitAssignment: async (submissionData) => {
-  // Check if we have a File object
-  if (submissionData.file instanceof File) {
-    const formData = new FormData();
-    
-    // Required fields
-    formData.append('assignment', submissionData.assignment);
-    formData.append('file', submissionData.file);
-    
-    // Optional fields
-    if (submissionData.description) {
-      formData.append('description', submissionData.description);
-    }
-    
-    // ✅ CRITICAL: Try adding student ID if you have it
-    // Get student ID from localStorage or Redux state
-    try {
-      const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
-      const studentId = authData.user_id || authData.id || localStorage.getItem('user_id');
-      if (studentId) {
-        formData.append('student', studentId);
-        console.log('📎 Adding student ID:', studentId);
+    // Check if we have a File object
+    if (submissionData.file instanceof File) {
+      const formData = new FormData();
+      
+      // Required fields
+      formData.append('assignment', submissionData.assignment);
+      formData.append('file', submissionData.file);
+      
+      // Optional fields
+      if (submissionData.description) {
+        formData.append('description', submissionData.description);
       }
-    } catch (e) {
-      console.warn('Could not get student ID:', e);
+      
+      // Try adding student ID
+      try {
+        const authData = JSON.parse(localStorage.getItem('auth_data') || '{}');
+        const studentId = authData.user_id || authData.id || localStorage.getItem('student_id');
+        if (studentId) {
+          formData.append('student', studentId);
+          console.log('📎 Adding student ID:', studentId);
+        }
+      } catch (e) {
+        console.warn('Could not get student ID:', e);
+      }
+      
+      try {
+        const response = await api.post("/assignments/submissions/", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('❌ Submit error details:', error.response?.data);
+        console.error('❌ Submit error status:', error.response?.status);
+        console.error('❌ Submit error headers:', error.response?.headers);
+        throw error;
+      }
     }
     
-    try {
-      const response = await api.post("/assignments/submissions/", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('❌ Submit error details:', error.response?.data);
-      console.error('❌ Submit error status:', error.response?.status);
-      console.error('❌ Submit error headers:', error.response?.headers);
-      throw error;
-    }
-  }
-  
-  // If no file, send as JSON
-  const response = await api.post("/assignments/submissions/", submissionData);
-  return response.data;
-},
+    // If no file, send as JSON
+    const response = await api.post("/assignments/submissions/", submissionData);
+    return response.data;
+  },
 
   updateSubmission: async (id, submissionData) => {
     const response = await api.patch(`/assignments/submissions/${id}/`, submissionData);

@@ -54,6 +54,8 @@ const initialState = {
   submitting: false,
   error: null,
   successMessage: null,
+  // ✅ NEW: Track profile update attempt
+  profileUpdateAttempted: false,
 };
 
 const studentSlice = createSlice({
@@ -91,6 +93,10 @@ const studentSlice = createSlice({
     updateDashboard(state, action) {
       state.dashboard = { ...state.dashboard, ...action.payload };
     },
+    // ✅ NEW: Reset profile update flag
+    resetProfileUpdateAttempt(state) {
+      state.profileUpdateAttempted = false;
+    },
   },
 
   extraReducers: (builder) => {
@@ -108,9 +114,34 @@ const studentSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch profile";
       })
+      // ✅ UPDATED: Profile update now shows a message instead of updating
+      .addCase(studentThunks.updateProfile.pending, (state) => {
+        state.submitting = true;
+        state.error = null;
+      })
       .addCase(studentThunks.updateProfile.fulfilled, (state, action) => {
+        state.submitting = false;
         state.profile = { ...state.profile, ...action.payload };
         state.successMessage = "Profile updated successfully.";
+      })
+      .addCase(studentThunks.updateProfile.rejected, (state, action) => {
+        state.submitting = false;
+        // Show a user-friendly message
+        state.error = "Profile updates are managed by school administration. Please contact your school office for any changes.";
+        state.profileUpdateAttempted = true;
+      })
+      // ✅ NEW: Password change
+      .addCase(studentThunks.changePassword.pending, (state) => {
+        state.submitting = true;
+        state.error = null;
+      })
+      .addCase(studentThunks.changePassword.fulfilled, (state) => {
+        state.submitting = false;
+        state.successMessage = "Password changed successfully!";
+      })
+      .addCase(studentThunks.changePassword.rejected, (state, action) => {
+        state.submitting = false;
+        state.error = action.payload || "Failed to change password";
       })
 
       // ─── Attendance ──────────────────────────────────────────────────
@@ -462,6 +493,7 @@ export const {
   clearStudentError,
   clearSuccessMessage,
   updateDashboard,
+  resetProfileUpdateAttempt,
 } = studentSlice.actions;
 
 // ─── Export Selectors ──────────────────────────────────────────────────────
@@ -513,5 +545,6 @@ export const selectStudentLoading = (state) => state.student.loading;
 export const selectStudentSubmitting = (state) => state.student.submitting;
 export const selectStudentError = (state) => state.student.error;
 export const selectStudentSuccessMessage = (state) => state.student.successMessage;
+export const selectProfileUpdateAttempted = (state) => state.student.profileUpdateAttempted;
 
 export default studentSlice.reducer;

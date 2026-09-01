@@ -72,7 +72,6 @@ import {
 } from "lucide-react";
 
 import PageHeader from "@/components/layout/PageHeader";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import api from "@/services/api";
 import { fetchProfile } from "@/modules/student/store/studentThunks";
 import { selectStudentProfile } from "@/modules/student/store/studentSlice";
@@ -142,7 +141,7 @@ function Toast({ message, type, onClose }) {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border ${colors[type]} px-5 py-3.5 shadow-xl backdrop-blur-sm`}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border ${colors[type]} px-5 py-3.5 shadow-xl backdrop-blur-sm max-w-md`}
     >
       {icons[type]}
       <span className="text-sm font-medium text-gray-800">{message}</span>
@@ -258,7 +257,7 @@ function NotificationCard({ notification, onMarkRead, onViewDetails, onDelete })
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className={`bg-white rounded-2xl shadow-sm border overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-indigo-200 ${
+      className={`relative bg-white rounded-2xl shadow-sm border overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-indigo-200 ${
         notification.is_read ? "border-gray-100" : "border-indigo-200 bg-gradient-to-r from-white to-indigo-50/30"
       }`}
     >
@@ -385,7 +384,7 @@ function NotificationCard({ notification, onMarkRead, onViewDetails, onDelete })
 
 // ─── Notification Details Modal ────────────────────────────────────────
 
-function NotificationDetailsModal({ notification, onClose }) {
+function NotificationDetailsModal({ notification, onClose, onMarkRead }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose();
@@ -435,6 +434,12 @@ function NotificationDetailsModal({ notification, onClose }) {
   const TypeIcon = typeConfig.icon;
   const senderName = getSenderName(notification);
   const userName = getUserName(notification);
+
+  const handleMarkRead = async () => {
+    if (!notification.is_read) {
+      await onMarkRead(notification.id);
+    }
+  };
 
   return (
     <motion.div
@@ -546,6 +551,15 @@ function NotificationDetailsModal({ notification, onClose }) {
 
         {/* Footer */}
         <div className="flex-shrink-0 flex justify-end gap-3 border-t border-gray-100 px-6 py-4 bg-gray-50/50">
+          {!notification.is_read && (
+            <button
+              onClick={handleMarkRead}
+              className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-all"
+            >
+              <Check className="h-4 w-4" />
+              Mark as Read
+            </button>
+          )}
           <button
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-gray-600 rounded-xl border border-gray-200 hover:bg-gray-50 transition-all"
@@ -613,16 +627,13 @@ function StudentNotification() {
   const containerRef = useRef(null);
 
   // ─── Fetch Data ──────────────────────────────────────────────────
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [notifResponse] = await Promise.all([
-        api.get('/communication/notifications/'),
-        dispatch(fetchProfile()).unwrap(),
-      ]);
+      const response = await api.get('/communication/notifications/');
       
-      const data = notifResponse.data?.results || notifResponse.data || [];
+      const data = response.data?.results || response.data || [];
       setNotifications(data);
       
       // Debug: Check for new API fields
@@ -630,6 +641,11 @@ function StudentNotification() {
         console.log("📊 Notification fields:", Object.keys(data[0]));
         console.log("📊 user_name:", data[0].user_name);
         console.log("📊 sender_name:", data[0].sender_name);
+      }
+      
+      // Also fetch profile if not loaded
+      if (!profile) {
+        await dispatch(fetchProfile()).unwrap();
       }
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
@@ -639,11 +655,11 @@ function StudentNotification() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, profile]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   // ─── GSAP Animations ──────────────────────────────────────────────
   useEffect(() => {
@@ -712,6 +728,12 @@ function StudentNotification() {
       setNotifications(prev => 
         prev.map(n => n.id === id ? { ...n, is_read: true } : n)
       );
+      
+      // If this notification is currently selected in modal, update it
+      if (selectedNotification && selectedNotification.id === id) {
+        setSelectedNotification(prev => ({ ...prev, is_read: true }));
+      }
+      
       setToast({ message: "✅ Notification marked as read", type: "success" });
     } catch (err) {
       setToast({ message: "Failed to mark as read", type: "error" });
@@ -726,7 +748,8 @@ function StudentNotification() {
       );
       setToast({ message: "✅ All notifications marked as read", type: "success" });
     } catch (err) {
-      setToast({ message: "Failed to mark all as read", type: "error" });
+      const msg = err.response?.data?.message || 'Failed to mark all as read';
+      setToast({ message: msg, type: "error" });
     }
   };
 
@@ -748,7 +771,8 @@ function StudentNotification() {
       setNotifications(prev => prev.filter(n => n.id !== id));
       setToast({ message: "🗑️ Notification deleted", type: "info" });
     } catch (err) {
-      setToast({ message: "Failed to delete notification", type: "error" });
+      const msg = err.response?.data?.message || 'Failed to delete notification';
+      setToast({ message: msg, type: "error" });
     }
   };
 
@@ -1046,6 +1070,7 @@ function StudentNotification() {
           <NotificationDetailsModal
             notification={selectedNotification}
             onClose={handleCloseDetails}
+            onMarkRead={handleMarkRead}
           />
         )}
       </AnimatePresence>

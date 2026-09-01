@@ -3,8 +3,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import studentService from "@/modules/student/services/studentService";
 import paymentService from "@/modules/payments/services/paymentService";
+import api from "@/services/api";
+
+// ─── Helper: Extract data safely ─────────────────────────────────────
+
+const extractSingle = (response) => response.data || response;
+const extractData = (response) => response?.results || response || [];
 
 // ─── API Endpoint Constants ──────────────────────────────────────────────
+
 const API_BASE = "/api";
 
 const ENDPOINTS = {
@@ -49,7 +56,14 @@ export const fetchProfile = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await studentService.getProfile();
-      return response.data || response;
+      const data = extractSingle(response);
+      
+      console.log("📊 Profile fields:", Object.keys(data));
+      console.log("📊 user_name:", data.user_name);
+      console.log("📊 class_name:", data.class_name);
+      console.log("📊 parent_name:", data.parent_name);
+      
+      return data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || error.message || "Failed to fetch profile"
@@ -58,15 +72,34 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+// ✅ UPDATED: Students cannot update profile - only password
 export const updateProfile = createAsyncThunk(
   "student/updateProfile",
   async (data, { rejectWithValue }) => {
     try {
+      // This will throw an error because students can't update profile
       const response = await studentService.updateProfile(data);
-      return response.data || response;
+      return response;
     } catch (error) {
+      console.error("❌ Update profile error:", error);
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Failed to update profile"
+        error.message || "Profile updates are managed by school administration"
+      );
+    }
+  }
+);
+
+// ✅ NEW: Change password
+export const changePassword = createAsyncThunk(
+  "student/changePassword",
+  async (passwordData, { rejectWithValue }) => {
+    try {
+      const response = await studentService.changePassword(passwordData);
+      return response;
+    } catch (error) {
+      console.error("❌ Change password error:", error);
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to change password"
       );
     }
   }

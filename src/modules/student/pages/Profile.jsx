@@ -2,7 +2,7 @@
 
 /**
  * ============================================
- * STUDENT PROFILE - PREMIUM CLEAN
+ * STUDENT PROFILE - READ-ONLY WITH VIEW ACCESS
  * ============================================
  * 
  * Clean, professional student profile with:
@@ -13,6 +13,11 @@
  * - Responsive design
  * - Stats from API
  * - Updated to use new API field names (user_name, class_name, parent_name)
+ * 
+ * PERMISSIONS:
+ * - Students can VIEW their profile (GET /users/students/me/)
+ * - Students CANNOT UPDATE their profile (no PATCH permission)
+ * - Students can VIEW attendance, results, fees
  * ============================================
  */
 
@@ -30,7 +35,6 @@ import {
   Calendar,
   BookOpen,
   GraduationCap,
-  Edit,
   Shield,
   CheckCircle,
   Clock,
@@ -38,37 +42,31 @@ import {
   Loader2,
   Sparkles,
   Award,
-  Star,
-  TrendingUp,
   School,
   Camera,
   Settings,
-  LogOut,
-  Bell,
-  MessageSquare,
   Users,
   FileCheck,
   BarChart3,
-  Lock,
-  Eye,
-  EyeOff,
-  X,
-  Save,
-  ChevronRight,
   UserCircle,
-  BookMarked,
-  Briefcase,
-  Building2,
-  UserCheck,
-  CalendarDays,
   CreditCard,
   Hash,
+  Lock,
+  Info,
+  Eye,
+  EyeOff,
+  ChevronRight,
+  BookMarked,
+  CalendarDays,
+  UserCheck,
+  TrendingUp,
+  Star,
+  Briefcase,
 } from "lucide-react";
 
 // ─── Redux ──────────────────────────────────────────────────────────────
 import {
   fetchProfile,
-  updateProfile,
   fetchAttendance,
   fetchResults,
   fetchFees,
@@ -87,7 +85,6 @@ import {
 // Helper to get student name from various possible locations
 const getStudentName = (profile) => {
   if (!profile) return "Student";
-  // Check all possible name locations (new API fields first)
   return profile.user_name || 
          profile.name || 
          profile.full_name || 
@@ -203,7 +200,7 @@ function StatCard({ label, value, icon: Icon, color = "indigo", delay = 0, isLoa
 
 // ─── Info Item ─────────────────────────────────────────────────────────
 
-function InfoItem({ label, value, icon: Icon, isEditing, name, onChange, type = "text", placeholder }) {
+function InfoItem({ label, value, icon: Icon, isEditing, name, onChange, type = "text", placeholder, readOnly = false }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-gray-50 last:border-0 gap-2 sm:gap-4">
       <div className="flex items-center gap-3">
@@ -211,8 +208,11 @@ function InfoItem({ label, value, icon: Icon, isEditing, name, onChange, type = 
           <Icon className="h-4 w-4" />
         </div>
         <span className="text-sm text-gray-500">{label}</span>
+        {readOnly && (
+          <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">read-only</span>
+        )}
       </div>
-      {isEditing ? (
+      {isEditing && !readOnly ? (
         <input
           type={type}
           name={name}
@@ -240,6 +240,7 @@ function QuickAction({ icon: Icon, label, color = "indigo", onClick }) {
     purple: "bg-purple-50 text-purple-600 hover:bg-purple-100",
     gray: "bg-gray-50 text-gray-600 hover:bg-gray-100",
     teal: "bg-teal-50 text-teal-600 hover:bg-teal-100",
+    pink: "bg-pink-50 text-pink-600 hover:bg-pink-100",
   };
 
   return (
@@ -252,6 +253,24 @@ function QuickAction({ icon: Icon, label, color = "indigo", onClick }) {
       <Icon className="h-5 w-5" />
       <span className="text-xs font-medium mt-2">{label}</span>
     </motion.button>
+  );
+}
+
+// ─── Info Banner ──────────────────────────────────────────────────────
+
+function InfoBanner() {
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div className="flex items-start gap-3">
+        <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="text-sm text-blue-700">
+            Your profile information is managed by the school administration. 
+            For updates, please contact your school office.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -283,19 +302,6 @@ function Profile() {
   const error = useSelector(selectStudentError);
 
   // ─── Local State ──────────────────────────────────────────────────────
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    dob: "",
-    gender: "",
-    admission_no: "",
-    status: "",
-    class: "",
-    parent: "",
-  });
   const [dataFetched, setDataFetched] = useState(false);
   const [statsLoading, setStatsLoading] = useState(true);
 
@@ -346,55 +352,6 @@ function Profile() {
     };
     fetchStats();
   }, [dispatch]);
-
-  // ─── Populate form when profile loads ────────────────────────────────
-  useEffect(() => {
-    if (profile) {
-      // Extract user data from profile (handling both old and new API formats)
-      const userData = profile.user || {};
-
-      // Use getStudentName and getStudentEmail helpers
-      const name = getStudentName(profile);
-      const email = getStudentEmail(profile);
-      const classDisplay = getStudentClass(profile);
-      const parentName = getParentName(profile);
-
-      setFormData({
-        name: name,
-        email: email,
-        phone: profile.phone || "",
-        address: profile.address || "",
-        dob: profile.dob ? formatDate(profile.dob) : "",
-        gender: profile.gender || "",
-        admission_no: profile.admission_no || "",
-        status: profile.status || "Active",
-        class: classDisplay,
-        parent: parentName || "",
-      });
-    }
-  }, [profile]);
-
-  // ─── Handlers ────────────────────────────────────────────────────────
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = async () => {
-    try {
-      const updateData = {
-        phone: formData.phone,
-        address: formData.address,
-        gender: formData.gender,
-        dob: formData.dob,
-      };
-      await dispatch(updateProfile(updateData)).unwrap();
-      toast.success("Profile updated successfully!");
-      setIsEditing(false);
-    } catch (err) {
-      toast.error(err || "Failed to update profile");
-    }
-  };
 
   // ─── Loading State ────────────────────────────────────────────────────
   if (loading && !dataFetched) {
@@ -460,10 +417,18 @@ function Profile() {
   }
 
   // ─── Render ──────────────────────────────────────────────────────────
-  const displayName = formData.name || fullName || "Student";
-  const displayEmail = formData.email || userEmail || "No email";
-  const initials = getInitials(displayName);
-  const userStatus = formData.status || "active";
+  const initials = getInitials(fullName);
+  const userStatus = profile?.user?.status || profile?.status || "active";
+
+  // Quick actions configuration - single source of truth
+  const quickActions = [
+    { icon: Calendar, label: "Timetable", color: "blue", path: "/student/timetable" },
+    { icon: GraduationCap, label: "Report Card", color: "purple", path: "/student/report-card" },
+    { icon: CreditCard, label: "Fees", color: "amber", path: "/student/fees" },
+    { icon: BookOpen, label: "Library", color: "rose", path: "/student/library" },
+    { icon: BookOpen, label: "Exams", color: "emerald", path: "/student/exams" },
+    { icon: Settings, label: "Settings", color: "gray", path: "/student/settings" },
+  ];
 
   return (
     <motion.div 
@@ -473,10 +438,13 @@ function Profile() {
     >
       <PageHeader 
         title="Profile" 
-        subtitle="Manage your personal information" 
+        subtitle="View your personal information" 
         breadcrumbs={["Student", "Profile"]} 
         bgColor="bg-indigo-50" 
       />
+
+      {/* ─── Info Banner ────────────────────────────────────────────── */}
+      <InfoBanner />
 
       {/* ─── Profile Header - Full Color ────────────────────────────── */}
       <motion.div 
@@ -493,16 +461,16 @@ function Profile() {
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-4 border-white/30 bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl font-bold text-white shadow-lg">
                 {initials}
               </div>
-              <button className="absolute bottom-0 right-0 p-1.5 rounded-full bg-white border border-gray-200 shadow-md hover:shadow-lg transition-all">
+              <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gray-200 border border-gray-300 cursor-not-allowed opacity-50">
                 <Camera className="h-3.5 w-3.5 text-gray-500" />
-              </button>
+              </div>
             </div>
 
             {/* Name & Details */}
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-3">
                 <h1 className="text-xl sm:text-2xl font-bold text-white">
-                  {displayName}
+                  {fullName}
                 </h1>
                 <StatusBadge status={userStatus} />
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-sm">
@@ -510,60 +478,31 @@ function Profile() {
                   Student
                 </span>
               </div>
-              <p className="text-sm text-white/80">{displayEmail}</p>
+              <p className="text-sm text-white/80">{userEmail}</p>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1 text-xs sm:text-sm text-white/70">
                 <span className="flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5" />
-                  Joined: {formData.dob || "N/A"}
-                </span>
-                <span className="flex items-center gap-1">
                   <School className="h-3.5 w-3.5" />
-                  Class: {formData.class || "Not assigned"}
+                  Class: {classDisplay}
                 </span>
                 <span className="flex items-center gap-1">
                   <Hash className="h-3.5 w-3.5" />
-                  Admission: {formData.admission_no || "N/A"}
+                  Admission: {profile?.admission_no || "N/A"}
                 </span>
+                {parentName && (
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    Parent: {parentName}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Actions */}
+            {/* View Only Badge */}
             <div className="flex items-center gap-2">
-              {!isEditing ? (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-xl hover:bg-white/30 transition-colors text-sm font-medium backdrop-blur-sm"
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit Profile
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-white/20 rounded-xl hover:bg-white/30 transition-colors backdrop-blur-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-white rounded-xl hover:bg-indigo-50 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Save
-                      </>
-                    )}
-                  </button>
-                </>
-              )}
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 text-white rounded-xl text-xs font-medium backdrop-blur-sm border border-white/10">
+                <Lock className="h-3.5 w-3.5" />
+                View Only
+              </span>
             </div>
           </div>
         </div>
@@ -607,7 +546,7 @@ function Profile() {
 
       {/* ─── Details Grid ────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Personal Details */}
+        {/* Personal Details - READ ONLY */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -617,72 +556,72 @@ function Profile() {
           <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <UserCircle className="h-5 w-5 text-indigo-500" />
             Personal Details
+            <span className="ml-2 text-[10px] font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Read-Only</span>
           </h2>
           <div className="space-y-0.5">
             <InfoItem 
               label="Full Name" 
-              value={formData.name} 
+              value={fullName} 
               icon={User} 
-              isEditing={isEditing}
-              name="name"
-              onChange={handleInputChange}
+              isEditing={false}
+              readOnly={true}
             />
             <InfoItem 
               label="Email Address" 
-              value={formData.email} 
+              value={userEmail} 
               icon={Mail} 
-              isEditing={isEditing}
-              name="email"
-              onChange={handleInputChange}
-              type="email"
+              isEditing={false}
+              readOnly={true}
             />
             <InfoItem 
               label="Phone Number" 
-              value={formData.phone} 
+              value={profile?.phone || "—"} 
               icon={Phone} 
-              isEditing={isEditing}
-              name="phone"
-              onChange={handleInputChange}
-              type="tel"
+              isEditing={false}
+              readOnly={true}
             />
             <InfoItem 
               label="Date of Birth" 
-              value={formData.dob || "—"} 
+              value={profile?.dob ? formatDate(profile.dob) : "—"} 
               icon={Calendar} 
-              isEditing={isEditing}
-              name="dob"
-              onChange={handleInputChange}
-              type="date"
+              isEditing={false}
+              readOnly={true}
             />
             <InfoItem 
               label="Gender" 
-              value={formData.gender || "—"} 
+              value={profile?.gender || "—"} 
               icon={User} 
-              isEditing={isEditing}
-              name="gender"
-              onChange={handleInputChange}
-              placeholder="Male/Female/Other"
+              isEditing={false}
+              readOnly={true}
             />
             <InfoItem 
               label="Address" 
-              value={formData.address || "—"} 
+              value={profile?.address || "—"} 
               icon={MapPin} 
-              isEditing={isEditing}
-              name="address"
-              onChange={handleInputChange}
+              isEditing={false}
+              readOnly={true}
             />
-            {formData.parent && (
+            {parentName && (
               <InfoItem 
-                label="Parent" 
-                value={formData.parent} 
+                label="Parent/Guardian" 
+                value={parentName} 
                 icon={Users} 
                 isEditing={false}
+                readOnly={true}
               />
             )}
           </div>
+          
+          {/* Update notice */}
+          <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <p className="text-xs text-gray-500 flex items-center gap-1.5">
+              <Info className="h-3.5 w-3.5 text-gray-400" />
+              For updates to your personal information, please contact the school administration.
+            </p>
+          </div>
         </motion.div>
 
-        {/* Quick Info & Actions */}
+        {/* Quick Info & Quick Actions */}
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -696,99 +635,34 @@ function Profile() {
               Quick Info
             </h2>
             <div className="space-y-0.5">
-              <InfoItem label="Status" value={userStatus} icon={Shield} />
+              <InfoItem label="Status" value={userStatus.charAt(0).toUpperCase() + userStatus.slice(1)} icon={Shield} />
               <InfoItem label="Role" value="Student" icon={UserCheck} />
-              <InfoItem label="Class" value={formData.class || "Not assigned"} icon={School} />
-              <InfoItem label="Admission No." value={formData.admission_no || "—"} icon={Hash} />
+              <InfoItem label="Class" value={classDisplay} icon={School} />
+              <InfoItem label="Admission No." value={profile?.admission_no || "—"} icon={Hash} />
+              <InfoItem label="Student ID" value={`#STU-${String(profile?.id || '').padStart(4, '0')}`} icon={CreditCard} />
             </div>
           </div>
 
-          {/* Quick Actions Card */}
+          {/* Quick Actions - Single instance */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
             <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-amber-500" />
               Quick Actions
             </h2>
-            <div className="grid grid-cols-2 gap-2">
-              <QuickAction 
-                icon={Calendar} 
-                label="Timetable" 
-                color="blue" 
-                onClick={() => navigate("/student/timetable")}
-              />
-              <QuickAction 
-                icon={GraduationCap} 
-                label="Report Card" 
-                color="purple" 
-                onClick={() => navigate("/student/report-card")}
-              />
-              <QuickAction 
-                icon={CreditCard} 
-                label="Fees" 
-                color="amber" 
-                onClick={() => navigate("/student/fees")}
-              />
-              <QuickAction 
-                icon={BookOpen} 
-                label="Library" 
-                color="rose" 
-                onClick={() => navigate("/student/library")}
-              />
+            <div className="grid grid-cols-3 gap-2">
+              {quickActions.slice(0, 6).map((action, index) => (
+                <QuickAction 
+                  key={index}
+                  icon={action.icon} 
+                  label={action.label} 
+                  color={action.color} 
+                  onClick={() => navigate(action.path)}
+                />
+              ))}
             </div>
           </div>
         </motion.div>
       </div>
-
-      {/* ─── Quick Actions Bottom ────────────────────────────────────── */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6"
-      >
-        <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-500" />
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <QuickAction 
-            icon={Calendar} 
-            label="Timetable" 
-            color="blue" 
-            onClick={() => navigate("/student/timetable")}
-          />
-          <QuickAction 
-            icon={GraduationCap} 
-            label="Report Card" 
-            color="purple" 
-            onClick={() => navigate("/student/report-card")}
-          />
-          <QuickAction 
-            icon={CreditCard} 
-            label="Fees" 
-            color="amber" 
-            onClick={() => navigate("/student/fees")}
-          />
-          <QuickAction 
-            icon={BookOpen} 
-            label="Library" 
-            color="rose" 
-            onClick={() => navigate("/student/library")}
-          />
-          <QuickAction 
-            icon={BookOpen} 
-            label="Exams" 
-            color="emerald" 
-            onClick={() => navigate("/student/exams")}
-          />
-          <QuickAction 
-            icon={Settings} 
-            label="Settings" 
-            color="gray" 
-            onClick={() => navigate("/student/settings")}
-          />
-        </div>
-      </motion.div>
     </motion.div>
   );
 }
